@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Fursa Platform API - Digital Employment Platform for Gaza
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: jobs
+    description: Public job browsing
+  - name: me
+    description: Authenticated user (any role)
+  - name: seeker
+    description: Job seeker actions
+  - name: employer
+    description: Employer actions
+  - name: admin
+    description: Administrator actions
+  - name: storage
+    description: File uploads and serving
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,580 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /platform/stats:
+    get:
+      operationId: getPlatformStats
+      tags: [jobs]
+      summary: Public platform statistics
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlatformStats"
+
+  /platform/categories:
+    get:
+      operationId: listJobCategories
+      tags: [jobs]
+      summary: Distinct job categories with counts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryCount"
+
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List approved & open jobs (public)
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [online, field, hybrid]
+        - in: query
+          name: category
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicJobListResponse"
+
+  /jobs/featured:
+    get:
+      operationId: listFeaturedJobs
+      tags: [jobs]
+      summary: Recent featured approved jobs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicJob"
+
+  /jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Public job detail (approved & open only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicJobDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /me:
+    get:
+      operationId: getCurrentUser
+      tags: [me]
+      summary: Current authenticated user profile (auto-creates on first call)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateCurrentUser
+      tags: [me]
+      summary: Update profile fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+
+  /me/role:
+    post:
+      operationId: setUserRole
+      tags: [me]
+      summary: Set role during onboarding (seeker | employer)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetRoleBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentUser"
+
+  /me/applications:
+    get:
+      operationId: listMyApplications
+      tags: [seeker]
+      summary: List applications submitted by the current seeker
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MyApplication"
+
+  /me/saved-jobs:
+    get:
+      operationId: listSavedJobs
+      tags: [seeker]
+      summary: List jobs saved by current user
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicJob"
+
+  /me/saved-jobs/{id}:
+    post:
+      operationId: saveJob
+      tags: [seeker]
+      summary: Save a job to favorites
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Saved
+    delete:
+      operationId: unsaveJob
+      tags: [seeker]
+      summary: Remove saved job
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removed
+
+  /me/dashboard:
+    get:
+      operationId: getSeekerDashboard
+      tags: [seeker]
+      summary: Seeker dashboard summary (counts, recent activity)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SeekerDashboard"
+
+  /jobs/{id}/apply:
+    post:
+      operationId: applyToJob
+      tags: [seeker]
+      summary: Submit an application to a job
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApplicationBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyApplication"
+
+  /employer/jobs:
+    get:
+      operationId: listEmployerJobs
+      tags: [employer]
+      summary: List jobs posted by current employer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployerJob"
+    post:
+      operationId: createEmployerJob
+      tags: [employer]
+      summary: Create a new job (status starts as 'pending')
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateJobBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerJob"
+
+  /employer/jobs/{id}:
+    get:
+      operationId: getEmployerJob
+      tags: [employer]
+      summary: Get an employer's own job (any status)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerJob"
+    patch:
+      operationId: updateEmployerJob
+      tags: [employer]
+      summary: Update a job (resets to pending if approved fields changed)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateJobBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerJob"
+    delete:
+      operationId: deleteEmployerJob
+      tags: [employer]
+      summary: Delete a job
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /employer/jobs/{id}/toggle-open:
+    post:
+      operationId: toggleJobOpen
+      tags: [employer]
+      summary: Open/close a job for new applications
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerJob"
+
+  /employer/jobs/{id}/applications:
+    get:
+      operationId: listJobApplications
+      tags: [employer]
+      summary: List applications for a job owned by current employer
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmployerApplication"
+
+  /employer/applications/{id}:
+    patch:
+      operationId: updateApplicationStatus
+      tags: [employer]
+      summary: Accept or reject an application
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApplicationBody"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerApplication"
+
+  /employer/applications/{id}/seen:
+    post:
+      operationId: markApplicationSeen
+      tags: [employer]
+      summary: Mark application as seen
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Updated
+
+  /employer/dashboard:
+    get:
+      operationId: getEmployerDashboard
+      tags: [employer]
+      summary: Employer dashboard summary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmployerDashboard"
+
+  /admin/jobs:
+    get:
+      operationId: listAdminJobs
+      tags: [admin]
+      summary: List jobs for admin moderation
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminJob"
+
+  /admin/jobs/{id}/approve:
+    post:
+      operationId: approveJob
+      tags: [admin]
+      summary: Approve a pending job
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminJob"
+
+  /admin/jobs/{id}/reject:
+    post:
+      operationId: rejectJob
+      tags: [admin]
+      summary: Reject a job with a reason
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RejectJobInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminJob"
+
+  /admin/users:
+    get:
+      operationId: listAdminUsers
+      tags: [admin]
+      summary: List all users
+      parameters:
+        - in: query
+          name: role
+          schema:
+            type: string
+            enum: [seeker, employer, admin]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminUser"
+
+  /admin/users/{id}/toggle-active:
+    post:
+      operationId: toggleUserActive
+      tags: [admin]
+      summary: Activate / deactivate a user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags: [admin]
+      summary: Admin dashboard - global counts and recent items
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboard"
+
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [storage]
+      summary: Request a presigned upload URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RequestUploadUrlInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RequestUploadUrlResult"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +617,558 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    Role:
+      type: string
+      enum: [seeker, employer, admin]
+
+    JobType:
+      type: string
+      enum: [online, field, hybrid]
+
+    JobStatus:
+      type: string
+      enum: [pending, approved, rejected]
+
+    ApplicationStatus:
+      type: string
+      enum: [pending, accepted, rejected]
+
+    PlatformStats:
+      type: object
+      properties:
+        totalJobs:
+          type: integer
+        totalEmployers:
+          type: integer
+        totalSeekers:
+          type: integer
+        totalApplications:
+          type: integer
+      required: [totalJobs, totalEmployers, totalSeekers, totalApplications]
+
+    CategoryCount:
+      type: object
+      properties:
+        category:
+          type: string
+        count:
+          type: integer
+      required: [category, count]
+
+    PublicJob:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          $ref: "#/components/schemas/JobType"
+        category:
+          type: string
+        employerName:
+          type: string
+        employerLocation:
+          type: ["string", "null"]
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - description
+        - type
+        - category
+        - employerName
+        - createdAt
+
+    PublicJobDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        requirements:
+          type: ["string", "null"]
+        type:
+          $ref: "#/components/schemas/JobType"
+        category:
+          type: string
+        contactInfo:
+          type: string
+        employerName:
+          type: string
+        employerLocation:
+          type: ["string", "null"]
+        employerBio:
+          type: ["string", "null"]
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+        isOpen:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        savedByMe:
+          type: boolean
+        appliedByMe:
+          type: boolean
+      required:
+        - id
+        - title
+        - description
+        - type
+        - category
+        - contactInfo
+        - employerName
+        - isOpen
+        - createdAt
+        - savedByMe
+        - appliedByMe
+
+    PublicJobListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicJob"
+        total:
+          type: integer
+      required: [items, total]
+
+    CurrentUser:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          $ref: "#/components/schemas/Role"
+        phone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        cvObjectPath:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        onboarded:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - isActive
+        - onboarded
+        - createdAt
+
+    UpdateProfileBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        cvObjectPath:
+          type: ["string", "null"]
+
+    SetRoleBody:
+      type: object
+      properties:
+        role:
+          type: string
+          enum: [seeker, employer]
+      required: [role]
+
+    CreateApplicationBody:
+      type: object
+      properties:
+        coverLetter:
+          type: ["string", "null"]
+        cvObjectPath:
+          type: ["string", "null"]
+
+    MyApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        jobTitle:
+          type: string
+        employerName:
+          type: string
+        status:
+          $ref: "#/components/schemas/ApplicationStatus"
+        coverLetter:
+          type: ["string", "null"]
+        cvObjectPath:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, jobId, jobTitle, employerName, status, createdAt]
+
+    SeekerDashboard:
+      type: object
+      properties:
+        totalApplications:
+          type: integer
+        pendingApplications:
+          type: integer
+        acceptedApplications:
+          type: integer
+        rejectedApplications:
+          type: integer
+        savedJobsCount:
+          type: integer
+        recentApplications:
+          type: array
+          items:
+            $ref: "#/components/schemas/MyApplication"
+        recommendedJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicJob"
+      required:
+        - totalApplications
+        - pendingApplications
+        - acceptedApplications
+        - rejectedApplications
+        - savedJobsCount
+        - recentApplications
+        - recommendedJobs
+
+    CreateJobBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        requirements:
+          type: ["string", "null"]
+        type:
+          $ref: "#/components/schemas/JobType"
+        category:
+          type: string
+        contactInfo:
+          type: string
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+      required: [title, description, type, category, contactInfo]
+
+    UpdateJobBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        requirements:
+          type: ["string", "null"]
+        type:
+          $ref: "#/components/schemas/JobType"
+        category:
+          type: string
+        contactInfo:
+          type: string
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+
+    EmployerJob:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        requirements:
+          type: ["string", "null"]
+        type:
+          $ref: "#/components/schemas/JobType"
+        category:
+          type: string
+        contactInfo:
+          type: string
+        status:
+          $ref: "#/components/schemas/JobStatus"
+        rejectionReason:
+          type: ["string", "null"]
+        isOpen:
+          type: boolean
+        deadline:
+          type: ["string", "null"]
+          format: date-time
+        applicationsCount:
+          type: integer
+        unseenApplicationsCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - description
+        - type
+        - category
+        - contactInfo
+        - status
+        - isOpen
+        - applicationsCount
+        - unseenApplicationsCount
+        - createdAt
+
+    EmployerApplication:
+      type: object
+      properties:
+        id:
+          type: integer
+        jobId:
+          type: integer
+        applicantName:
+          type: string
+        applicantEmail:
+          type: string
+        applicantPhone:
+          type: ["string", "null"]
+        applicantLocation:
+          type: ["string", "null"]
+        applicantBio:
+          type: ["string", "null"]
+        coverLetter:
+          type: ["string", "null"]
+        cvObjectPath:
+          type: ["string", "null"]
+        status:
+          $ref: "#/components/schemas/ApplicationStatus"
+        seenByEmployer:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - jobId
+        - applicantName
+        - applicantEmail
+        - status
+        - seenByEmployer
+        - createdAt
+
+    UpdateApplicationBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [accepted, rejected]
+      required: [status]
+
+    EmployerDashboard:
+      type: object
+      properties:
+        totalJobs:
+          type: integer
+        approvedJobs:
+          type: integer
+        pendingJobs:
+          type: integer
+        rejectedJobs:
+          type: integer
+        totalApplications:
+          type: integer
+        unseenApplications:
+          type: integer
+        recentApplications:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmployerApplication"
+        topJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmployerJob"
+      required:
+        - totalJobs
+        - approvedJobs
+        - pendingJobs
+        - rejectedJobs
+        - totalApplications
+        - unseenApplications
+        - recentApplications
+        - topJobs
+
+    AdminJob:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        requirements:
+          type: ["string", "null"]
+        type:
+          $ref: "#/components/schemas/JobType"
+        category:
+          type: string
+        contactInfo:
+          type: string
+        status:
+          $ref: "#/components/schemas/JobStatus"
+        rejectionReason:
+          type: ["string", "null"]
+        employerId:
+          type: string
+        employerName:
+          type: string
+        employerEmail:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - description
+        - type
+        - category
+        - contactInfo
+        - status
+        - employerId
+        - employerName
+        - employerEmail
+        - createdAt
+
+    RejectJobInput:
+      type: object
+      properties:
+        reason:
+          type: string
+      required: [reason]
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          $ref: "#/components/schemas/Role"
+        phone:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        isActive:
+          type: boolean
+        jobsCount:
+          type: integer
+        applicationsCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+        - role
+        - isActive
+        - jobsCount
+        - applicationsCount
+        - createdAt
+
+    AdminDashboard:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalSeekers:
+          type: integer
+        totalEmployers:
+          type: integer
+        totalJobs:
+          type: integer
+        pendingJobs:
+          type: integer
+        approvedJobs:
+          type: integer
+        rejectedJobs:
+          type: integer
+        totalApplications:
+          type: integer
+        recentPendingJobs:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminJob"
+      required:
+        - totalUsers
+        - totalSeekers
+        - totalEmployers
+        - totalJobs
+        - pendingJobs
+        - approvedJobs
+        - rejectedJobs
+        - totalApplications
+        - recentPendingJobs
+
+    RequestUploadUrlInput:
+      type: object
+      properties:
+        name:
+          type: string
+        size:
+          type: integer
+        contentType:
+          type: string
+      required: [name, size, contentType]
+
+    RequestUploadUrlResult:
+      type: object
+      properties:
+        uploadURL:
+          type: string
+        objectPath:
+          type: string
+      required: [uploadURL, objectPath]
