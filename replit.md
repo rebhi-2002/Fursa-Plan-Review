@@ -45,6 +45,22 @@ Arabic/RTL-first job platform connecting talent in Gaza with employers. English 
 - `pnpm --filter @workspace/scripts run seed-fursa` — seed demo data
 - `pnpm run typecheck` — full typecheck across all packages
 
+## Internationalization
+
+- `lib/i18n.tsx` exports `useT`, `useLanguageStore`, `LangProvider`. The `t(key, vars?, default?)` signature supports `{var}` interpolation.
+- ~290 dictionary keys cover every page (home, jobs list/detail, seeker/employer/admin dashboards & sub-pages, onboarding, header/footer, status/role labels, validation messages).
+- All user-facing pages render via `t()`; no hard-coded Arabic strings remain in pages or components.
+- `App.tsx` wraps Clerk in a `ClerkAndRouter` component subscribed to the language store, so `localization` (sign-in/sign-up titles) updates when the user toggles language.
+- `LangProvider` mutates `<html lang dir>` reactively — index.html only seeds the initial Arabic+RTL state.
+- Toaster (sonner) does not hard-code `dir="rtl"`; it inherits from the document.
+
+## UI Conventions
+
+- Radix `<SelectItem>` cannot have `value=""`. Filter pages use a sentinel `const ALL = "all"` and translate to `undefined` in the API call.
+- All icons use both `mr-2 ms-2` so spacing works in LTR and RTL.
+- ChevronLeft + similar directional icons get `rtl:rotate-180`.
+- Logo: `public/logo.svg` and `public/favicon.svg` are blue brand SVGs; `clerkAppearance.logoImageUrl` points to `/logo.svg`.
+
 ## Notes
 
 - Both build pipelines (`vite build`, custom esbuild for api-server) skip tsc, so latent typecheck warnings in route handlers (Express 5 `req.params` widened to `string | string[]`, missing returns) do not block deployment.

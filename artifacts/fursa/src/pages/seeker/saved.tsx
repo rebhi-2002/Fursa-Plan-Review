@@ -1,11 +1,21 @@
 import { Link } from "wouter";
-import { useListSavedJobs, useUnsaveJob, getListSavedJobsQueryKey } from "@workspace/api-client-react";
+import {
+  useListSavedJobs,
+  useUnsaveJob,
+  getListSavedJobsQueryKey,
+} from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Bookmark, BookmarkMinus, Building2, MapPin, ChevronLeft } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkMinus,
+  Building2,
+  MapPin,
+  ChevronLeft,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
@@ -23,10 +33,12 @@ export default function SeekerSavedJobs() {
   const unsaveMutation = useUnsaveJob({
     mutation: {
       onSuccess: () => {
-        toast.success("تم إزالة الوظيفة من المحفوظات");
-        queryClient.invalidateQueries({ queryKey: getListSavedJobsQueryKey() });
-      }
-    }
+        toast.success(t("jobs.unsave"));
+        queryClient.invalidateQueries({
+          queryKey: getListSavedJobsQueryKey(),
+        });
+      },
+    },
   });
 
   const handleUnsave = (jobId: number) => {
@@ -36,14 +48,23 @@ export default function SeekerSavedJobs() {
   return (
     <div className="container py-8 max-w-4xl">
       <div className="mb-6 flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild className="rounded-full">
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          className="rounded-full"
+        >
           <Link href="/seeker">
             <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">الوظائف المحفوظة</h1>
-          <p className="text-muted-foreground mt-1">قائمة الوظائف التي قمت بحفظها للرجوع إليها لاحقاً</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {t("seeker.saved.title")}
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            {t("seeker.saved.subtitle")}
+          </p>
         </div>
       </div>
 
@@ -54,14 +75,23 @@ export default function SeekerSavedJobs() {
           ))
         ) : savedJobs && savedJobs.length > 0 ? (
           savedJobs.map((job) => (
-            <Card key={job.id} className="border-border/50 hover:shadow-md transition-all group">
+            <Card
+              key={job.id}
+              className="border-border/50 hover:shadow-md transition-all group"
+            >
               <CardContent className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-3 flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <Link href={`/jobs/${job.id}`} className="text-lg font-bold hover:text-primary transition-colors truncate block pr-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <Link
+                      href={`/jobs/${job.id}`}
+                      className="text-lg font-bold hover:text-primary transition-colors truncate block"
+                    >
                       {job.title}
                     </Link>
-                    <Badge variant="outline" className="shrink-0 bg-primary/5 text-primary border-primary/20">
+                    <Badge
+                      variant="outline"
+                      className="shrink-0 bg-primary/5 text-primary border-primary/20"
+                    >
                       {t(`jobs.type.${job.type}`)}
                     </Badge>
                   </div>
@@ -77,23 +107,30 @@ export default function SeekerSavedJobs() {
                       </div>
                     )}
                     <div className="text-xs bg-muted px-2 py-1 rounded-md">
-                      نُشر {formatDistanceToNow(new Date(job.createdAt), { addSuffix: true, locale })}
+                      {t("seeker.saved.publishedAt", {
+                        ago: formatDistanceToNow(new Date(job.createdAt), {
+                          addSuffix: true,
+                          locale,
+                        }),
+                      })}
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-row md:flex-col items-center justify-between gap-2 shrink-0 border-t md:border-t-0 md:border-r rtl:md:border-l rtl:md:border-r-0 border-border/50 pt-4 md:pt-0 md:pr-4 rtl:md:pl-4 rtl:md:pr-0">
                   <Button asChild size="sm" className="w-full">
-                    <Link href={`/jobs/${job.id}`}>عرض وتفاصيل</Link>
+                    <Link href={`/jobs/${job.id}`}>
+                      {t("seeker.saved.view")}
+                    </Link>
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="w-full text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     onClick={() => handleUnsave(job.id)}
                     disabled={unsaveMutation.isPending}
                   >
                     <BookmarkMinus className="h-4 w-4 mr-2 ms-2" />
-                    إزالة
+                    {t("seeker.saved.remove")}
                   </Button>
                 </div>
               </CardContent>
@@ -103,10 +140,16 @@ export default function SeekerSavedJobs() {
           <Card className="border-dashed bg-muted/20">
             <CardContent className="p-12 text-center flex flex-col items-center">
               <Bookmark className="h-16 w-16 text-muted-foreground opacity-20 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">لا توجد وظائف محفوظة</h3>
-              <p className="text-muted-foreground mb-6">احفظ الوظائف التي تهمك للعودة إليها وتقديم طلب لاحقاً.</p>
+              <h3 className="text-xl font-semibold mb-2">
+                {t("seeker.saved.empty")}
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                {t("seeker.saved.emptyDesc")}
+              </p>
               <Button asChild size="lg" variant="outline">
-                <Link href="/jobs">تصفح الوظائف المتاحة</Link>
+                <Link href="/jobs">
+                  {t("seeker.applications.browse")}
+                </Link>
               </Button>
             </CardContent>
           </Card>

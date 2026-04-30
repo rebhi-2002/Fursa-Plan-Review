@@ -11,7 +11,7 @@ import { shadcn } from "@clerk/themes";
 // Layout & Context
 import { AppLayout } from "@/components/layout/AppLayout";
 import { RoleGuard } from "@/components/layout/RoleGuard";
-import { LangProvider } from "@/lib/i18n";
+import { LangProvider, useLanguageStore } from "@/lib/i18n";
 import { queryClient } from "@/lib/queryClient";
 
 // Pages
@@ -183,41 +183,65 @@ function Router() {
   );
 }
 
+function ClerkAndRouter() {
+  const lang = useLanguageStore((s) => s.lang);
+  const localization =
+    lang === "ar"
+      ? {
+          signIn: {
+            start: {
+              title: "مرحباً بعودتك",
+              subtitle: "سجل دخولك للوصول إلى حسابك في فُرصة",
+            },
+          },
+          signUp: {
+            start: {
+              title: "إنشاء حساب جديد",
+              subtitle: "انضم إلى منصة فُرصة اليوم",
+            },
+          },
+        }
+      : {
+          signIn: {
+            start: {
+              title: "Welcome back",
+              subtitle: "Sign in to access your Fursa account",
+            },
+          },
+          signUp: {
+            start: {
+              title: "Create your account",
+              subtitle: "Join Fursa today",
+            },
+          },
+        };
+
+  return (
+    <ClerkProvider
+      publishableKey={clerkPubKey}
+      proxyUrl={clerkProxyUrl}
+      appearance={clerkAppearance}
+      signInUrl={`${basePath}/sign-in`}
+      signUpUrl={`${basePath}/sign-up`}
+      localization={localization}
+      routerPush={(to) => window.history.pushState(null, "", to)}
+      routerReplace={(to) => window.history.replaceState(null, "", to)}
+    >
+      <ClerkQueryClientCacheInvalidator />
+      <WouterRouter base={basePath}>
+        <Router />
+      </WouterRouter>
+    </ClerkProvider>
+  );
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <LangProvider>
         <TooltipProvider>
-          <ClerkProvider
-            publishableKey={clerkPubKey}
-            proxyUrl={clerkProxyUrl}
-            appearance={clerkAppearance}
-            signInUrl={`${basePath}/sign-in`}
-            signUpUrl={`${basePath}/sign-up`}
-            localization={{
-              signIn: {
-                start: {
-                  title: "مرحباً بعودتك",
-                  subtitle: "سجل دخولك للوصول إلى حسابك في فُرصة",
-                },
-              },
-              signUp: {
-                start: {
-                  title: "إنشاء حساب جديد",
-                  subtitle: "انضم إلى منصة فُرصة اليوم",
-                },
-              },
-            }}
-            // Provide a custom router implementation to sync Clerk with wouter
-            routerPush={(to) => window.history.pushState(null, '', to)}
-            routerReplace={(to) => window.history.replaceState(null, '', to)}
-          >
-            <ClerkQueryClientCacheInvalidator />
-            <WouterRouter base={basePath}>
-              <Router />
-            </WouterRouter>
-          </ClerkProvider>
-          <Toaster richColors position="top-center" dir="rtl" />
+          <ClerkAndRouter />
+          <Toaster richColors position="top-center" />
         </TooltipProvider>
       </LangProvider>
     </QueryClientProvider>
