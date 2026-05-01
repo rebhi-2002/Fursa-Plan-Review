@@ -71,9 +71,16 @@ Arabic/RTL-first job platform connecting talent in Gaza with employers. English 
 ## Environment / dotenv
 
 - `dotenv` installed at workspace root and in `api-server`, `lib/db`.
-- `artifacts/api-server/src/app.ts` loads `../../.env` with `override: true` at startup.
-- `lib/db/drizzle.config.ts` loads `../../.env` with `override: true` before checking DATABASE_URL.
-- Create a root `.env` file locally (see `.env.example`) with DATABASE_URL pointing to Supabase pooler URL for Windows dev, or direct URL for Linux.
+- `artifacts/api-server/src/app.ts` loads `./env` with `override: true` FIRST (Supabase URL wins for DATABASE_URL), then `../../.env` with `override: false`. The system PORT (Replit-assigned) is preserved via `const systemPort = process.env.PORT` before dotenv runs, then restored after.
+- `lib/db/drizzle.config.ts` loads `../../.env` (workspace root) with `override: true` before checking DATABASE_URL.
+- **Local dev**: Root `.env` has `DATABASE_URL`, `BASE_PATH=/`, and Clerk keys. Both frontend `.env` and api-server `.env` are also read.
+- **Vite proxy**: `artifacts/fursa/vite.config.ts` proxies `/api` to `VITE_API_URL` (default `http://localhost:3001`) for local development. On Replit, Replit's reverse proxy handles `/api` routing directly.
+
+## Clerk Configuration
+
+- **Frontend**: `artifacts/fursa/src/App.tsx` uses `import.meta.env.VITE_CLERK_PUBLISHABLE_KEY` directly (NOT `publishableKeyFromHost`). Using `publishableKeyFromHost` on localhost causes Clerk to try loading from `clerk.localhost` which fails.
+- **Proxy**: `proxyUrl` is only passed to `ClerkProvider` in production (`import.meta.env.PROD`) when `VITE_CLERK_PROXY_URL` is set.
+- **Backend**: `artifacts/api-server/src/app.ts` uses `clerkMiddleware({ publishableKey, secretKey })` directly. The Clerk frontend API proxy (`/api/__clerk`) is only mounted in production.
 
 ## Notes
 

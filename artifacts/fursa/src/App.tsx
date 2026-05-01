@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ClerkProvider, Show, useClerk } from "@clerk/react";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 
 // Layout & Context
@@ -40,14 +39,12 @@ import AdminUsers from "@/pages/admin/users";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string;
 
-// Use proxy only in production (dev mode connects directly)
-const isProduction = process.env.NODE_ENV === "production";
-const clerkProxyUrl = isProduction ? import.meta.env.VITE_CLERK_PROXY_URL : undefined;
+const isProduction = import.meta.env.PROD;
+const clerkProxyUrl = (isProduction && import.meta.env.VITE_CLERK_PROXY_URL)
+  ? (import.meta.env.VITE_CLERK_PROXY_URL as string)
+  : undefined;
 
 if (!clerkPubKey) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY in .env file");
@@ -218,6 +215,7 @@ function ClerkAndRouter() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey}
+      {...(clerkProxyUrl ? { proxyUrl: clerkProxyUrl } : {})}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}

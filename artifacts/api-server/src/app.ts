@@ -1,19 +1,25 @@
 import dotenv from "dotenv";
 import path from "path";
-dotenv.config({ path: path.resolve(process.cwd(), "../../.env"), override: true });
+
+const systemPort = process.env.PORT;
+dotenv.config({ path: path.resolve(process.cwd(), ".env"), override: true });
+dotenv.config({ path: path.resolve(process.cwd(), "../../.env"), override: false });
+if (systemPort) {
+  process.env.PORT = systemPort;
+}
 
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
-import { publishableKeyFromHost } from "@clerk/shared/keys";
 import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
-  getClerkProxyHost,
 } from "./middlewares/clerkProxyMiddleware";
 import router from "./routes";
 import { logger } from "./lib/logger";
+
+const isProduction = process.env.NODE_ENV === "production";
 
 const app: Express = express();
 
@@ -37,19 +43,19 @@ app.use(
   }),
 );
 
-app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
+if (isProduction) {
+  app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
+}
 
 app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(
-  clerkMiddleware((req) => ({
-    publishableKey: publishableKeyFromHost(
-      getClerkProxyHost(req) ?? "",
-      process.env["CLERK_PUBLISHABLE_KEY"],
-    ),
-  })),
+  clerkMiddleware({
+    publishableKey: process.env["CLERK_PUBLISHABLE_KEY"],
+    secretKey: process.env["CLERK_SECRET_KEY"],
+  }),
 );
 
 app.use("/api", router);

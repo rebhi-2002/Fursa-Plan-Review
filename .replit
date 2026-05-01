@@ -1,4 +1,4 @@
-modules = ["nodejs-24"]
+modules = ["nodejs-24", "postgresql-16"]
 
 [deployment]
 router = "application"
@@ -19,6 +19,10 @@ path = "scripts/post-merge.sh"
 timeoutMs = 20000
 
 [[ports]]
+localPort = 3001
+externalPort = 3002
+
+[[ports]]
 localPort = 8080
 externalPort = 8080
 
@@ -36,3 +40,12 @@ defaultBucketID = "replit-objstore-167ad931-db39-4378-86cb-ffb8a6acb56e"
 [userenv]
 
 [userenv.shared]
+VITE_CLERK_PUBLISHABLE_KEY = "pk_test_aW50ZWdyYWwtYm9iY2F0LTEuY2xlcmsuYWNjb3VudHMuZGV2JA"
+CLERK_PUBLISHABLE_KEY = "pk_test_aW50ZWdyYWwtYm9iY2F0LTEuY2xlcmsuYWNjb3VudHMuZGV2JA"
+BASE_PATH = "/"
+VITE_BASE_PATH = "/"
+VITE_API_URL = "http://localhost:3001"
+CLERK_SECRET_KEY = "sk_test_9YqJQTV0wLOh4kWs0SOJDWmMtBmdojopmi0Zz3zJUO"
+
+[nix]
+channel = "stable-25_05"
