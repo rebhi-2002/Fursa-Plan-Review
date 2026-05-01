@@ -62,31 +62,13 @@ export default function Onboarding() {
   useEffect(() => {
     if (!user) return;
 
-    const role = user.role as string | undefined;
-
     if (user.onboarded) {
-      setLocation(`/${role ?? ""}`);
+      setLocation(`/${user.role ?? ""}`);
       return;
     }
 
-    if (role === "admin") {
+    if (user.role === "admin") {
       setLocation("/admin");
-      return;
-    }
-
-    if (role && role !== "seeker" && role !== "employer") {
-      setLocation("/");
-      return;
-    }
-
-    if (role === "seeker" || role === "employer") {
-      setStep("profile");
-      form.reset({
-        name: user.name || "",
-        phone: user.phone || "",
-        location: user.location || "",
-        bio: user.bio || "",
-      });
       return;
     }
 
@@ -95,23 +77,40 @@ export default function Onboarding() {
         | "seeker"
         | "employer"
         | null;
+
       if (pendingRole === "seeker" || pendingRole === "employer") {
-        autoRoleApplied.current = true;
-        setRoleMutation.mutate(
-          { data: { role: pendingRole } },
-          {
-            onSuccess: () => {
-              sessionStorage.removeItem("fursa_pending_role");
-              setStep("profile");
-              form.reset({ name: user.name || "" });
+        if (user.role !== pendingRole) {
+          autoRoleApplied.current = true;
+          setRoleMutation.mutate(
+            { data: { role: pendingRole } },
+            {
+              onSuccess: () => {
+                sessionStorage.removeItem("fursa_pending_role");
+                setStep("profile");
+                form.reset({ name: user.name || "" });
+              },
+              onError: () => {
+                toast.error(t("common.error"));
+                autoRoleApplied.current = false;
+              },
             },
-            onError: () => {
-              toast.error(t("common.error"));
-              autoRoleApplied.current = false;
-            },
-          },
-        );
+          );
+          return;
+        } else {
+          sessionStorage.removeItem("fursa_pending_role");
+        }
       }
+    }
+
+    if (user.role === "seeker" || user.role === "employer") {
+      setStep("profile");
+      form.reset({
+        name: user.name || "",
+        phone: user.phone || "",
+        location: user.location || "",
+        bio: user.bio || "",
+      });
+      return;
     }
   }, [user]);
 

@@ -68,19 +68,39 @@ Arabic/RTL-first job platform connecting talent in Gaza with employers. English 
 - **Post-onboarding redirect**: After role + profile are set, user is redirected to `/${role}` (e.g. `/seeker`, `/employer`), not `/`.
 - **Login blur fix**: `ClerkQueryClientCacheInvalidator` in App.tsx — on sign-IN (null→userId) uses `setTimeout(() => qc.invalidateQueries(), 200)` to let JWT settle; on sign-out uses `qc.clear()`; on user-switch uses `qc.clear()`.
 
+## Local Windows Development Setup
+
+To run locally:
+1. Copy `artifacts/fursa/.env.example` → `artifacts/fursa/.env` and fill in your keys
+2. Copy `artifacts/api-server/.env.example` → `artifacts/api-server/.env` and fill in your keys
+3. `pnpm install` at workspace root
+4. Terminal 1: `pnpm --filter @workspace/api-server dev` (runs on port 3001)
+5. Terminal 2: `pnpm --filter @workspace/fursa dev` (runs on port 3000, visit http://localhost:3000)
+
 ## Environment / dotenv
 
-- `dotenv` installed at workspace root and in `api-server`, `lib/db`.
-- `artifacts/api-server/src/app.ts` loads `./env` with `override: true` FIRST (Supabase URL wins for DATABASE_URL), then `../../.env` with `override: false`. The system PORT (Replit-assigned) is preserved via `const systemPort = process.env.PORT` before dotenv runs, then restored after.
+- **Critical order**: `artifacts/api-server/src/env.ts` loads dotenv and is imported as the FIRST import in `src/index.ts`. This ensures DATABASE_URL is set before `lib/db` initializes its connection pool (ESM import hoisting issue fix).
+- `artifacts/api-server/src/env.ts` loads `./env` (api-server dir) with `override: true`, then `../../.env` (workspace root) with `override: false`. The system PORT is preserved.
 - `lib/db/drizzle.config.ts` loads `../../.env` (workspace root) with `override: true` before checking DATABASE_URL.
-- **Local dev**: Root `.env` has `DATABASE_URL`, `BASE_PATH=/`, and Clerk keys. Both frontend `.env` and api-server `.env` are also read.
-- **Vite proxy**: `artifacts/fursa/vite.config.ts` proxies `/api` to `VITE_API_URL` (default `http://localhost:3001`) for local development. On Replit, Replit's reverse proxy handles `/api` routing directly.
+- **Vite BASE_PATH**: `vite.config.ts` reads `BASE_PATH` first, then falls back to `VITE_BASE_PATH`, then defaults to `/`. So both `BASE_PATH=/` and `VITE_BASE_PATH=/` work in the frontend `.env`.
+- **Vite proxy**: `artifacts/fursa/vite.config.ts` proxies `/api` to `VITE_API_URL` (default `http://localhost:3001`) for local development.
+- **Replit-only plugins**: `runtimeErrorOverlay`, `cartographer`, `devBanner` only load when `REPL_ID` env var is set (i.e., only on Replit).
 
 ## Clerk Configuration
 
 - **Frontend**: `artifacts/fursa/src/App.tsx` uses `import.meta.env.VITE_CLERK_PUBLISHABLE_KEY` directly (NOT `publishableKeyFromHost`). Using `publishableKeyFromHost` on localhost causes Clerk to try loading from `clerk.localhost` which fails.
 - **Proxy**: `proxyUrl` is only passed to `ClerkProvider` in production (`import.meta.env.PROD`) when `VITE_CLERK_PROXY_URL` is set.
 - **Backend**: `artifacts/api-server/src/app.ts` uses `clerkMiddleware({ publishableKey, secretKey })` directly. The Clerk frontend API proxy (`/api/__clerk`) is only mounted in production.
+
+## Onboarding Flow (Fixed Logic)
+
+1. Sign-up page: user picks role (seeker/employer) → stored in `sessionStorage("fursa_pending_role")` → Clerk form shows
+2. After Clerk form, user lands on `/onboarding`
+3. `GET /api/me` creates new user with `role: "seeker"` (default), `onboarded: false`
+4. `useEffect` in onboarding: checks `sessionStorage` FIRST for pending role, calls `POST /api/me/role` to set correct role (employer/seeker)
+5. After role set → profile form shows
+6. On profile submit → `PATCH /api/me` auto-sets `onboarded: true` (backend auto-completes onboarding when a user with a role updates their profile)
+7. Redirect to `/{role}` dashboard
 
 ## Notes
 

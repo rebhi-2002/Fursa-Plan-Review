@@ -81,6 +81,12 @@ router.patch(
       res.json(serializeUser(req.currentUser));
       return;
     }
+    if (
+      !req.currentUser.onboarded &&
+      (req.currentUser.role === "seeker" || req.currentUser.role === "employer")
+    ) {
+      updates.onboarded = true;
+    }
     const updated = await db
       .update(usersTable)
       .set(updates)
@@ -114,7 +120,7 @@ router.post(
     }
     const updated = await db
       .update(usersTable)
-      .set({ role: parsed.data.role, onboarded: true })
+      .set({ role: parsed.data.role })
       .where(eq(usersTable.id, req.currentUser.id))
       .returning();
     if (!updated[0]) {
