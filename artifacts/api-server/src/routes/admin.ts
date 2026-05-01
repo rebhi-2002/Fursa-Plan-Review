@@ -8,6 +8,7 @@ import {
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
+import { createNotification } from "../lib/notifications";
 
 const router: IRouter = Router();
 
@@ -104,6 +105,13 @@ router.post(
       .where(eq(jobsTable.id, id));
     const job = await getAdminJob(id);
     if (!job) return res.status(404).json({ error: "Not found" });
+    await createNotification({
+      userId: job.employerId,
+      type: "job_approved",
+      title: "Your job posting was approved",
+      body: `"${job.title}" is now live and visible to job seekers.`,
+      link: `/jobs/${job.id}`,
+    });
     res.json(serializeAdminJob(job));
   },
 );
@@ -117,14 +125,34 @@ router.post(
     const id = parseInt(req.params["id"] ?? "");
     if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
     const parsed = rejectBodySchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: "سبب الرفض مطلوب" });
+    if (!parsed.success) return res.status(400).json({ error: "Rejection reason is required" });
     await db
       .update(jobsTable)
       .set({ status: "rejected", rejectionReason: parsed.data.reason })
       .where(eq(jobsTable.id, id));
     const job = await getAdminJob(id);
     if (!job) return res.status(404).json({ error: "Not found" });
+    await createNotification({
+      userId: job.employerId,
+      type: "job_rejected",
+      title: "Your job posting was rejected",
+      body: `"${job.title}" was rejected. Reason: ${parsed.data.reason}`,
+      link: `/employer/jobs`,
+    });
     res.json(serializeAdminJob(job));
+  },
+);
+
+router.delete(
+  "/admin/jobs/:id",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("admin"),
+  async (req: Request, res: Response) => {
+    const id = parseInt(req.params["id"] ?? "");
+    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    await db.delete(jobsTable).where(eq(jobsTable.id, id));
+    res.status(204).end();
   },
 );
 
@@ -170,7 +198,7 @@ router.post(
     const id = req.params["id"];
     if (!id) return res.status(400).json({ error: "Invalid id" });
     if (id === req.currentUser!.id) {
-      return res.status(400).json({ error: "لا يمكنك تعطيل حسابك" });
+      return res.status(400).json({ error: "You cannot disable your own account" });
     }
     const existing = await db
       .select()

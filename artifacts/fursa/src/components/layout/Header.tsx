@@ -38,6 +38,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
+import { NotificationBell } from "./NotificationBell";
 
 export function Header() {
   const t = useT();
@@ -297,6 +298,12 @@ export function Header() {
               {t("nav.langSwitchTo")}
             </span>
           </Button>
+
+          {clerkUser && (
+            <div className="hidden md:inline-flex">
+              <NotificationBell />
+            </div>
+          )}
 
           {clerkUser ? (
             <DropdownMenu>

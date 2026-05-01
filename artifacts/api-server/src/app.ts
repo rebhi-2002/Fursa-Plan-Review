@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+import path from "path";
+dotenv.config({ path: path.resolve(process.cwd(), "../../.env"), override: true });
+
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";

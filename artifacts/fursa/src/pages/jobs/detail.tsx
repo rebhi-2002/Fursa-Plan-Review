@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useRoute } from "wouter";
+import { Link, useRoute, useLocation } from "wouter";
 import {
   useGetJob,
   useApplyToJob,
@@ -8,6 +8,8 @@ import {
   getGetJobQueryKey,
   getListMyApplicationsQueryKey,
   getGetSeekerDashboardQueryKey,
+  getListJobsQueryKey,
+  getListFeaturedJobsQueryKey,
 } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -52,6 +54,7 @@ export default function JobDetail() {
   const [, params] = useRoute("/jobs/:id");
   const jobId = parseInt(params?.id || "0", 10);
   const queryClient = useQueryClient();
+  const [, setLocation] = useLocation();
 
   const { data: job, isLoading, error } = useGetJob(jobId, {
     query: { enabled: !!jobId, queryKey: getGetJobQueryKey(jobId) },
@@ -87,7 +90,12 @@ export default function JobDetail() {
         queryClient.invalidateQueries({
           queryKey: getGetSeekerDashboardQueryKey(),
         });
+        queryClient.invalidateQueries({ queryKey: ["/jobs"] });
+        queryClient.invalidateQueries({
+          queryKey: getListFeaturedJobsQueryKey(),
+        });
         setIsApplyOpen(false);
+        setLocation("/seeker/applications");
       },
     },
   });

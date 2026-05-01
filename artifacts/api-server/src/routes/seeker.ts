@@ -9,6 +9,7 @@ import {
 import { and, desc, eq, sql, ne } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
+import { createNotification } from "../lib/notifications";
 
 const router: IRouter = Router();
 
@@ -167,7 +168,7 @@ router.post(
     if (job[0].employerId === req.currentUser.id) {
       return res
         .status(400)
-        .json({ error: "لا يمكنك التقديم على وظيفتك" });
+        .json({ error: "You cannot apply to your own job" });
     }
 
     const existing = await db
@@ -181,7 +182,7 @@ router.post(
       )
       .limit(1);
     if (existing[0]) {
-      return res.status(409).json({ error: "لقد قدّمت بالفعل على هذه الوظيفة" });
+      return res.status(409).json({ error: "You have already applied to this job" });
     }
 
     const cvPath =
@@ -202,6 +203,14 @@ router.post(
       .from(usersTable)
       .where(eq(usersTable.id, job[0].employerId))
       .limit(1);
+
+    await createNotification({
+      userId: job[0].employerId,
+      type: "application_received",
+      title: "New application received",
+      body: `${req.currentUser.name} applied to your job: ${job[0].title}`,
+      link: `/employer/jobs/${job[0].id}/applications`,
+    });
 
     const a = inserted[0]!;
     res.status(201).json(

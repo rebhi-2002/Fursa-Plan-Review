@@ -88,8 +88,8 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
             <span>{t("home.popular")}</span>
             {isLoadingCats
-              ? null
-              : categories?.slice(0, 3).map((cat) => (
+              ? null : Array.isArray(categories) && categories.map((cat) => (
+                  // categories?.slice(0, 3).map((cat) => (
                   <Link
                     key={cat.category}
                     href={`/jobs?category=${encodeURIComponent(cat.category)}`}
@@ -127,7 +127,8 @@ export default function Home() {
               ? Array.from({ length: 10 }).map((_, i) => (
                   <Skeleton key={i} className="h-24 w-full rounded-xl" />
                 ))
-              : categories?.slice(0, 10).map((cat) => (
+                : Array.isArray(categories) && categories.map((cat) => (
+                // categories?.slice(0, 10).map((cat) => (
                   <Link
                     key={cat.category}
                     href={`/jobs?category=${encodeURIComponent(cat.category)}`}
@@ -175,7 +176,8 @@ export default function Home() {
               Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-[280px] w-full rounded-2xl" />
               ))
-            ) : featuredJobs && featuredJobs.length > 0 ? (
+            // ) : featuredJobs && featuredJobs.length > 0 ? (
+            ): Array.isArray(featuredJobs) && featuredJobs.length > 0 ? (
               featuredJobs.map((job) => (
                 <Card
                   key={job.id}
@@ -231,7 +233,7 @@ export default function Home() {
                     </Button>
                   </CardFooter>
                 </Card>
-              ))
+    ))
             ) : (
               <div className="col-span-full py-12 text-center bg-background rounded-2xl border border-dashed">
                 <Briefcase className="h-12 w-12 mx-auto text-muted-foreground opacity-20 mb-4" />

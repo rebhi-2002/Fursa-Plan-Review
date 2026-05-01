@@ -44,7 +44,10 @@ const clerkPubKey = publishableKeyFromHost(
   window.location.hostname,
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
 );
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+
+// Use proxy only in production (dev mode connects directly)
+const isProduction = process.env.NODE_ENV === "production";
+const clerkProxyUrl = isProduction ? import.meta.env.VITE_CLERK_PROXY_URL : undefined;
 
 if (!clerkPubKey) {
   throw new Error("Missing VITE_CLERK_PUBLISHABLE_KEY in .env file");
@@ -82,7 +85,13 @@ function ClerkQueryClientCacheInvalidator() {
         prevUserIdRef.current !== undefined &&
         prevUserIdRef.current !== userId
       ) {
-        qc.clear();
+        if (userId === null) {
+          qc.clear();
+        } else if (prevUserIdRef.current === null) {
+          setTimeout(() => qc.invalidateQueries(), 200);
+        } else {
+          qc.clear();
+        }
       }
       prevUserIdRef.current = userId;
     });
@@ -98,19 +107,9 @@ function stripBase(path: string): string {
     : path;
 }
 
-// Redirects authenticated users from "/" to their respective dashboards
+// Show home page to everyone. Onboarding lives only at /onboarding.
 function HomeRedirect() {
-  return (
-    <>
-      <Show when="signed-in">
-        {/* Onboarding component handles its own redirects based on DB state */}
-        <Onboarding />
-      </Show>
-      <Show when="signed-out">
-        <Home />
-      </Show>
-    </>
-  );
+  return <Home />;
 }
 
 function Router() {
@@ -219,14 +218,12 @@ function ClerkAndRouter() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey}
-      proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
       localization={localization}
       routerPush={(to) => window.history.pushState(null, "", to)}
-      routerReplace={(to) => window.history.replaceState(null, "", to)}
-    >
+      routerReplace={(to) => window.history.replaceState(null, "", to)} >
       <ClerkQueryClientCacheInvalidator />
       <WouterRouter base={basePath}>
         <Router />

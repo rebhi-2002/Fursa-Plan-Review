@@ -4,6 +4,7 @@ import {
   useListAdminJobs,
   useApproveJob,
   useRejectJob,
+  useAdminDeleteJob,
   getListAdminJobsQueryKey,
   getGetAdminDashboardQueryKey,
 } from "@workspace/api-client-react";
@@ -40,6 +41,7 @@ import {
   Loader2,
   ExternalLink,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
@@ -86,6 +88,19 @@ export default function AdminJobs() {
         setIsRejectOpen(false);
         setRejectReason("");
         setSelectedJobId(null);
+        queryClient.invalidateQueries({ queryKey: getListAdminJobsQueryKey() });
+        queryClient.invalidateQueries({
+          queryKey: getGetAdminDashboardQueryKey(),
+        });
+      },
+      onError: () => toast.error(t("common.error")),
+    },
+  });
+
+  const deleteMutation = useAdminDeleteJob({
+    mutation: {
+      onSuccess: () => {
+        toast.success(t("admin.jobs.deleteSuccess"));
         queryClient.invalidateQueries({ queryKey: getListAdminJobsQueryKey() });
         queryClient.invalidateQueries({
           queryKey: getGetAdminDashboardQueryKey(),
@@ -363,6 +378,49 @@ export default function AdminJobs() {
                       </Link>
                     </Button>
                   )}
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 className="mr-2 ms-2 h-4 w-4" />
+                        {t("admin.jobs.delete")}
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent dir={lang === "ar" ? "rtl" : "ltr"}>
+                      <DialogHeader>
+                        <DialogTitle>
+                          {t("admin.jobs.deleteConfirmTitle")}
+                        </DialogTitle>
+                        <DialogDescription>
+                          {t("admin.jobs.deleteConfirmDesc")}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="bg-muted/40 rounded-md p-3 text-sm">
+                        <div className="font-medium">{job.title}</div>
+                        <div className="text-muted-foreground">
+                          {job.employerName}
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          variant="destructive"
+                          onClick={() =>
+                            deleteMutation.mutate({ data: { id: job.id } })
+                          }
+                          disabled={deleteMutation.isPending}
+                        >
+                          {deleteMutation.isPending && (
+                            <Loader2 className="mr-2 ms-2 h-4 w-4 animate-spin" />
+                          )}
+                          {t("admin.jobs.deleteConfirm")}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </CardContent>
             </Card>

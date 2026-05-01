@@ -93,7 +93,7 @@ export function requireRole(...roles: Array<"seeker" | "employer" | "admin">) {
       return;
     }
     if (!req.currentUser.isActive) {
-      res.status(403).json({ error: "حسابك معطّل" });
+      res.status(403).json({ error: "Your account is disabled" });
       return;
     }
     if (!roles.includes(req.currentUser.role)) {

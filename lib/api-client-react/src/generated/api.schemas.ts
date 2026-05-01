@@ -318,6 +318,27 @@ export interface RequestUploadUrlResult {
   objectPath: string;
 }
 
+export type NotificationType =
+  (typeof NotificationType)[keyof typeof NotificationType];
+
+export const NotificationType = {
+  job_approved: "job_approved",
+  job_rejected: "job_rejected",
+  application_received: "application_received",
+  application_accepted: "application_accepted",
+  application_rejected: "application_rejected",
+} as const;
+
+export interface Notification {
+  id: number;
+  type: NotificationType;
+  title: string;
+  body: string;
+  link?: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
 export type ListJobsParams = {
   search?: string;
   type?: ListJobsType;
@@ -333,6 +354,10 @@ export const ListJobsType = {
   field: "field",
   hybrid: "hybrid",
 } as const;
+
+export type GetUnreadNotificationCount200 = {
+  count: number;
+};
 
 export type ListAdminJobsParams = {
   status?: ListAdminJobsStatus;

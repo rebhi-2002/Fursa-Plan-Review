@@ -5,6 +5,7 @@ import {
   useUpdateCurrentUser,
   getGetCurrentUserQueryKey,
 } from "@workspace/api-client-react";
+import { useUser } from "@clerk/react";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -22,6 +24,9 @@ import {
   FileText,
   UploadCloud,
   CheckCircle2,
+  Mail,
+  MapPin,
+  Phone,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -42,6 +47,7 @@ export default function SeekerProfile() {
   const t = useT();
   const queryClient = useQueryClient();
   const { data: user, isLoading } = useGetCurrentUser();
+  const { user: clerkUser } = useUser();
   const updateProfileMutation = useUpdateCurrentUser();
 
   const [cvObjectPath, setCvObjectPath] = useState<string | null>(null);
@@ -135,15 +141,16 @@ export default function SeekerProfile() {
     );
   }
 
+  const avatarUrl = clerkUser?.imageUrl;
+  const primaryEmail = clerkUser?.primaryEmailAddress?.emailAddress;
+  const memberSince = clerkUser?.createdAt
+    ? new Date(clerkUser.createdAt).toLocaleDateString()
+    : null;
+
   return (
     <div className="container py-8 max-w-3xl">
       <div className="mb-6 flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          asChild
-          className="rounded-full"
-        >
+        <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/seeker">
             <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
           </Link>
@@ -159,6 +166,60 @@ export default function SeekerProfile() {
       </div>
 
       <div className="grid gap-6">
+        <Card className="overflow-hidden">
+          <div className="h-24 bg-gradient-to-r from-primary/80 to-primary" />
+          <CardContent className="pt-0">
+            <div className="-mt-12 flex flex-col sm:flex-row items-start sm:items-end gap-4">
+              <div className="relative shrink-0">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={user?.name || ""}
+                    className="h-24 w-24 rounded-2xl border-4 border-background object-cover shadow-md"
+                  />
+                ) : (
+                  <div className="h-24 w-24 rounded-2xl border-4 border-background bg-primary/20 flex items-center justify-center shadow-md text-2xl font-bold text-primary">
+                    {(user?.name || "?")[0].toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 pb-1 space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h2 className="text-xl font-bold">{user?.name || "—"}</h2>
+                  <Badge variant="secondary" className="text-xs">
+                    {t("onboarding.role.seeker")}
+                  </Badge>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  {primaryEmail && (
+                    <span className="flex items-center gap-1.5">
+                      <Mail className="h-3.5 w-3.5" />
+                      {primaryEmail}
+                    </span>
+                  )}
+                  {user?.location && (
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {user.location}
+                    </span>
+                  )}
+                  {user?.phone && (
+                    <span className="flex items-center gap-1.5 dir-ltr">
+                      <Phone className="h-3.5 w-3.5" />
+                      {user.phone}
+                    </span>
+                  )}
+                </div>
+                {memberSince && (
+                  <p className="text-xs text-muted-foreground/70">
+                    {t("seeker.profile.memberSince")} {memberSince}
+                  </p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>{t("seeker.profile.cvTitle")}</CardTitle>

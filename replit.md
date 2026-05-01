@@ -61,9 +61,26 @@ Arabic/RTL-first job platform connecting talent in Gaza with employers. English 
 - ChevronLeft + similar directional icons get `rtl:rotate-180`.
 - Logo: `public/logo.svg` and `public/favicon.svg` are blue brand SVGs; `clerkAppearance.logoImageUrl` points to `/logo.svg`.
 
+## Auth / Signup Flow
+
+- **Role selection BEFORE Clerk form**: `/sign-up` shows a role-picker card page first. Chosen role is stored in `sessionStorage` under key `fursa_pending_role`. After Clerk form is filled, user is sent to `/onboarding` where the role is auto-applied and the picker step is skipped.
+- **Post-signup redirect**: `<SignUp forceRedirectUrl="/onboarding">` and `<SignIn forceRedirectUrl="/onboarding">` ensure all new logins go through onboarding check.
+- **Post-onboarding redirect**: After role + profile are set, user is redirected to `/${role}` (e.g. `/seeker`, `/employer`), not `/`.
+- **Login blur fix**: `ClerkQueryClientCacheInvalidator` in App.tsx — on sign-IN (null→userId) uses `setTimeout(() => qc.invalidateQueries(), 200)` to let JWT settle; on sign-out uses `qc.clear()`; on user-switch uses `qc.clear()`.
+
+## Environment / dotenv
+
+- `dotenv` installed at workspace root and in `api-server`, `lib/db`.
+- `artifacts/api-server/src/app.ts` loads `../../.env` with `override: true` at startup.
+- `lib/db/drizzle.config.ts` loads `../../.env` with `override: true` before checking DATABASE_URL.
+- Create a root `.env` file locally (see `.env.example`) with DATABASE_URL pointing to Supabase pooler URL for Windows dev, or direct URL for Linux.
+
 ## Notes
 
 - Both build pipelines (`vite build`, custom esbuild for api-server) skip tsc, so latent typecheck warnings in route handlers (Express 5 `req.params` widened to `string | string[]`, missing returns) do not block deployment.
 - Real-time notifications and email are deferred (not in scope).
+- Seeker profile page (`artifacts/fursa/src/pages/seeker/profile.tsx`) uses `useUser()` from Clerk to show avatar, email, member-since date at the top.
+- Sign-in page has a branded left panel (hidden on mobile) with platform tagline and feature list.
+- Sign-up page is a full role-picker UI (no Clerk form until role is chosen).
 
 See the `pnpm-workspace` skill for workspace structure and conventions.

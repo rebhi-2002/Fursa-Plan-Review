@@ -254,6 +254,42 @@ export const GetSeekerDashboardResponse = zod.object({
 });
 
 /**
+ * @summary List notifications for the current user (newest first)
+ */
+export const ListMyNotificationsResponseItem = zod.object({
+  id: zod.number(),
+  type: zod.enum([
+    "job_approved",
+    "job_rejected",
+    "application_received",
+    "application_accepted",
+    "application_rejected",
+  ]),
+  title: zod.string(),
+  body: zod.string(),
+  link: zod.string().nullish(),
+  read: zod.boolean(),
+  createdAt: zod.coerce.date(),
+});
+export const ListMyNotificationsResponse = zod.array(
+  ListMyNotificationsResponseItem,
+);
+
+/**
+ * @summary Get the count of unread notifications for the current user
+ */
+export const GetUnreadNotificationCountResponse = zod.object({
+  count: zod.number(),
+});
+
+/**
+ * @summary Mark a single notification as read
+ */
+export const MarkNotificationReadParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
  * @summary Submit an application to a job
  */
 export const ApplyToJobParams = zod.object({
@@ -564,6 +600,13 @@ export const RejectJobResponse = zod.object({
   employerName: zod.string(),
   employerEmail: zod.string(),
   createdAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Permanently delete a job (and all its applications)
+ */
+export const AdminDeleteJobParams = zod.object({
+  id: zod.coerce.number(),
 });
 
 /**

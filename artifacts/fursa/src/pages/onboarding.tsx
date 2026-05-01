@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import {
   useGetCurrentUser,
@@ -34,6 +34,7 @@ export default function Onboarding() {
   const t = useT();
   const [, setLocation] = useLocation();
   const [step, setStep] = useState<"role" | "profile">("role");
+  const autoRoleApplied = useRef(false);
 
   const { data: user, isLoading: isUserLoading } = useGetCurrentUser();
   const setRoleMutation = useSetUserRole();
@@ -59,30 +60,67 @@ export default function Onboarding() {
   });
 
   useEffect(() => {
-    if (user) {
-      if (user.onboarded) {
-        setLocation(`/${user.role}`);
-      } else if (user.role && user.role !== "admin") {
-        setStep("profile");
-        form.reset({
-          name: user.name || "",
-          phone: user.phone || "",
-          location: user.location || "",
-          bio: user.bio || "",
-        });
-      } else if (user.role === "admin") {
-        setLocation("/admin");
-      } else {
-        form.reset({ name: user.name || "" });
+    if (!user) return;
+
+    const role = user.role as string | undefined;
+
+    if (user.onboarded) {
+      setLocation(`/${role ?? ""}`);
+      return;
+    }
+
+    if (role === "admin") {
+      setLocation("/admin");
+      return;
+    }
+
+    if (role && role !== "seeker" && role !== "employer") {
+      setLocation("/");
+      return;
+    }
+
+    if (role === "seeker" || role === "employer") {
+      setStep("profile");
+      form.reset({
+        name: user.name || "",
+        phone: user.phone || "",
+        location: user.location || "",
+        bio: user.bio || "",
+      });
+      return;
+    }
+
+    if (!autoRoleApplied.current) {
+      const pendingRole = sessionStorage.getItem("fursa_pending_role") as
+        | "seeker"
+        | "employer"
+        | null;
+      if (pendingRole === "seeker" || pendingRole === "employer") {
+        autoRoleApplied.current = true;
+        setRoleMutation.mutate(
+          { data: { role: pendingRole } },
+          {
+            onSuccess: () => {
+              sessionStorage.removeItem("fursa_pending_role");
+              setStep("profile");
+              form.reset({ name: user.name || "" });
+            },
+            onError: () => {
+              toast.error(t("common.error"));
+              autoRoleApplied.current = false;
+            },
+          },
+        );
       }
     }
-  }, [user, setLocation, form]);
+  }, [user]);
 
   const handleSelectRole = async (role: "seeker" | "employer") => {
     try {
       await setRoleMutation.mutateAsync({ data: { role } });
+      sessionStorage.removeItem("fursa_pending_role");
       setStep("profile");
-    } catch (error) {
+    } catch {
       toast.error(t("common.error"));
     }
   };
@@ -91,16 +129,16 @@ export default function Onboarding() {
     try {
       await updateProfileMutation.mutateAsync({ data });
       toast.success(t("onboarding.success"));
-      const currentRole = user?.role || setRoleMutation.variables?.data.role;
-      setLocation(`/${currentRole}`);
-    } catch (error) {
+      const role = user?.role ?? "seeker";
+      setLocation(`/${role}`);
+    } catch {
       toast.error(t("common.error"));
     }
   };
 
-  if (isUserLoading) {
+  if (isUserLoading || (step === "role" && setRoleMutation.isPending)) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex-1 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -111,7 +149,7 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 bg-muted/30">
+    <div className="flex-1 flex items-center justify-center py-12 px-4 bg-muted/20">
       <div className="w-full max-w-2xl space-y-8">
         <div className="text-center space-y-2">
           <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">

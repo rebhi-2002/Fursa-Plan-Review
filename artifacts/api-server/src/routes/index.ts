@@ -7,6 +7,7 @@ import meRouter from "./me";
 import seekerRouter from "./seeker";
 import employerRouter from "./employer";
 import adminRouter from "./admin";
+import notificationsRouter from "./notifications";
 
 const router: IRouter = Router();
 
@@ -15,6 +16,7 @@ router.use(storageRouter);
 router.use(platformRouter);
 router.use(publicJobsRouter);
 router.use(meRouter);
+router.use(notificationsRouter);
 router.use(seekerRouter);
 router.use(employerRouter);
 router.use(adminRouter);

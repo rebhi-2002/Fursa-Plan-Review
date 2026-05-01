@@ -8,6 +8,7 @@ import {
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
+import { createNotification } from "../lib/notifications";
 
 const router: IRouter = Router();
 
@@ -91,7 +92,7 @@ router.post(
   async (req: Request, res: Response) => {
     const parsed = jobBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ error: "بيانات الوظيفة غير صالحة" });
+      return res.status(400).json({ error: "Invalid job data" });
     }
     const data = parsed.data;
     const inserted = await db
@@ -137,7 +138,7 @@ router.patch(
     if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
     const parsed = updateJobBodySchema.safeParse(req.body);
     if (!parsed.success)
-      return res.status(400).json({ error: "بيانات الوظيفة غير صالحة" });
+      return res.status(400).json({ error: "Invalid job data" });
     const job = await loadEmployerJob(id, req.currentUser!.id);
     if (!job) return res.status(404).json({ error: "Not found" });
 
@@ -273,6 +274,25 @@ router.patch(
       .where(eq(applicationsTable.id, id))
       .returning();
     const a = updated[0]!;
+
+    if (parsed.data.status === "accepted" || parsed.data.status === "rejected") {
+      await createNotification({
+        userId: row.applicant.id,
+        type:
+          parsed.data.status === "accepted"
+            ? "application_accepted"
+            : "application_rejected",
+        title:
+          parsed.data.status === "accepted"
+            ? "Your application was accepted"
+            : "Your application was not selected",
+        body:
+          parsed.data.status === "accepted"
+            ? `Congratulations — ${row.job.title} accepted your application.`
+            : `${row.job.title}: the employer chose another candidate this time.`,
+        link: "/seeker/applications",
+      });
+    }
     res.json({
       id: a.id,
       jobId: a.jobId,

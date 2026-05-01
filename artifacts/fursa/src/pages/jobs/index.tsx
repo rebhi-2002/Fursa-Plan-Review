@@ -89,7 +89,7 @@ export default function JobsPage() {
                 </SelectTrigger>
                 <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
                   <SelectItem value={ALL}>{t("jobs.category.all")}</SelectItem>
-                  {categories?.map((cat) => (
+                  {Array.isArray(categories) && categories.map((cat) => (
                     <SelectItem key={cat.category} value={cat.category}>
                       {cat.category} ({cat.count})
                     </SelectItem>
