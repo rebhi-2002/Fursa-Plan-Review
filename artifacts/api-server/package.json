@@ -8,7 +8,7 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "seed": "tsx src/scripts/seed.ts"
+    "seed": "tsx -r dotenv/config src/scripts/seed.ts"
   },
   "dependencies": {
     "@clerk/express": "^2.1.9",

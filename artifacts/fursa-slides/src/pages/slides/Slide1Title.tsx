@@ -2,7 +2,10 @@ const base = import.meta.env.BASE_URL;
 
 export default function Slide1Title() {
   return (
-    <div className="relative w-screen h-screen overflow-hidden" style={{ background: "#0F172A" }}>
+    <div
+      className="relative w-screen h-screen overflow-hidden"
+      style={{ background: "#0F172A" }}
+    >
       {/* Background image */}
       <img
         src={`${base}hero-network.png`}
@@ -16,7 +19,8 @@ export default function Slide1Title() {
       <div
         className="absolute inset-0"
         style={{
-          background: "linear-gradient(135deg, rgba(30,58,138,0.92) 0%, rgba(15,23,42,0.85) 60%, rgba(30,58,138,0.6) 100%)",
+          background:
+            "linear-gradient(135deg, rgba(30,58,138,0.92) 0%, rgba(15,23,42,0.85) 60%, rgba(30,58,138,0.6) 100%)",
         }}
       />
 
@@ -106,7 +110,8 @@ export default function Slide1Title() {
           textAlign: "right",
         }}
       >
-        fursa.replit.app
+        {/* fursa.replit.app */}
+        fursa.com
       </div>
 
       {/* Gold accent circle */}

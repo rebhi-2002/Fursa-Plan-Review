@@ -275,3 +275,110 @@ D:\My_Github\Fursa-Plan-Review\artifacts\api-server (main)
 
 D:\My_Github\Fursa-Plan-Review\artifacts\api-server\package.json >> change >> "dev": "export NODE_ENV=development && pnpm run build && pnpm run start", >> "dev": "cross-env NODE_ENV=development pnpm run build && pnpm run start",
 D:\My_Github\Fursa-Plan-Review\artifacts\fursa\src\pages\jobs\index.tsx >> {/* {categories?.map((cat) => ( */} >> {Array.isArray(categories) && categories.map((cat) => (
+D:\My_Github\Fursa-Plan-Review\pnpm-workspace.yaml >> win32 >> #
+D:\My_Github\Fursa-Plan-Review\package.json >> "preinstall": "npx only-allow pnpm",
+D:\My_Github\Fursa-Plan-Review\artifacts\api-server\package.json >> "seed": "tsx -r dotenv/config src/scripts/seed.ts"
+/* D:\My_Github\Fursa-Plan-Review\artifacts\fursa\package.json >> "dev": "set PORT=3000 && vite --config vite.config.ts --host 0.0.0.0", */
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa\package.json >> "dev": "dotenv -e .env -- vite --config vite.config.ts --host 0.0.0.0",
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa-slides\package.json >> "dev": "dotenv -e .env -- vite --config vite.config.ts --host 0.0.0.0",
+
+[4]
+D:\My_Github\Fursa-Plan-Review\artifacts\api-server (main -> origin)
+λ pnpm seed
+
+D:\My_Github\Fursa-Plan-Review\artifacts\api-server (main -> origin)
+λ node -r dotenv/config node_modules/tsx/dist/cli.mjs src/scripts/seed.ts
+�  Seeding Fursa demo data...
+  → 10 new employer(s) inserted (skipped existing).
+  → 15 new job(s) inserted (skipped existing).
+✅  Done. Demo data is now in your database.
+    Every record is tagged with an employer id starting with 'seed_'.
+    You can delete any of these jobs later from the Admin → Jobs page.
+
+D:\My_Github\Fursa-Plan-Review\artifacts\api-server (main -> origin)
+λ
+
+موقع السيرفر: قاعدة البيانات عندك موجودة في aws-1-ap-northeast-1 (طوكيو - اليابان)، وأنت تتصل بها من فلسطين. المسافة الجغرافية الكبيرة تسبب "Latency" (تأخير) في كل طلب إرسال.
+
+طريقة الكود: الكود الخاص بك يستخدم await داخل loop. يعني يرسل المؤسسة الأولى، ينتظر الرد من اليابان، ثم يرسل الثانية، وهكذا. بما أن النت قد يكون غير مستقر، فكل عملية إدخال قد تستغرق ثانية أو أكثر.
+
+[5]
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa (main -> origin)
+λ pnpm add -D lightningcss
+ WARN  3 deprecated subdependencies found: node-domexception@1.0.0, uuid@8.3.2, uuid@9.0.1
+../..                                    | Progress: resolved 627, reused 0, downloaded 0, added 0, done
+ WARN  Issues with peer dependencies found
+artifacts/fursa
+├─┬ @clerk/react 6.4.5
+│ ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+│ ├── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+│ └─┬ @clerk/shared 4.8.5
+│   ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+│   └── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+└─┬ @clerk/themes 2.4.57
+  └─┬ @clerk/shared 3.47.5
+    ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+    └── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+
+devDependencies:
++ lightningcss ^1.32.0
+
+../..                                    |  +14 +
+ WARN  Tarball download average speed 29 KiB/s (size 4633 KiB) is below 50 KiB/s: https://registry.npmjs.org/@esbuild/win32-x64/-/win32-x64-0.27.3.tgz (GET)
+ WARN  Tarball download average speed 22 KiB/s (size 3592 KiB) is below 50 KiB/s: https://registry.npmjs.org/lightningcss-win32-x64-msvc/-/lightningcss-win32-x64-msvc-1.31.1.tgz (GET)
+../../node_modules/.pnpm/esbuild@0.27.3/node_modules/esbuild: Running postinstall script, done in 5s
+Done in 3m 1.7s using pnpm v10.33.2
+
+[6]
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa (main -> origin)
+λ pnpm add -D dotenv-cli
+ WARN  3 deprecated subdependencies found: node-domexception@1.0.0, uuid@8.3.2, uuid@9.0.1
+../..                                    | Progress: resolved 630, reused 0, downloaded 0, added 0, done
+ WARN  Issues with peer dependencies found
+artifacts/fursa
+├─┬ @clerk/themes 2.4.57
+│ └─┬ @clerk/shared 3.47.5
+│   ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+│   └── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+└─┬ @clerk/react 6.4.5
+  ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+  ├── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+  └─┬ @clerk/shared 4.8.5
+    ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+    └── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+
+devDependencies:
++ dotenv-cli ^11.0.0
+
+../..                                    |   +7 +
+../../node_modules/.pnpm/esbuild@0.27.3/node_modules/esbuild: Running postinstall script, done in 2.1s
+Done in 22.7s using pnpm v10.33.2
+
+[7]
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa-slides (main -> origin)
+λ pnpm add -D dotenv-cli
+ WARN  3 deprecated subdependencies found: node-domexception@1.0.0, uuid@8.3.2, uuid@9.0.1
+../..                                    | Progress: resolved 630, reused 0, downloaded 0, added 0, done
+ WARN  Issues with peer dependencies found
+artifacts/fursa
+├─┬ @clerk/react 6.4.5
+│ ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+│ ├── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+│ └─┬ @clerk/shared 4.8.5
+│   ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+│   └── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+└─┬ @clerk/themes 2.4.57
+  └─┬ @clerk/shared 3.47.5
+    ├── ✕ unmet peer react@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+    └── ✕ unmet peer react-dom@"^18.0.0 || ~19.0.3 || ~19.1.4 || ~19.2.3 || ~19.3.0-0": found 19.1.0
+
+devDependencies:
++ dotenv-cli ^11.0.0
+
+../..                                    |   +4 +
+Done in 36.3s using pnpm v10.33.2
+
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa-slides (main -> origin)
+λ 
+
+[8]
