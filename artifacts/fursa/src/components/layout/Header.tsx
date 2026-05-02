@@ -36,6 +36,7 @@ import {
   Plus,
   Users,
   ShieldCheck,
+  Building2,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -90,6 +91,11 @@ export function Header() {
           label: t("dashboard.employer.newJob"),
           icon: Plus,
         },
+        {
+          href: "/employer/profile",
+          label: t("dashboard.employer.profile"),
+          icon: Building2,
+        },
       );
     } else if (role === "admin") {
       links.push(
@@ -102,6 +108,11 @@ export function Header() {
           href: "/admin/users",
           label: t("dashboard.admin.users"),
           icon: Users,
+        },
+        {
+          href: "/admin/profile",
+          label: t("dashboard.admin.profile"),
+          icon: UserIcon,
         },
       );
     }
@@ -190,6 +201,13 @@ export function Header() {
               >
                 <Plus className="h-5 w-5" /> {t("dashboard.employer.newJob")}
               </Link>
+              <Link
+                href="/employer/profile"
+                onClick={closeMobile}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
+              >
+                <Building2 className="h-5 w-5" /> {t("dashboard.employer.profile")}
+              </Link>
             </>
           )}
           {dbUser.role === "admin" && (
@@ -208,6 +226,13 @@ export function Header() {
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
               >
                 <Users className="h-5 w-5" /> {t("dashboard.admin.users")}
+              </Link>
+              <Link
+                href="/admin/profile"
+                onClick={closeMobile}
+                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
+              >
+                <UserIcon className="h-5 w-5" /> {t("dashboard.admin.profile")}
               </Link>
             </>
           )}

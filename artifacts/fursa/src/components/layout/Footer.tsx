@@ -10,7 +10,7 @@ export function Footer() {
     <footer className="border-t bg-muted/40 mt-auto">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid gap-8 md:grid-cols-3">
-          <div className="md:col-span-2">
+          <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-3">
               <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
                 <Briefcase className="h-5 w-5" />
@@ -35,6 +35,38 @@ export function Footer() {
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {t("footer.findJob")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("footer.about")}
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-3 text-sm">
+              {t("footer.legal")}
+            </h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  href="/privacy"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("footer.privacy")}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("footer.terms")}
                 </Link>
               </li>
             </ul>

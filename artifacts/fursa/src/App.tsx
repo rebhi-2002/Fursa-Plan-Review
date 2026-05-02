@@ -20,6 +20,9 @@ import SignUpPage from "@/pages/auth/sign-up";
 import Onboarding from "@/pages/onboarding";
 import JobsPage from "@/pages/jobs";
 import JobDetail from "@/pages/jobs/detail";
+import AboutPage from "@/pages/about";
+import PrivacyPage from "@/pages/privacy";
+import TermsPage from "@/pages/terms";
 import NotFound from "@/pages/not-found";
 
 // Role Pages
@@ -32,10 +35,12 @@ import EmployerDashboard from "@/pages/employer/dashboard";
 import EmployerJobs from "@/pages/employer/jobs";
 import EmployerNewJob from "@/pages/employer/job-new";
 import EmployerJobDetail from "@/pages/employer/job-edit";
+import EmployerProfile from "@/pages/employer/profile";
 
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminJobs from "@/pages/admin/jobs";
 import AdminUsers from "@/pages/admin/users";
+import AdminProfile from "@/pages/admin/profile";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -104,78 +109,105 @@ function stripBase(path: string): string {
     : path;
 }
 
-// Show home page to everyone. Onboarding lives only at /onboarding.
 function HomeRedirect() {
   return <Home />;
 }
 
+function AuthLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="relative flex min-h-screen flex-col bg-background">
+      <main className="flex-1 flex flex-col">
+        {children}
+      </main>
+    </div>
+  );
+}
+
 function Router() {
   return (
-    <AppLayout>
-      <Switch>
-        <Route path="/" component={HomeRedirect} />
-        
-        {/* Auth */}
-        <Route path="/sign-in/*?" component={SignInPage} />
-        <Route path="/sign-up/*?" component={SignUpPage} />
-        
-        {/* Public */}
-        <Route path="/jobs" component={JobsPage} />
-        <Route path="/jobs/:id" component={JobDetail} />
-        
-        {/* Onboarding */}
-        <Route path="/onboarding">
-          <Show when="signed-in">
-            <Onboarding />
-          </Show>
-          <Show when="signed-out">
-            <Redirect to="/sign-in" />
-          </Show>
-        </Route>
+    <Switch>
+      {/* Auth routes — no header/footer */}
+      <Route path="/sign-in/*?">
+        <AuthLayout><SignInPage /></AuthLayout>
+      </Route>
+      <Route path="/sign-up/*?">
+        <AuthLayout><SignUpPage /></AuthLayout>
+      </Route>
 
-        {/* Seeker Routes */}
-        <Route path="/seeker">
-          <RoleGuard role="seeker"><SeekerDashboard /></RoleGuard>
-        </Route>
-        <Route path="/seeker/applications">
-          <RoleGuard role="seeker"><SeekerApplications /></RoleGuard>
-        </Route>
-        <Route path="/seeker/saved">
-          <RoleGuard role="seeker"><SeekerSavedJobs /></RoleGuard>
-        </Route>
-        <Route path="/seeker/profile">
-          <RoleGuard role="seeker"><SeekerProfile /></RoleGuard>
-        </Route>
+      {/* All other routes inside AppLayout */}
+      <Route>
+        <AppLayout>
+          <Switch>
+            <Route path="/" component={HomeRedirect} />
 
-        {/* Employer Routes */}
-        <Route path="/employer">
-          <RoleGuard role="employer"><EmployerDashboard /></RoleGuard>
-        </Route>
-        <Route path="/employer/jobs">
-          <RoleGuard role="employer"><EmployerJobs /></RoleGuard>
-        </Route>
-        <Route path="/employer/jobs/new">
-          <RoleGuard role="employer"><EmployerNewJob /></RoleGuard>
-        </Route>
-        <Route path="/employer/jobs/:id">
-          <RoleGuard role="employer"><EmployerJobDetail /></RoleGuard>
-        </Route>
+            {/* Public */}
+            <Route path="/jobs" component={JobsPage} />
+            <Route path="/jobs/:id" component={JobDetail} />
+            <Route path="/about" component={AboutPage} />
+            <Route path="/privacy" component={PrivacyPage} />
+            <Route path="/terms" component={TermsPage} />
 
-        {/* Admin Routes */}
-        <Route path="/admin">
-          <RoleGuard role="admin"><AdminDashboard /></RoleGuard>
-        </Route>
-        <Route path="/admin/jobs">
-          <RoleGuard role="admin"><AdminJobs /></RoleGuard>
-        </Route>
-        <Route path="/admin/users">
-          <RoleGuard role="admin"><AdminUsers /></RoleGuard>
-        </Route>
+            {/* Onboarding */}
+            <Route path="/onboarding">
+              <Show when="signed-in">
+                <Onboarding />
+              </Show>
+              <Show when="signed-out">
+                <Redirect to="/sign-in" />
+              </Show>
+            </Route>
 
-        {/* 404 */}
-        <Route component={NotFound} />
-      </Switch>
-    </AppLayout>
+            {/* Seeker Routes */}
+            <Route path="/seeker">
+              <RoleGuard role="seeker"><SeekerDashboard /></RoleGuard>
+            </Route>
+            <Route path="/seeker/applications">
+              <RoleGuard role="seeker"><SeekerApplications /></RoleGuard>
+            </Route>
+            <Route path="/seeker/saved">
+              <RoleGuard role="seeker"><SeekerSavedJobs /></RoleGuard>
+            </Route>
+            <Route path="/seeker/profile">
+              <RoleGuard role="seeker"><SeekerProfile /></RoleGuard>
+            </Route>
+
+            {/* Employer Routes */}
+            <Route path="/employer">
+              <RoleGuard role="employer"><EmployerDashboard /></RoleGuard>
+            </Route>
+            <Route path="/employer/jobs">
+              <RoleGuard role="employer"><EmployerJobs /></RoleGuard>
+            </Route>
+            <Route path="/employer/jobs/new">
+              <RoleGuard role="employer"><EmployerNewJob /></RoleGuard>
+            </Route>
+            <Route path="/employer/jobs/:id">
+              <RoleGuard role="employer"><EmployerJobDetail /></RoleGuard>
+            </Route>
+            <Route path="/employer/profile">
+              <RoleGuard role="employer"><EmployerProfile /></RoleGuard>
+            </Route>
+
+            {/* Admin Routes */}
+            <Route path="/admin">
+              <RoleGuard role="admin"><AdminDashboard /></RoleGuard>
+            </Route>
+            <Route path="/admin/jobs">
+              <RoleGuard role="admin"><AdminJobs /></RoleGuard>
+            </Route>
+            <Route path="/admin/users">
+              <RoleGuard role="admin"><AdminUsers /></RoleGuard>
+            </Route>
+            <Route path="/admin/profile">
+              <RoleGuard role="admin"><AdminProfile /></RoleGuard>
+            </Route>
+
+            {/* 404 */}
+            <Route component={NotFound} />
+          </Switch>
+        </AppLayout>
+      </Route>
+    </Switch>
   );
 }
 

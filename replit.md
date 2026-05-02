@@ -17,17 +17,30 @@ Arabic/RTL-first job platform connecting talent in Gaza with employers. English 
 ## Routing
 
 - Frontend artifact at `/`, API at `/api/*` (routed by global proxy via `artifact.toml`).
-- Public: `/`, `/jobs`, `/jobs/:id`, `/sign-in`, `/sign-up`
+- Auth pages (`/sign-in`, `/sign-up`) render in `AuthLayout` — **no Header/Footer**. All other routes use `AppLayout`.
+- Public: `/`, `/jobs`, `/jobs/:id`, `/about`, `/privacy`, `/terms`, `/sign-in`, `/sign-up`
 - Onboarding: `/onboarding` (collects role + profile)
 - Role-guarded: `/seeker/*`, `/employer/*`, `/admin/*`
+- Profile pages: `/seeker/profile`, `/employer/profile`, `/admin/profile`
+- Slides deck artifact at `/fursa-slides/`
 
 ## Key files
 
-- `artifacts/fursa/src/App.tsx` — Clerk provider, router, role guards, layout
-- `artifacts/fursa/src/lib/i18n.tsx` — Arabic/English translations + RTL store
+- `artifacts/fursa/src/App.tsx` — Clerk provider, router, role guards, AuthLayout vs AppLayout
+- `artifacts/fursa/src/lib/i18n.tsx` — Arabic/English translations + RTL store (all keys for all pages)
+- `artifacts/fursa/src/components/layout/Header.tsx` — role-aware nav (employer profile, admin profile links)
+- `artifacts/fursa/src/components/layout/Footer.tsx` — 3-column footer with About/Privacy/Terms links
+- `artifacts/fursa/src/pages/about.tsx` — About page (bilingual)
+- `artifacts/fursa/src/pages/privacy.tsx` — Privacy Policy page (bilingual)
+- `artifacts/fursa/src/pages/terms.tsx` — Terms of Service page (bilingual)
+- `artifacts/fursa/src/pages/employer/profile.tsx` — Employer company profile page
+- `artifacts/fursa/src/pages/admin/profile.tsx` — Admin personal profile page
 - `artifacts/api-server/src/middlewares/auth.ts` — `requireAuth`, `loadCurrentUser`, `requireRole`
 - `artifacts/api-server/src/routes/` — `publicJobs`, `me`, `seeker`, `employer`, `admin`, `platform`, `storage`
 - `lib/db/src/schema/index.ts` — Drizzle tables and enums
+- `artifacts/fursa-slides/src/pages/slides/` — 8 slide components (Slide1Title … Slide8Closing)
+- `artifacts/fursa-slides/src/data/slides-manifest.json` — Slide deck manifest
+- `FURSA_DOCUMENTATION.md` — Complete A-Z project documentation
 - `scripts/src/seedFursa.ts` — seeds 3 seekers, 3 employers, 1 admin, 6 jobs, 3 applications
 
 ## Environment

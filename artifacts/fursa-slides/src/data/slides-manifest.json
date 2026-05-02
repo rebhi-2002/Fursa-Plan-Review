@@ -1,0 +1,66 @@
+[
+  {
+    "id": "a1b2c3d4-0001-4abc-8def-000000000001",
+    "position": 1,
+    "filepath": "src/pages/slides/Slide1Title.tsx",
+    "title": "فُرصة · Fursa",
+    "description": "Title slide — Gaza's Digital Employment Platform",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0002-4abc-8def-000000000002",
+    "position": 2,
+    "filepath": "src/pages/slides/Slide2Challenge.tsx",
+    "title": "The Challenge",
+    "description": "Gaza's employment gap — three core problems",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0003-4abc-8def-000000000003",
+    "position": 3,
+    "filepath": "src/pages/slides/Slide3Platform.tsx",
+    "title": "The Platform",
+    "description": "Three roles: Job Seeker, Employer, Admin",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0004-4abc-8def-000000000004",
+    "position": 4,
+    "filepath": "src/pages/slides/Slide4HowItWorks.tsx",
+    "title": "How It Works",
+    "description": "Four-step flow from sign-up to hire",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0005-4abc-8def-000000000005",
+    "position": 5,
+    "filepath": "src/pages/slides/Slide5Features.tsx",
+    "title": "Key Features",
+    "description": "RTL, bilingual, role dashboards, Clerk auth, full CRUD",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0006-4abc-8def-000000000006",
+    "position": 6,
+    "filepath": "src/pages/slides/Slide6TechStack.tsx",
+    "title": "Technology Stack",
+    "description": "React, Express, Drizzle ORM, Supabase, Clerk, pnpm monorepo",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0007-4abc-8def-000000000007",
+    "position": 7,
+    "filepath": "src/pages/slides/Slide7Impact.tsx",
+    "title": "Impact",
+    "description": "Every person deserves a dignified opportunity",
+    "speakerNotes": ""
+  },
+  {
+    "id": "a1b2c3d4-0008-4abc-8def-000000000008",
+    "position": 8,
+    "filepath": "src/pages/slides/Slide8Closing.tsx",
+    "title": "Closing",
+    "description": "Brand closing with contact info",
+    "speakerNotes": ""
+  }
+]

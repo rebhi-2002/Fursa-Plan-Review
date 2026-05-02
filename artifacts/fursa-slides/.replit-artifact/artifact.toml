@@ -1,0 +1,31 @@
+kind = "slides"
+previewPath = "/fursa-slides/"
+title = "Fursa Presentation"
+version = "1.0.0"
+id = "artifacts/fursa-slides"
+router = "path"
+
+[[integratedSkills]]
+name = "slides"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/fursa-slides/" ]
+localPort = 18389
+
+[services.development]
+run = "pnpm --filter @workspace/fursa-slides run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/fursa-slides", "run", "build" ]
+publicDir = "artifacts/fursa-slides/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18389"
+BASE_PATH = "/fursa-slides/"
