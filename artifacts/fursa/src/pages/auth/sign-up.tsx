@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { SignUp } from "@clerk/react";
+import { useState, useEffect } from "react";
+import { SignUp, useUser } from "@clerk/react";
 import { Briefcase, User, Building2, ArrowRight } from "lucide-react";
 import { useT, useLanguageStore } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { useGetCurrentUser } from "@workspace/api-client-react";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -14,6 +15,15 @@ export default function SignUpPage() {
   const t = useT();
   const { lang } = useLanguageStore();
   const [pendingRole, setPendingRole] = useState<PendingRole | null>(null);
+  const { user: clerkUser, isLoaded } = useUser();
+  const { data: currentUser } = useGetCurrentUser();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    if (isLoaded && clerkUser && currentUser?.onboarded) {
+      setLocation(`/${currentUser.role}`);
+    }
+  }, [isLoaded, clerkUser, currentUser, setLocation]);
 
   const handleRolePick = (role: PendingRole) => {
     sessionStorage.setItem("fursa_pending_role", role);

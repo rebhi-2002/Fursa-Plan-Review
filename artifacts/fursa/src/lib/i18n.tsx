@@ -521,6 +521,10 @@ const ar: TranslationDictionary = {
   "employer.jobDetail.applicantsList": "قائمة المتقدمين",
   "employer.jobDetail.statusUpdated": "تم تحديث حالة الوظيفة",
   "employer.jobDetail.deleted": "تم حذف الوظيفة بنجاح",
+  "employer.jobDetail.edit": "تعديل الوظيفة",
+  "employer.jobDetail.editTitle": "تعديل تفاصيل الوظيفة",
+  "employer.jobDetail.editDesc": "تحديث بيانات الوظيفة. التعديلات الجوهرية ستُعيد الوظيفة لمرحلة المراجعة.",
+  "employer.jobDetail.editSuccess": "تم تحديث الوظيفة بنجاح",
 
   // Employer applications inside job detail
   "employer.applications.appStatus": "حالة الطلب",
@@ -1045,6 +1049,10 @@ const en: TranslationDictionary = {
   "employer.jobDetail.applicantsList": "Applicants",
   "employer.jobDetail.statusUpdated": "Job status updated",
   "employer.jobDetail.deleted": "Job deleted successfully",
+  "employer.jobDetail.edit": "Edit Job",
+  "employer.jobDetail.editTitle": "Edit Job Details",
+  "employer.jobDetail.editDesc": "Update the job posting. Major changes will reset the job to pending review.",
+  "employer.jobDetail.editSuccess": "Job updated successfully",
 
   // Employer applications inside job detail
   "employer.applications.appStatus": "Application Status",

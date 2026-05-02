@@ -7,8 +7,10 @@ import {
   useListJobApplications,
   useUpdateApplicationStatus,
   useMarkApplicationSeen,
+  useUpdateEmployerJob,
   getGetEmployerJobQueryKey,
   getListJobApplicationsQueryKey,
+  JobType,
 } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -39,6 +43,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormDescription,
+} from "@/components/ui/form";
+import {
   ChevronLeft,
   Loader2,
   XCircle,
@@ -47,12 +60,16 @@ import {
   MapPin,
   Download,
   Users,
+  Pencil,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 export default function EmployerJobDetail() {
   const t = useT();
@@ -120,7 +137,79 @@ export default function EmployerJobDetail() {
     },
   });
 
+  const updateJobMutation = useUpdateEmployerJob({
+    mutation: {
+      onSuccess: () => {
+        toast.success(t("employer.jobDetail.editSuccess"));
+        setIsEditOpen(false);
+        queryClient.invalidateQueries({
+          queryKey: getGetEmployerJobQueryKey(jobId),
+        });
+      },
+      onError: () => {
+        toast.error(t("common.error"));
+      },
+    },
+  });
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const editSchema = z.object({
+    title: z.string().min(5, t("employer.newJob.validation.title")),
+    description: z.string().min(20, t("employer.newJob.validation.desc")),
+    requirements: z.string().optional(),
+    type: z.nativeEnum(JobType, {
+      required_error: t("employer.newJob.validation.type"),
+    }),
+    category: z.string().min(2, t("employer.newJob.validation.cat")),
+    contactInfo: z.string().min(5, t("employer.newJob.validation.contact")),
+    deadline: z.string().optional(),
+  });
+
+  type EditFormValues = z.infer<typeof editSchema>;
+
+  const editForm = useForm<EditFormValues>({
+    resolver: zodResolver(editSchema),
+    defaultValues: {
+      title: job?.title || "",
+      description: job?.description || "",
+      requirements: job?.requirements || "",
+      type: (job?.type as JobType) || "online",
+      category: job?.category || "",
+      contactInfo: job?.contactInfo || "",
+      deadline: job?.deadline
+        ? job.deadline.split("T")[0]
+        : "",
+    },
+  });
+
+  const handleOpenEdit = () => {
+    if (job) {
+      editForm.reset({
+        title: job.title,
+        description: job.description,
+        requirements: job.requirements || "",
+        type: job.type as JobType,
+        category: job.category,
+        contactInfo: job.contactInfo,
+        deadline: job.deadline ? job.deadline.split("T")[0] : "",
+      });
+    }
+    setIsEditOpen(true);
+  };
+
+  const onEditSubmit = async (data: EditFormValues) => {
+    updateJobMutation.mutate({
+      id: jobId,
+      data: {
+        ...data,
+        deadline: data.deadline
+          ? new Date(data.deadline).toISOString()
+          : undefined,
+      },
+    });
+  };
 
   const handleToggleOpen = () => {
     toggleOpenMutation.mutate({ data: { id: jobId } });
@@ -318,7 +407,216 @@ export default function EmployerJobDetail() {
                 />
               </div>
 
-              <div className="pt-4 border-t border-border/50">
+              <div className="pt-4 border-t border-border/50 space-y-3">
+                <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleOpenEdit}
+                    >
+                      <Pencil className="mr-2 ms-2 h-4 w-4" />
+                      {t("employer.jobDetail.edit")}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent
+                    className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto"
+                    dir={lang === "ar" ? "rtl" : "ltr"}
+                  >
+                    <DialogHeader>
+                      <DialogTitle>{t("employer.jobDetail.editTitle")}</DialogTitle>
+                      <DialogDescription>
+                        {t("employer.jobDetail.editDesc")}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <Form {...editForm}>
+                      <form
+                        onSubmit={editForm.handleSubmit(onEditSubmit)}
+                        className="space-y-5 mt-2"
+                      >
+                        <FormField
+                          control={editForm.control}
+                          name="title"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                {t("employer.newJob.jobTitle")}{" "}
+                                <span className="text-destructive">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  className="bg-background"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={editForm.control}
+                            name="category"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {t("employer.newJob.field")}{" "}
+                                  <span className="text-destructive">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    className="bg-background"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={editForm.control}
+                            name="type"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {t("employer.newJob.workType")}{" "}
+                                  <span className="text-destructive">*</span>
+                                </FormLabel>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="bg-background">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
+                                    <SelectItem value="online">
+                                      {t("employer.newJob.workType.online")}
+                                    </SelectItem>
+                                    <SelectItem value="field">
+                                      {t("employer.newJob.workType.field")}
+                                    </SelectItem>
+                                    <SelectItem value="hybrid">
+                                      {t("employer.newJob.workType.hybrid")}
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <FormField
+                          control={editForm.control}
+                          name="description"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                {t("employer.newJob.descLabel")}{" "}
+                                <span className="text-destructive">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  className="min-h-[120px] resize-none bg-background"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={editForm.control}
+                          name="requirements"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{t("employer.newJob.reqLabel")}</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  className="min-h-[80px] resize-none bg-background"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={editForm.control}
+                            name="contactInfo"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {t("employer.newJob.contactLabel")}{" "}
+                                  <span className="text-destructive">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    className="bg-background"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  {t("employer.newJob.contactDesc")}
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={editForm.control}
+                            name="deadline"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  {t("employer.newJob.deadlineLabel")}
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="date"
+                                    className="bg-background"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  {t("employer.newJob.deadlineDesc")}
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        <DialogFooter className="pt-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setIsEditOpen(false)}
+                          >
+                            {t("common.cancel")}
+                          </Button>
+                          <Button
+                            type="submit"
+                            disabled={updateJobMutation.isPending}
+                          >
+                            {updateJobMutation.isPending && (
+                              <Loader2 className="mr-2 ms-2 h-4 w-4 animate-spin" />
+                            )}
+                            {t("common.save")}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    </Form>
+                  </DialogContent>
+                </Dialog>
+
                 <Dialog
                   open={isDeleteDialogOpen}
                   onOpenChange={setIsDeleteDialogOpen}

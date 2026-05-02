@@ -74,7 +74,14 @@ export default function EmployerNewJob() {
 
   const onSubmit = async (data: JobFormValues) => {
     try {
-      await createJobMutation.mutateAsync({ data });
+      await createJobMutation.mutateAsync({
+        data: {
+          ...data,
+          deadline: data.deadline
+            ? new Date(data.deadline).toISOString()
+            : undefined,
+        },
+      });
       toast.success(t("employer.newJob.success"));
       queryClient.invalidateQueries();
       setLocation("/employer/jobs");

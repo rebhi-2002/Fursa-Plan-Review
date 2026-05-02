@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import {
   useGetCurrentUser,
@@ -51,6 +51,7 @@ export default function SeekerProfile() {
   const updateProfileMutation = useUpdateCurrentUser();
 
   const [cvObjectPath, setCvObjectPath] = useState<string | null>(null);
+  const pendingCvPathRef = useRef<string | null>(null);
   const [savingCv, setSavingCv] = useState(false);
 
   const profileSchema = z.object({
@@ -108,6 +109,7 @@ export default function SeekerProfile() {
     });
     if (!res.ok) throw new Error("Failed to get upload URL");
     const { uploadURL, objectPath } = await res.json();
+    pendingCvPathRef.current = objectPath;
     setCvObjectPath(objectPath);
     return {
       method: "PUT" as const,
@@ -265,7 +267,7 @@ export default function SeekerProfile() {
                 onGetUploadParameters={handleUploadParams}
                 onComplete={(result) => {
                   if (result.successful.length > 0) {
-                    handleUploadComplete(result, cvObjectPath!);
+                    handleUploadComplete(result, pendingCvPathRef.current!);
                   }
                 }}
                 buttonClassName="inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8"

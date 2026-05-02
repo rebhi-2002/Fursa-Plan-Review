@@ -50,15 +50,13 @@ export default function SignInPage() {
         </p>
       </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-10 bg-background" dir={lang === "ar" ? "rtl" : "ltr"}>
-        <div className="w-full max-w-md">
-          <SignIn
-            routing="path"
-            path={`${basePath}/sign-in`}
-            signUpUrl={`${basePath}/sign-up`}
-            forceRedirectUrl={`${basePath}/onboarding`}
-          />
-        </div>
+      <div className="flex-1 flex items-center justify-center px-6 py-10 bg-background" dir={lang === "ar" ? "rtl" : "ltr"}>
+        <SignIn
+          routing="path"
+          path={`${basePath}/sign-in`}
+          signUpUrl={`${basePath}/sign-up`}
+          forceRedirectUrl={`${basePath}/onboarding`}
+        />
       </div>
     </div>
   );

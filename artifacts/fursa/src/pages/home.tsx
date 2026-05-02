@@ -1,9 +1,11 @@
 import { Link, useLocation } from "wouter";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@clerk/react";
 import {
   useListFeaturedJobs,
   useListJobCategories,
+  useGetCurrentUser,
 } from "@workspace/api-client-react";
 import {
   Card,
@@ -23,6 +25,8 @@ export default function Home() {
   const t = useT();
   const { lang } = useLanguageStore();
   const [, setLocation] = useLocation();
+  const { user: clerkUser } = useUser();
+  const { data: currentUser } = useGetCurrentUser();
 
   const { data: featuredJobs, isLoading: isLoadingJobs } =
     useListFeaturedJobs();
@@ -261,14 +265,27 @@ export default function Home() {
             {t("home.ctaSubtitle")}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button
-              size="lg"
-              variant="secondary"
-              asChild
-              className="text-primary font-bold px-8 h-14 text-lg"
-            >
-              <Link href="/sign-up">{t("home.ctaSignUp")}</Link>
-            </Button>
+            {clerkUser ? (
+              <Button
+                size="lg"
+                variant="secondary"
+                asChild
+                className="text-primary font-bold px-8 h-14 text-lg"
+              >
+                <Link href={`/${currentUser?.role || "seeker"}`}>
+                  {t("nav.dashboard")}
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                variant="secondary"
+                asChild
+                className="text-primary font-bold px-8 h-14 text-lg"
+              >
+                <Link href="/sign-up">{t("home.ctaSignUp")}</Link>
+              </Button>
+            )}
             <Button
               size="lg"
               variant="outline"

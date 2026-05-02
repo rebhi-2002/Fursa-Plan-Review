@@ -25,7 +25,7 @@ const jobBodySchema = z.object({
 const updateJobBodySchema = jobBodySchema.partial();
 
 const updateAppStatusSchema = z.object({
-  status: z.enum(["accepted", "rejected"]),
+  status: z.enum(["accepted", "rejected", "pending"]),
 });
 
 function isoOrNull(d: Date | null | undefined): string | null {
