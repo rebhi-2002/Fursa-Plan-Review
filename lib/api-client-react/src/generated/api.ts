@@ -21,6 +21,8 @@ import type {
   AdminJob,
   AdminUser,
   CategoryCount,
+  PublicEmployerProfile,
+  PublicEmployerJob,
   CreateApplicationBody,
   CreateJobBody,
   CurrentUser,
@@ -200,6 +202,88 @@ export function useGetPlatformStats<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetPlatformStatsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+export const getGetPublicEmployerProfileUrl = (id: string) => {
+  return `/api/public/employers/${id}`;
+};
+
+export const getPublicEmployerProfile = async (
+  id: string,
+  options?: RequestInit,
+): Promise<PublicEmployerProfile> => {
+  return customFetch<PublicEmployerProfile>(
+    getGetPublicEmployerProfileUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetPublicEmployerProfileQueryKey = (id: string) => {
+  return [`/api/public/employers/${id}`] as const;
+};
+
+export const getGetPublicEmployerProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPublicEmployerProfileQueryKey(id);
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPublicEmployerProfile>>
+  > = ({ signal }) =>
+    getPublicEmployerProfile(id, { signal, ...requestOptions });
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+    TError,
+    TData
+  >;
+};
+
+export type GetPublicEmployerProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPublicEmployerProfile>>
+>;
+export type GetPublicEmployerProfileQueryError = ErrorType<unknown>;
+
+export function useGetPublicEmployerProfile<
+  TData = Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+  TError = ErrorType<unknown>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPublicEmployerProfileQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

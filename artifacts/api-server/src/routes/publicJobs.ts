@@ -152,4 +152,68 @@ router.get("/jobs/:id", async (req: Request, res: Response) => {
   res.json({ ...rest, savedByMe, appliedByMe });
 });
 
+router.get(
+  "/public/employers/:id",
+  async (req: Request, res: Response) => {
+    const id = req.params["id"];
+    if (!id) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+
+    const employers = await db
+      .select({
+        id: usersTable.id,
+        name: usersTable.name,
+        bio: usersTable.bio,
+        website: usersTable.website,
+        location: usersTable.location,
+        phone: usersTable.phone,
+      })
+      .from(usersTable)
+      .where(
+        and(
+          eq(usersTable.id, id),
+          eq(usersTable.role, "employer"),
+          eq(usersTable.isActive, true),
+        ),
+      )
+      .limit(1);
+
+    if (!employers[0]) {
+      res.status(404).json({ error: "Employer not found" });
+      return;
+    }
+
+    const jobs = await db
+      .select({
+        id: jobsTable.id,
+        title: jobsTable.title,
+        description: jobsTable.description,
+        type: jobsTable.type,
+        category: jobsTable.category,
+        deadline: jobsTable.deadline,
+        createdAt: jobsTable.createdAt,
+      })
+      .from(jobsTable)
+      .where(
+        and(
+          eq(jobsTable.employerId, id),
+          eq(jobsTable.status, "approved"),
+          eq(jobsTable.isOpen, true),
+        ),
+      )
+      .orderBy(desc(jobsTable.createdAt));
+
+    res.json({
+      ...employers[0],
+      jobs: jobs.map((j) => ({
+        ...j,
+        deadline: j.deadline ? j.deadline.toISOString() : null,
+        createdAt: j.createdAt.toISOString(),
+      })),
+    });
+  },
+);
+
 export default router;

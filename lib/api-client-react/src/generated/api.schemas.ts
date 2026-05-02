@@ -58,6 +58,31 @@ export interface CategoryCount {
   count: number;
 }
 
+export interface PublicEmployerJob {
+  id: number;
+  title: string;
+  description: string;
+  type: JobType;
+  category: string;
+  /** @nullable */
+  deadline?: string | null;
+  createdAt: string;
+}
+
+export interface PublicEmployerProfile {
+  id: string;
+  name: string;
+  /** @nullable */
+  bio?: string | null;
+  /** @nullable */
+  website?: string | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  phone?: string | null;
+  jobs: PublicEmployerJob[];
+}
+
 export interface PublicJob {
   id: number;
   title: string;

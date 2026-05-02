@@ -18,10 +18,12 @@ Arabic/RTL-first job platform connecting talent in Gaza with employers. English 
 
 - Frontend artifact at `/`, API at `/api/*` (routed by global proxy via `artifact.toml`).
 - Auth pages (`/sign-in`, `/sign-up`) render in `AuthLayout` — **no Header/Footer**. All other routes use `AppLayout`.
-- Public: `/`, `/jobs`, `/jobs/:id`, `/about`, `/privacy`, `/terms`, `/sign-in`, `/sign-up`
+- Public: `/`, `/jobs`, `/jobs/:id`, `/about`, `/privacy`, `/terms`, `/contact`, `/faq`, `/employers/:id`, `/sign-in`, `/sign-up`
+- Notifications: `/notifications` (signed-in only, works for all roles)
 - Onboarding: `/onboarding` (collects role + profile)
 - Role-guarded: `/seeker/*`, `/employer/*`, `/admin/*`
 - Profile pages: `/seeker/profile`, `/employer/profile`, `/admin/profile`
+- **IMPORTANT**: `/employer/jobs/:id/applications` MUST come BEFORE `/employer/jobs/:id` in the Switch
 - Slides deck artifact at `/fursa-slides/`
 
 ## Key files
@@ -29,14 +31,24 @@ Arabic/RTL-first job platform connecting talent in Gaza with employers. English 
 - `artifacts/fursa/src/App.tsx` — Clerk provider, router, role guards, AuthLayout vs AppLayout
 - `artifacts/fursa/src/lib/i18n.tsx` — Arabic/English translations + RTL store (all keys for all pages)
 - `artifacts/fursa/src/components/layout/Header.tsx` — role-aware nav (employer profile, admin profile links)
-- `artifacts/fursa/src/components/layout/Footer.tsx` — 3-column footer with About/Privacy/Terms links
+- `artifacts/fursa/src/components/layout/Footer.tsx` — 3-column footer with About/Privacy/Terms/FAQ/Contact links
+- `artifacts/fursa/src/components/layout/NotificationBell.tsx` — bell popover with "View all" link to /notifications
 - `artifacts/fursa/src/pages/about.tsx` — About page (bilingual)
 - `artifacts/fursa/src/pages/privacy.tsx` — Privacy Policy page (bilingual)
 - `artifacts/fursa/src/pages/terms.tsx` — Terms of Service page (bilingual)
+- `artifacts/fursa/src/pages/contact.tsx` — Contact page with form + info card (bilingual)
+- `artifacts/fursa/src/pages/faq.tsx` — FAQ page with accordion (8 Q&As, bilingual)
+- `artifacts/fursa/src/pages/notifications.tsx` — Full notifications page (mark read, mark all, empty state)
+- `artifacts/fursa/src/pages/employers.tsx` — Public employer profile (`/employers/:id`)
+- `artifacts/fursa/src/pages/home.tsx` — Home page with live stats section + "How it Works" (3-step) section
+- `artifacts/fursa/src/pages/employer/applications.tsx` — Full applications review page with filter tabs, accept/reject, CV download, cover letter accordion
 - `artifacts/fursa/src/pages/employer/profile.tsx` — Employer company profile page
 - `artifacts/fursa/src/pages/admin/profile.tsx` — Admin personal profile page
+- `artifacts/api-server/src/routes/publicJobs.ts` — includes `GET /public/employers/:id` endpoint
 - `artifacts/api-server/src/middlewares/auth.ts` — `requireAuth`, `loadCurrentUser`, `requireRole`
 - `artifacts/api-server/src/routes/` — `publicJobs`, `me`, `seeker`, `employer`, `admin`, `platform`, `storage`
+- `lib/api-client-react/src/generated/api.ts` — includes `useGetPublicEmployerProfile` hook
+- `lib/api-client-react/src/generated/api.schemas.ts` — includes `PublicEmployerProfile`, `PublicEmployerJob` types
 - `lib/db/src/schema/index.ts` — Drizzle tables and enums
 - `artifacts/fursa-slides/src/pages/slides/` — 8 slide components (Slide1Title … Slide8Closing)
 - `artifacts/fursa-slides/src/data/slides-manifest.json` — Slide deck manifest

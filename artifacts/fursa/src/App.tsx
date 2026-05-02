@@ -24,6 +24,10 @@ import AboutPage from "@/pages/about";
 import PrivacyPage from "@/pages/privacy";
 import TermsPage from "@/pages/terms";
 import NotFound from "@/pages/not-found";
+import ContactPage from "@/pages/contact";
+import FaqPage from "@/pages/faq";
+import NotificationsPage from "@/pages/notifications";
+import PublicEmployerProfile from "@/pages/employers";
 
 // Role Pages
 import SeekerDashboard from "@/pages/seeker/dashboard";
@@ -36,6 +40,7 @@ import EmployerJobs from "@/pages/employer/jobs";
 import EmployerNewJob from "@/pages/employer/job-new";
 import EmployerJobDetail from "@/pages/employer/job-edit";
 import EmployerProfile from "@/pages/employer/profile";
+import EmployerApplications from "@/pages/employer/applications";
 
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminJobs from "@/pages/admin/jobs";
@@ -154,6 +159,19 @@ function Router() {
             <Route path="/about" component={AboutPage} />
             <Route path="/privacy" component={PrivacyPage} />
             <Route path="/terms" component={TermsPage} />
+            <Route path="/contact" component={ContactPage} />
+            <Route path="/faq" component={FaqPage} />
+            <Route path="/employers/:id" component={PublicEmployerProfile} />
+
+            {/* Notifications — any signed-in user */}
+            <Route path="/notifications">
+              <Show when="signed-in">
+                <NotificationsPage />
+              </Show>
+              <Show when="signed-out">
+                <Redirect to="/sign-in" />
+              </Show>
+            </Route>
 
             {/* Onboarding */}
             <Route path="/onboarding">
@@ -179,7 +197,7 @@ function Router() {
               <RoleGuard role="seeker"><SeekerProfile /></RoleGuard>
             </Route>
 
-            {/* Employer Routes */}
+            {/* Employer Routes — note: :id/applications MUST come before :id */}
             <Route path="/employer">
               <RoleGuard role="employer"><EmployerDashboard /></RoleGuard>
             </Route>
@@ -188,6 +206,9 @@ function Router() {
             </Route>
             <Route path="/employer/jobs/new">
               <RoleGuard role="employer"><EmployerNewJob /></RoleGuard>
+            </Route>
+            <Route path="/employer/jobs/:id/applications">
+              <RoleGuard role="employer"><EmployerApplications /></RoleGuard>
             </Route>
             <Route path="/employer/jobs/:id">
               <RoleGuard role="employer"><EmployerJobDetail /></RoleGuard>

@@ -150,6 +150,18 @@ export function NotificationBell() {
             </ul>
           )}
         </ScrollArea>
+        <div className="border-t px-4 py-2.5">
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/notifications");
+            }}
+            className="block w-full text-center text-xs font-medium text-primary hover:underline py-0.5"
+          >
+            {t("notifications.viewAll")}
+          </a>
+        </div>
       </PopoverContent>
     </Popover>
   );

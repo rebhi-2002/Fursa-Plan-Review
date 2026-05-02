@@ -164,7 +164,7 @@ export default function EmployerDashboard() {
                         variant={!app.seenByEmployer ? "default" : "outline"}
                         className="shrink-0"
                       >
-                        <Link href={`/employer/jobs/${app.jobId}`}>
+                        <Link href={`/employer/jobs/${app.jobId}/applications`}>
                           {t("employer.dashboard.review")}
                         </Link>
                       </Button>

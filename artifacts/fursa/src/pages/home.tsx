@@ -6,6 +6,7 @@ import {
   useListFeaturedJobs,
   useListJobCategories,
   useGetCurrentUser,
+  useGetPlatformStats,
 } from "@workspace/api-client-react";
 import {
   Card,
@@ -15,7 +16,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Briefcase, Building2 } from "lucide-react";
+import {
+  MapPin,
+  Clock,
+  Briefcase,
+  Building2,
+  Users,
+  FileText,
+  UserPlus,
+  Search,
+  CheckCircle2,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
@@ -28,9 +39,9 @@ export default function Home() {
   const { user: clerkUser } = useUser();
   const { data: currentUser } = useGetCurrentUser();
 
-  const { data: featuredJobs, isLoading: isLoadingJobs } =
-    useListFeaturedJobs();
+  const { data: featuredJobs, isLoading: isLoadingJobs } = useListFeaturedJobs();
   const { data: categories, isLoading: isLoadingCats } = useListJobCategories();
+  const { data: stats } = useGetPlatformStats();
 
   const locale = lang === "ar" ? ar : enUS;
 
@@ -44,6 +55,58 @@ export default function Home() {
       setLocation(`/jobs`);
     }
   };
+
+  const statCards = [
+    {
+      label: t("home.stats.jobs"),
+      value: stats?.totalJobs ?? null,
+      icon: Briefcase,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+    },
+    {
+      label: t("home.stats.employers"),
+      value: stats?.totalEmployers ?? null,
+      icon: Building2,
+      color: "text-violet-600",
+      bg: "bg-violet-50",
+    },
+    {
+      label: t("home.stats.seekers"),
+      value: stats?.totalSeekers ?? null,
+      icon: Users,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+    },
+    {
+      label: t("home.stats.applications"),
+      value: stats?.totalApplications ?? null,
+      icon: FileText,
+      color: "text-orange-600",
+      bg: "bg-orange-50",
+    },
+  ];
+
+  const howItWorks = [
+    {
+      icon: UserPlus,
+      bg: "bg-blue-600",
+      title: t("home.how1.title"),
+      desc: t("home.how1.desc"),
+    },
+    {
+      icon: Search,
+      bg: "bg-emerald-600",
+      title: t("home.how2.title"),
+      desc: t("home.how2.desc"),
+    },
+    {
+      icon: CheckCircle2,
+      bg: "bg-violet-600",
+      title: t("home.how3.title"),
+      desc: t("home.how3.desc"),
+    },
+  ];
 
   return (
     <div className="flex flex-col w-full">
@@ -91,22 +154,54 @@ export default function Home() {
 
           <div className="mt-8 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
             <span>{t("home.popular")}</span>
-            {isLoadingCats
-              ? null : Array.isArray(categories) && categories.map((cat) => (
-                  // categories?.slice(0, 3).map((cat) => (
-                  <Link
-                    key={cat.category}
-                    href={`/jobs?category=${encodeURIComponent(cat.category)}`}
-                    className="hover:text-primary transition-colors hover:underline"
-                  >
-                    {cat.category}
-                  </Link>
-                ))}
+            {!isLoadingCats &&
+              Array.isArray(categories) &&
+              categories.map((cat) => (
+                <Link
+                  key={cat.category}
+                  href={`/jobs?category=${encodeURIComponent(cat.category)}`}
+                  className="hover:text-primary transition-colors hover:underline"
+                >
+                  {cat.category}
+                </Link>
+              ))}
           </div>
         </div>
 
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-        <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/3 w-[500px] h-[500px] bg-blue-400/10 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl opacity-50 pointer-events-none" />
+        <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/3 w-[500px] h-[500px] bg-blue-400/10 rounded-full blur-3xl opacity-50 pointer-events-none" />
+      </section>
+
+      {/* Platform Stats Section */}
+      <section className="py-14 bg-muted/20 border-y border-border/50">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold tracking-tight mb-1">
+              {t("home.stats.title")}
+            </h2>
+            <p className="text-muted-foreground">{t("home.stats.subtitle")}</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {statCards.map((stat, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center text-center p-6 rounded-2xl bg-card border shadow-sm"
+              >
+                <div
+                  className={`h-12 w-12 rounded-full ${stat.bg} flex items-center justify-center mb-3`}
+                >
+                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                </div>
+                <div className="text-3xl font-extrabold mb-1">
+                  {stat.value !== null ? stat.value.toLocaleString() : "—"}
+                </div>
+                <div className="text-sm text-muted-foreground font-medium">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Categories Section */}
@@ -131,8 +226,8 @@ export default function Home() {
               ? Array.from({ length: 10 }).map((_, i) => (
                   <Skeleton key={i} className="h-24 w-full rounded-xl" />
                 ))
-                : Array.isArray(categories) && categories.map((cat) => (
-                // categories?.slice(0, 10).map((cat) => (
+              : Array.isArray(categories) &&
+                categories.map((cat) => (
                   <Link
                     key={cat.category}
                     href={`/jobs?category=${encodeURIComponent(cat.category)}`}
@@ -180,8 +275,7 @@ export default function Home() {
               Array.from({ length: 3 }).map((_, i) => (
                 <Skeleton key={i} className="h-[280px] w-full rounded-2xl" />
               ))
-            // ) : featuredJobs && featuredJobs.length > 0 ? (
-            ): Array.isArray(featuredJobs) && featuredJobs.length > 0 ? (
+            ) : Array.isArray(featuredJobs) && featuredJobs.length > 0 ? (
               featuredJobs.map((job) => (
                 <Card
                   key={job.id}
@@ -237,7 +331,7 @@ export default function Home() {
                     </Button>
                   </CardFooter>
                 </Card>
-    ))
+              ))
             ) : (
               <div className="col-span-full py-12 text-center bg-background rounded-2xl border border-dashed">
                 <Briefcase className="h-12 w-12 mx-auto text-muted-foreground opacity-20 mb-4" />
@@ -251,6 +345,38 @@ export default function Home() {
             <Button variant="outline" asChild className="w-full">
               <Link href="/jobs">{t("home.viewAllJobs")}</Link>
             </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-24 bg-background">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-bold tracking-tight mb-3">
+              {t("home.howTitle")}
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              {t("home.howSubtitle")}
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-10 max-w-4xl mx-auto">
+            {howItWorks.map((step, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center text-center relative"
+              >
+                <div
+                  className={`h-16 w-16 rounded-full ${step.bg} flex items-center justify-center mb-5 shadow-lg ring-4 ring-white/50`}
+                >
+                  <step.icon className="h-8 w-8 text-white" />
+                </div>
+                <h3 className="text-xl font-bold mb-3">{step.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  {step.desc}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
