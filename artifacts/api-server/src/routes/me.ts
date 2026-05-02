@@ -12,6 +12,7 @@ const updateProfileSchema = z.object({
   location: z.string().nullable().optional(),
   bio: z.string().nullable().optional(),
   cvObjectPath: z.string().nullable().optional(),
+  website: z.string().nullable().optional(),
 });
 
 const setRoleSchema = z.object({
@@ -27,6 +28,7 @@ function serializeUser(u: {
   location: string | null;
   bio: string | null;
   cvObjectPath: string | null;
+  website?: string | null;
   isActive: boolean;
   onboarded: boolean;
   createdAt: Date;
@@ -40,6 +42,7 @@ function serializeUser(u: {
     location: u.location,
     bio: u.bio,
     cvObjectPath: u.cvObjectPath,
+    website: u.website ?? null,
     isActive: u.isActive,
     onboarded: u.onboarded,
     createdAt: u.createdAt.toISOString(),

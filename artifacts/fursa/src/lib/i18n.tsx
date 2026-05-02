@@ -415,12 +415,20 @@ const ar: TranslationDictionary = {
   "employer.profile.companyInfoDesc": "هذه البيانات ستظهر للمتقدمين على وظائفك.",
   "employer.profile.companyName": "اسم الشركة / صاحب العمل",
   "employer.profile.companyBio": "نبذة عن الشركة (تظهر للمتقدمين)",
+  "employer.profile.bioDesc": "وصف مختصر يساعد الباحثين عن عمل في التعرف على شركتك.",
+  "employer.profile.website": "الموقع الإلكتروني",
+  "employer.profile.websiteDesc": "رابط الموقع الرسمي للشركة (اختياري).",
+  "employer.profile.websiteInvalid": "يرجى إدخال رابط صحيح (مثال: https://example.com)",
   "employer.profile.updateSuccess": "تم تحديث بيانات الشركة بنجاح",
 
   // Admin profile
   "admin.profile.title": "الملف الشخصي",
   "admin.profile.subtitle": "تحديث بياناتك الشخصية",
   "admin.profile.basicInfo": "البيانات الأساسية",
+  "admin.profile.basicInfoDesc": "معلوماتك الشخصية كمدير للمنصة.",
+  "admin.profile.bio": "ملاحظات / نبذة",
+  "admin.profile.bioPlaceholder": "أضف ملاحظات أو نبذة مختصرة عنك...",
+  "admin.profile.bioDesc": "هذه الملاحظات خاصة ولا تظهر للمستخدمين.",
   "admin.profile.updateSuccess": "تم تحديث الملف الشخصي بنجاح",
 
   // About page
@@ -943,12 +951,20 @@ const en: TranslationDictionary = {
   "employer.profile.companyInfoDesc": "This information is visible to applicants on your job listings.",
   "employer.profile.companyName": "Company / Employer Name",
   "employer.profile.companyBio": "About the Company (visible to applicants)",
+  "employer.profile.bioDesc": "A brief description that helps job seekers learn about your company.",
+  "employer.profile.website": "Company Website",
+  "employer.profile.websiteDesc": "Link to your company's official website (optional).",
+  "employer.profile.websiteInvalid": "Please enter a valid URL (e.g. https://example.com)",
   "employer.profile.updateSuccess": "Company profile updated successfully",
 
   // Admin profile
   "admin.profile.title": "Admin Profile",
   "admin.profile.subtitle": "Update your personal information",
   "admin.profile.basicInfo": "Basic Information",
+  "admin.profile.basicInfoDesc": "Your personal details as a platform administrator.",
+  "admin.profile.bio": "Notes / Bio",
+  "admin.profile.bioPlaceholder": "Add notes or a short bio about yourself...",
+  "admin.profile.bioDesc": "These notes are private and not visible to users.",
   "admin.profile.updateSuccess": "Profile updated successfully",
 
   // About page

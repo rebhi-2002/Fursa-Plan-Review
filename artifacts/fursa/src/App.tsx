@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -107,6 +107,14 @@ function stripBase(path: string): string {
   return basePath && path.startsWith(basePath)
     ? path.slice(basePath.length) || "/"
     : path;
+}
+
+function ScrollToTop() {
+  const [location] = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [location]);
+  return null;
 }
 
 function HomeRedirect() {
@@ -256,6 +264,7 @@ function ClerkAndRouter() {
       routerReplace={(to) => window.history.replaceState(null, "", to)} >
       <ClerkQueryClientCacheInvalidator />
       <WouterRouter base={basePath}>
+        <ScrollToTop />
         <Router />
       </WouterRouter>
     </ClerkProvider>

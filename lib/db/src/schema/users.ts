@@ -11,6 +11,7 @@ export const usersTable = pgTable("users", {
   location: text("location"),
   bio: text("bio"),
   cvObjectPath: text("cv_object_path"),
+  website: text("website"),
   isActive: boolean("is_active").notNull().default(true),
   onboarded: boolean("onboarded").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),

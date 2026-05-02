@@ -42,7 +42,7 @@ export default function SeekerSavedJobs() {
   });
 
   const handleUnsave = (jobId: number) => {
-    unsaveMutation.mutate({ data: { jobId } });
+    unsaveMutation.mutate({ id: jobId });
   };
 
   return (

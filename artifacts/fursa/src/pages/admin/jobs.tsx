@@ -111,13 +111,14 @@ export default function AdminJobs() {
   });
 
   const handleApprove = (id: number) => {
-    approveMutation.mutate({ data: { id } });
+    approveMutation.mutate({ id });
   };
 
   const handleReject = () => {
     if (selectedJobId && rejectReason.trim().length >= 5) {
       rejectMutation.mutate({
-        data: { id: selectedJobId, data: { reason: rejectReason } },
+        id: selectedJobId,
+        data: { reason: rejectReason },
       });
     } else {
       toast.error(t("admin.jobs.rejectMinLength"));
@@ -409,7 +410,7 @@ export default function AdminJobs() {
                         <Button
                           variant="destructive"
                           onClick={() =>
-                            deleteMutation.mutate({ data: { id: job.id } })
+                            deleteMutation.mutate({ id: job.id })
                           }
                           disabled={deleteMutation.isPending}
                         >

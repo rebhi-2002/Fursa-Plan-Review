@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link } from "wouter";
 import {
   useGetCurrentUser,
@@ -13,9 +13,11 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   ChevronLeft,
   Loader2,
@@ -23,6 +25,7 @@ import {
   MapPin,
   Phone,
   ShieldCheck,
+  Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -35,6 +38,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -49,13 +53,14 @@ export default function AdminProfile() {
     name: z.string().min(2, t("onboarding.nameMin")),
     phone: z.string().optional(),
     location: z.string().optional(),
+    bio: z.string().optional(),
   });
 
   type ProfileFormValues = z.infer<typeof profileSchema>;
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { name: "", phone: "", location: "" },
+    defaultValues: { name: "", phone: "", location: "", bio: "" },
   });
 
   useEffect(() => {
@@ -64,6 +69,7 @@ export default function AdminProfile() {
         name: user.name || "",
         phone: user.phone || "",
         location: user.location || "",
+        bio: user.bio || "",
       });
     }
   }, [user, form]);
@@ -171,6 +177,7 @@ export default function AdminProfile() {
         <Card>
           <CardHeader>
             <CardTitle>{t("admin.profile.basicInfo")}</CardTitle>
+            <CardDescription>{t("admin.profile.basicInfoDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -230,6 +237,27 @@ export default function AdminProfile() {
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="bio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("admin.profile.bio")}</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className="min-h-[100px] resize-none bg-background"
+                          placeholder={t("admin.profile.bioPlaceholder")}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t("admin.profile.bioDesc")}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="flex justify-end gap-4 pt-4 border-t border-border/50">
                   <Button type="button" variant="outline" asChild>

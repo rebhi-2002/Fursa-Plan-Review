@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Link } from "wouter";
 import {
   useGetCurrentUser,
@@ -25,6 +25,7 @@ import {
   MapPin,
   Phone,
   Building2,
+  Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -37,6 +38,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -51,6 +53,7 @@ export default function EmployerProfile() {
     name: z.string().min(2, t("onboarding.nameMin")),
     phone: z.string().optional(),
     location: z.string().optional(),
+    website: z.string().url({ message: t("employer.profile.websiteInvalid") }).or(z.literal("")).optional(),
     bio: z.string().optional(),
   });
 
@@ -58,7 +61,7 @@ export default function EmployerProfile() {
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: { name: "", phone: "", location: "", bio: "" },
+    defaultValues: { name: "", phone: "", location: "", website: "", bio: "" },
   });
 
   useEffect(() => {
@@ -67,6 +70,7 @@ export default function EmployerProfile() {
         name: user.name || "",
         phone: user.phone || "",
         location: user.location || "",
+        website: user.website || "",
         bio: user.bio || "",
       });
     }
@@ -74,7 +78,12 @@ export default function EmployerProfile() {
 
   const onSubmit = async (data: ProfileFormValues) => {
     try {
-      await updateProfileMutation.mutateAsync({ data });
+      await updateProfileMutation.mutateAsync({
+        data: {
+          ...data,
+          website: data.website || null,
+        },
+      });
       toast.success(t("employer.profile.updateSuccess"));
       queryClient.invalidateQueries({ queryKey: getGetCurrentUserQueryKey() });
     } catch {
@@ -161,6 +170,17 @@ export default function EmployerProfile() {
                       {user.phone}
                     </span>
                   )}
+                  {user?.website && (
+                    <a
+                      href={user.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1.5 text-primary hover:underline"
+                    >
+                      <Globe className="h-3.5 w-3.5" />
+                      {user.website.replace(/^https?:\/\//, "")}
+                    </a>
+                  )}
                 </div>
                 {memberSince && (
                   <p className="text-xs text-muted-foreground/70">
@@ -238,17 +258,42 @@ export default function EmployerProfile() {
 
                 <FormField
                   control={form.control}
+                  name="website"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t("employer.profile.website")}</FormLabel>
+                      <FormControl>
+                        <Input
+                          dir="ltr"
+                          className="bg-background"
+                          placeholder="https://example.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t("employer.profile.websiteDesc")}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="bio"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{t("employer.profile.companyBio")}</FormLabel>
                       <FormControl>
                         <Textarea
-                          className="min-h-[120px] resize-none bg-background"
+                          className="min-h-[130px] resize-none bg-background"
                           placeholder={t("onboarding.bioPlaceholderEmployer")}
                           {...field}
                         />
                       </FormControl>
+                      <FormDescription>
+                        {t("employer.profile.bioDesc")}
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -64,7 +64,7 @@ export default function AdminUsers() {
   });
 
   const handleToggleActive = (id: string) => {
-    toggleActiveMutation.mutate({ data: { id } });
+    toggleActiveMutation.mutate({ id });
   };
 
   const getRoleBadge = (role: string) => {

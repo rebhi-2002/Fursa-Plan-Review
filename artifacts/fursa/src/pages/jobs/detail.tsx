@@ -142,9 +142,9 @@ export default function JobDetail() {
       return;
     }
     if (job.savedByMe) {
-      unsaveMutation.mutate({ data: { jobId } });
+      unsaveMutation.mutate({ id: jobId });
     } else {
-      saveMutation.mutate({ data: { jobId } });
+      saveMutation.mutate({ id: jobId });
     }
   };
 

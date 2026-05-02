@@ -105,6 +105,8 @@ export interface CurrentUser {
   email: string;
   role: Role;
   /** @nullable */
+  website?: string | null;
+  /** @nullable */
   phone?: string | null;
   /** @nullable */
   location?: string | null;
@@ -123,6 +125,8 @@ export interface UpdateProfileBody {
   phone?: string | null;
   /** @nullable */
   location?: string | null;
+  /** @nullable */
+  website?: string | null;
   /** @nullable */
   bio?: string | null;
   /** @nullable */
