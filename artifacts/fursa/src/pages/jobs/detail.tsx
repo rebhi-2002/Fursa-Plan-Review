@@ -10,6 +10,7 @@ import {
   getGetSeekerDashboardQueryKey,
   getListJobsQueryKey,
   getListFeaturedJobsQueryKey,
+  ApiError,
 } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -96,6 +97,20 @@ export default function JobDetail() {
         });
         setIsApplyOpen(false);
         setLocation("/seeker/applications");
+      },
+      onError: (error) => {
+        const status = error instanceof ApiError ? error.status : 0;
+        if (status === 409) {
+          toast.error(t("jobs.applyAlreadyApplied"));
+        } else if (status === 403) {
+          toast.error(t("jobs.applyForbidden"));
+        } else if (status === 404) {
+          toast.error(t("jobs.applyJobClosed"));
+        } else if (status === 401) {
+          toast.error(t("jobs.applyNotSignedIn"));
+        } else {
+          toast.error(t("jobs.applyError"));
+        }
       },
     },
   });

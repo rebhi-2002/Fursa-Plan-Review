@@ -174,6 +174,11 @@ const ar: TranslationDictionary = {
   "jobs.confirmSubmit": "تأكيد الإرسال",
   "jobs.remove": "إزالة",
   "jobs.applySuccess": "تم إرسال طلبك بنجاح",
+  "jobs.applyAlreadyApplied": "لقد تقدمت لهذه الوظيفة من قبل",
+  "jobs.applyForbidden": "لا تملك صلاحية التقديم. تأكد أن حسابك مسجّل كباحث عن عمل",
+  "jobs.applyJobClosed": "هذه الوظيفة غير متاحة أو مغلقة",
+  "jobs.applyNotSignedIn": "يجب تسجيل الدخول للتقديم",
+  "jobs.applyError": "حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى",
 
   // Seeker dashboard
   "seeker.dashboard.title": "لوحة التحكم",
@@ -829,6 +834,11 @@ const en: TranslationDictionary = {
   "jobs.confirmSubmit": "Submit",
   "jobs.remove": "Remove",
   "jobs.applySuccess": "Your application was submitted successfully",
+  "jobs.applyAlreadyApplied": "You have already applied to this job",
+  "jobs.applyForbidden": "You are not eligible to apply. Make sure your account is registered as a job seeker",
+  "jobs.applyJobClosed": "This job is no longer available or is closed",
+  "jobs.applyNotSignedIn": "You must be signed in to apply",
+  "jobs.applyError": "An error occurred while submitting your application. Please try again",
 
   // Seeker
   "seeker.dashboard.title": "Dashboard",

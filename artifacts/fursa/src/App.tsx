@@ -2,10 +2,12 @@ import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wo
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ClerkProvider, Show, useClerk } from "@clerk/react";
+import { ClerkProvider, Show, useClerk, useAuth } from "@clerk/react";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { shadcn } from "@clerk/themes";
+
+import { setAuthTokenGetter } from "@workspace/api-client-react";
 
 // Layout & Context
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -79,6 +81,15 @@ const clerkAppearance = {
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none bg-muted/20",
   },
 };
+
+function ClerkAuthSetup() {
+  const { getToken } = useAuth();
+  useEffect(() => {
+    setAuthTokenGetter(() => getToken());
+    return () => { setAuthTokenGetter(null); };
+  }, [getToken]);
+  return null;
+}
 
 function ClerkQueryClientCacheInvalidator() {
   const { addListener } = useClerk();
@@ -283,6 +294,7 @@ function ClerkAndRouter() {
       localization={localization}
       routerPush={(to) => window.history.pushState(null, "", to)}
       routerReplace={(to) => window.history.replaceState(null, "", to)} >
+      <ClerkAuthSetup />
       <ClerkQueryClientCacheInvalidator />
       <WouterRouter base={basePath}>
         <ScrollToTop />
