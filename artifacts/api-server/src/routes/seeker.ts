@@ -18,6 +18,11 @@ const applyBodySchema = z.object({
   cvObjectPath: z.string().nullable().optional(),
 });
 
+const editApplicationSchema = z.object({
+  coverLetter: z.string().min(1).max(5000).nullable().optional(),
+  cvObjectPath: z.string().nullable().optional(),
+});
+
 function serializeMyApp(row: {
   id: number;
   jobId: number;
@@ -26,9 +31,14 @@ function serializeMyApp(row: {
   status: "pending" | "accepted" | "rejected";
   coverLetter: string | null;
   cvObjectPath: string | null;
+  contactInfo?: string | null;
   createdAt: Date;
 }) {
-  return { ...row, createdAt: row.createdAt.toISOString() };
+  return {
+    ...row,
+    createdAt: row.createdAt.toISOString(),
+    contactInfo: row.contactInfo ?? null,
+  };
 }
 
 function serializePublicJob(row: {
@@ -55,23 +65,29 @@ router.get(
   loadCurrentUser,
   async (req: Request, res: Response) => {
     if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
-    const rows = await db
-      .select({
-        id: applicationsTable.id,
-        jobId: applicationsTable.jobId,
-        jobTitle: jobsTable.title,
-        employerName: usersTable.name,
-        status: applicationsTable.status,
-        coverLetter: applicationsTable.coverLetter,
-        cvObjectPath: applicationsTable.cvObjectPath,
-        createdAt: applicationsTable.createdAt,
-      })
-      .from(applicationsTable)
-      .innerJoin(jobsTable, eq(jobsTable.id, applicationsTable.jobId))
-      .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
-      .where(eq(applicationsTable.applicantId, req.currentUser.id))
-      .orderBy(desc(applicationsTable.createdAt));
-    res.json(rows.map(serializeMyApp));
+    try {
+      const rows = await db
+        .select({
+          id: applicationsTable.id,
+          jobId: applicationsTable.jobId,
+          jobTitle: jobsTable.title,
+          employerName: usersTable.name,
+          status: applicationsTable.status,
+          coverLetter: applicationsTable.coverLetter,
+          cvObjectPath: applicationsTable.cvObjectPath,
+          contactInfo: jobsTable.contactInfo,
+          createdAt: applicationsTable.createdAt,
+        })
+        .from(applicationsTable)
+        .innerJoin(jobsTable, eq(jobsTable.id, applicationsTable.jobId))
+        .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
+        .where(eq(applicationsTable.applicantId, req.currentUser.id))
+        .orderBy(desc(applicationsTable.createdAt));
+      res.json(rows.map(serializeMyApp));
+    } catch (err) {
+      req.log.error({ err }, "Error loading applications");
+      res.status(500).json({ error: "Failed to load applications" });
+    }
   },
 );
 
@@ -143,6 +159,66 @@ router.delete(
   },
 );
 
+router.patch(
+  "/me/applications/:id",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("seeker"),
+  async (req: Request, res: Response) => {
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+    const parsed = editApplicationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Invalid data" });
+      return;
+    }
+
+    try {
+      const application = await db
+        .select()
+        .from(applicationsTable)
+        .where(
+          and(
+            eq(applicationsTable.id, id),
+            eq(applicationsTable.applicantId, req.currentUser.id),
+          ),
+        )
+        .limit(1);
+
+      if (!application[0]) {
+        res.status(404).json({ error: "Application not found" });
+        return;
+      }
+
+      if (application[0].status !== "pending") {
+        res.status(409).json({ error: "Cannot edit an application that has already been reviewed" });
+        return;
+      }
+
+      const updates: Record<string, unknown> = {};
+      if (parsed.data.coverLetter !== undefined) updates["coverLetter"] = parsed.data.coverLetter;
+      if (parsed.data.cvObjectPath !== undefined) updates["cvObjectPath"] = parsed.data.cvObjectPath;
+
+      if (Object.keys(updates).length === 0) {
+        res.status(400).json({ error: "No fields to update" });
+        return;
+      }
+
+      await db
+        .update(applicationsTable)
+        .set(updates)
+        .where(eq(applicationsTable.id, id));
+
+      res.status(200).json({ success: true });
+    } catch (err) {
+      req.log.error({ err }, "Error editing application");
+      res.status(500).json({ error: "Failed to edit application" });
+    }
+  },
+);
+
 router.delete(
   "/me/applications/:id",
   requireAuth,
@@ -194,78 +270,84 @@ router.post(
     const parsed = applyBodySchema.safeParse(req.body ?? {});
     if (!parsed.success) { res.status(400).json({ error: "Invalid application data" }); return; }
 
-    const job = await db
-      .select()
-      .from(jobsTable)
-      .where(eq(jobsTable.id, id))
-      .limit(1);
-    if (!job[0] || job[0].status !== "approved" || !job[0].isOpen) {
-      res.status(404).json({ error: "Job not available" });
-      return;
+    try {
+      const job = await db
+        .select()
+        .from(jobsTable)
+        .where(eq(jobsTable.id, id))
+        .limit(1);
+      if (!job[0] || job[0].status !== "approved" || !job[0].isOpen) {
+        res.status(404).json({ error: "Job not available" });
+        return;
+      }
+      if (job[0].employerId === req.currentUser.id) {
+        res.status(400).json({ error: "You cannot apply to your own job" });
+        return;
+      }
+
+      const existing = await db
+        .select({ id: applicationsTable.id })
+        .from(applicationsTable)
+        .where(
+          and(
+            eq(applicationsTable.applicantId, req.currentUser.id),
+            eq(applicationsTable.jobId, id),
+          ),
+        )
+        .limit(1);
+      if (existing[0]) {
+        res.status(409).json({ error: "You have already applied to this job" });
+        return;
+      }
+
+      const cvPath =
+        parsed.data.cvObjectPath ?? req.currentUser.cvObjectPath ?? null;
+
+      const inserted = await db
+        .insert(applicationsTable)
+        .values({
+          jobId: id,
+          applicantId: req.currentUser.id,
+          coverLetter: parsed.data.coverLetter ?? null,
+          cvObjectPath: cvPath,
+        })
+        .returning();
+
+      const employer = await db
+        .select({ name: usersTable.name })
+        .from(usersTable)
+        .where(eq(usersTable.id, job[0].employerId))
+        .limit(1);
+
+      await createNotification({
+        userId: job[0].employerId,
+        type: "application_received",
+        title: { ar: "طلب توظيف جديد", en: "New application received" },
+        body: {
+          ar: `${req.currentUser.name} تقدّم لوظيفتك: ${job[0].title}`,
+          en: `${req.currentUser.name} applied to your job: ${job[0].title}`,
+        },
+        link: `/employer/jobs/${job[0].id}/applications`,
+      });
+
+      const a = inserted[0]!;
+      res.status(201).json(
+        serializeMyApp({
+          id: a.id,
+          jobId: a.jobId,
+          jobTitle: job[0].title,
+          employerName: employer[0]?.name ?? "",
+          status: a.status,
+          coverLetter: a.coverLetter,
+          cvObjectPath: a.cvObjectPath,
+          contactInfo: job[0].contactInfo,
+          createdAt: a.createdAt,
+        }),
+      );
+    } catch (err) {
+      req.log.error({ err }, "Error applying to job");
+      res.status(500).json({ error: "Failed to submit application" });
     }
-    if (job[0].employerId === req.currentUser.id) {
-      res.status(400).json({ error: "You cannot apply to your own job" });
-      return;
-    }
-
-    const existing = await db
-      .select({ id: applicationsTable.id })
-      .from(applicationsTable)
-      .where(
-        and(
-          eq(applicationsTable.applicantId, req.currentUser.id),
-          eq(applicationsTable.jobId, id),
-        ),
-      )
-      .limit(1);
-    if (existing[0]) {
-      res.status(409).json({ error: "You have already applied to this job" });
-      return;
-    }
-
-    const cvPath =
-      parsed.data.cvObjectPath ?? req.currentUser.cvObjectPath ?? null;
-
-    const inserted = await db
-      .insert(applicationsTable)
-      .values({
-        jobId: id,
-        applicantId: req.currentUser.id,
-        coverLetter: parsed.data.coverLetter ?? null,
-        cvObjectPath: cvPath,
-      })
-      .returning();
-
-    const employer = await db
-      .select({ name: usersTable.name })
-      .from(usersTable)
-      .where(eq(usersTable.id, job[0].employerId))
-      .limit(1);
-
-    await createNotification({
-      userId: job[0].employerId,
-      type: "application_received",
-      title: { ar: "طلب توظيف جديد", en: "New application received" },
-      body: {
-        ar: `${req.currentUser.name} تقدّم لوظيفتك: ${job[0].title}`,
-        en: `${req.currentUser.name} applied to your job: ${job[0].title}`,
-      },
-      link: `/employer/jobs/${job[0].id}/applications`,
-    });
-
-    const a = inserted[0]!;
-    res.status(201).json(
-      serializeMyApp({
-        id: a.id,
-        jobId: a.jobId,
-        jobTitle: job[0].title,
-        employerName: employer[0]?.name ?? "",
-        status: a.status,
-        coverLetter: a.coverLetter,
-        cvObjectPath: a.cvObjectPath,
-        createdAt: a.createdAt,
-      }),
-    );
   },
 );
 
@@ -277,81 +359,84 @@ router.get(
     if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
     const userId = req.currentUser.id;
 
-    const [counts, savedCountRow, recent, recommended] = await Promise.all([
-      db
-        .select({
-          status: applicationsTable.status,
-          c: sql<number>`count(*)::int`,
-        })
-        .from(applicationsTable)
-        .where(eq(applicationsTable.applicantId, userId))
-        .groupBy(applicationsTable.status),
-      db
-        .select({ c: sql<number>`count(*)::int` })
-        .from(savedJobsTable)
-        .where(eq(savedJobsTable.userId, userId)),
-      db
-        .select({
-          id: applicationsTable.id,
-          jobId: applicationsTable.jobId,
-          jobTitle: jobsTable.title,
-          employerName: usersTable.name,
-          status: applicationsTable.status,
-          coverLetter: applicationsTable.coverLetter,
-          cvObjectPath: applicationsTable.cvObjectPath,
-          createdAt: applicationsTable.createdAt,
-        })
-        .from(applicationsTable)
-        .innerJoin(jobsTable, eq(jobsTable.id, applicationsTable.jobId))
-        .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
-        .where(eq(applicationsTable.applicantId, userId))
-        .orderBy(desc(applicationsTable.createdAt))
-        .limit(5),
-      db
-        .select({
-          id: jobsTable.id,
-          title: jobsTable.title,
-          description: jobsTable.description,
-          type: jobsTable.type,
-          category: jobsTable.category,
-          employerName: usersTable.name,
-          employerLocation: usersTable.location,
-          deadline: jobsTable.deadline,
-          createdAt: jobsTable.createdAt,
-        })
-        .from(jobsTable)
-        .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
-        .where(
-          and(
-            eq(jobsTable.status, "approved"),
-            eq(jobsTable.isOpen, true),
-            ne(jobsTable.employerId, userId),
-          ),
-        )
-        .orderBy(desc(jobsTable.createdAt))
-        .limit(6),
-    ]);
+    try {
+      const [counts, savedCountRow, recent, recommended] = await Promise.all([
+        db
+          .select({
+            status: applicationsTable.status,
+            c: sql<number>`count(*)::int`,
+          })
+          .from(applicationsTable)
+          .where(eq(applicationsTable.applicantId, userId))
+          .groupBy(applicationsTable.status),
+        db
+          .select({ c: sql<number>`count(*)::int` })
+          .from(savedJobsTable)
+          .where(eq(savedJobsTable.userId, userId)),
+        db
+          .select({
+            id: applicationsTable.id,
+            jobId: applicationsTable.jobId,
+            jobTitle: jobsTable.title,
+            employerName: usersTable.name,
+            status: applicationsTable.status,
+            coverLetter: applicationsTable.coverLetter,
+            cvObjectPath: applicationsTable.cvObjectPath,
+            contactInfo: jobsTable.contactInfo,
+            createdAt: applicationsTable.createdAt,
+          })
+          .from(applicationsTable)
+          .innerJoin(jobsTable, eq(jobsTable.id, applicationsTable.jobId))
+          .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
+          .where(eq(applicationsTable.applicantId, userId))
+          .orderBy(desc(applicationsTable.createdAt))
+          .limit(5),
+        db
+          .select({
+            id: jobsTable.id,
+            title: jobsTable.title,
+            description: jobsTable.description,
+            type: jobsTable.type,
+            category: jobsTable.category,
+            employerName: usersTable.name,
+            employerLocation: usersTable.location,
+            deadline: jobsTable.deadline,
+            createdAt: jobsTable.createdAt,
+          })
+          .from(jobsTable)
+          .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
+          .where(
+            and(
+              eq(jobsTable.status, "approved"),
+              eq(jobsTable.isOpen, true),
+              ne(jobsTable.employerId, userId),
+            ),
+          )
+          .orderBy(desc(jobsTable.createdAt))
+          .limit(6),
+      ]);
 
-    let pending = 0,
-      accepted = 0,
-      rejected = 0;
-    let total = 0;
-    for (const row of counts) {
-      total += row.c;
-      if (row.status === "pending") pending = row.c;
-      else if (row.status === "accepted") accepted = row.c;
-      else if (row.status === "rejected") rejected = row.c;
+      let pending = 0, accepted = 0, rejected = 0, total = 0;
+      for (const row of counts) {
+        total += row.c;
+        if (row.status === "pending") pending = row.c;
+        else if (row.status === "accepted") accepted = row.c;
+        else if (row.status === "rejected") rejected = row.c;
+      }
+
+      res.json({
+        totalApplications: total,
+        pendingApplications: pending,
+        acceptedApplications: accepted,
+        rejectedApplications: rejected,
+        savedJobsCount: savedCountRow[0]?.c ?? 0,
+        recentApplications: recent.map(serializeMyApp),
+        recommendedJobs: recommended.map(serializePublicJob),
+      });
+    } catch (err) {
+      req.log.error({ err }, "Error loading dashboard");
+      res.status(500).json({ error: "Failed to load dashboard" });
     }
-
-    res.json({
-      totalApplications: total,
-      pendingApplications: pending,
-      acceptedApplications: accepted,
-      rejectedApplications: rejected,
-      savedJobsCount: savedCountRow[0]?.c ?? 0,
-      recentApplications: recent.map(serializeMyApp),
-      recommendedJobs: recommended.map(serializePublicJob),
-    });
   },
 );
 

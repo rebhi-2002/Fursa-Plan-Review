@@ -30,6 +30,7 @@ import ContactPage from "@/pages/contact";
 import FaqPage from "@/pages/faq";
 import NotificationsPage from "@/pages/notifications";
 import PublicEmployerProfile from "@/pages/employers";
+import EmployersListPage from "@/pages/employers-list";
 
 // Role Pages
 import SeekerDashboard from "@/pages/seeker/dashboard";
@@ -172,6 +173,7 @@ function Router() {
             <Route path="/terms" component={TermsPage} />
             <Route path="/contact" component={ContactPage} />
             <Route path="/faq" component={FaqPage} />
+            <Route path="/employers" component={EmployersListPage} />
             <Route path="/employers/:id" component={PublicEmployerProfile} />
 
             {/* Notifications — any signed-in user */}

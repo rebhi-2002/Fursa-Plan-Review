@@ -100,6 +100,10 @@ export function requireRole(...roles: Array<"seeker" | "employer" | "admin">) {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
+    if (!req.currentUser.onboarded && req.currentUser.role !== "admin") {
+      res.status(403).json({ error: "Please complete your profile first", code: "ONBOARDING_REQUIRED" });
+      return;
+    }
     next();
   };
 }

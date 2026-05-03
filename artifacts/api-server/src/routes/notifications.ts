@@ -1,5 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { db, notificationsTable } from "@workspace/db";
+import { db, notificationsTable, usersTable } from "@workspace/db";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { requireAuth, loadCurrentUser } from "../middlewares/auth";
 import { addSseClient, removeSseClient } from "../lib/sseClients";
@@ -40,8 +40,23 @@ router.get(
       try { res.write(": keepalive\n\n"); } catch { /* ignore */ }
     }, 25_000);
 
+    const authCheck = setInterval(async () => {
+      try {
+        const still = await db
+          .select({ isActive: usersTable.isActive })
+          .from(usersTable)
+          .where(eq(usersTable.id, userId))
+          .limit(1);
+        if (!still[0] || !still[0].isActive) {
+          res.write("event: force_disconnect\ndata: {}\n\n");
+          res.end();
+        }
+      } catch { /* ignore — keep connection alive on DB error */ }
+    }, 5 * 60_000);
+
     req.on("close", () => {
       clearInterval(keepalive);
+      clearInterval(authCheck);
       removeSseClient(userId, res);
     });
   },

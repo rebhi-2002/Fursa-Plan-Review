@@ -27,6 +27,28 @@ router.post("/storage/uploads/request-url", async (req: Request, res: Response) 
   try {
     const { name, size, contentType } = parsed.data;
 
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+    if (!allowedTypes.includes(contentType)) {
+      res.status(400).json({
+        error: "File type not allowed. Accepted: PDF, Word documents, and images (JPEG, PNG, WebP, GIF).",
+      });
+      return;
+    }
+
+    const maxSizeBytes = 15 * 1024 * 1024;
+    if (size > maxSizeBytes) {
+      res.status(400).json({ error: "File size exceeds the 15 MB limit." });
+      return;
+    }
+
     const uploadURL = await objectStorageService.getObjectEntityUploadURL();
     const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
 

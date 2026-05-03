@@ -28,7 +28,7 @@ After building: **backend exit 0, frontend exit 0** — zero TypeScript errors a
 
 - Frontend artifact at `/`, API at `/api/*` (routed by global proxy via `artifact.toml`).
 - Auth pages (`/sign-in`, `/sign-up`) render in `AuthLayout` — **no Header/Footer**. All other routes use `AppLayout`.
-- Public: `/`, `/jobs`, `/jobs/:id`, `/about`, `/privacy`, `/terms`, `/contact`, `/faq`, `/employers/:id`, `/sign-in`, `/sign-up`
+- Public: `/`, `/jobs`, `/jobs/:id`, `/about`, `/privacy`, `/terms`, `/contact`, `/faq`, `/employers`, `/employers/:id`, `/sign-in`, `/sign-up`
 - Notifications: `/notifications` (signed-in only, works for all roles)
 - Onboarding: `/onboarding` (collects role + profile)
 - Role-guarded: `/seeker/*`, `/employer/*`, `/admin/*`

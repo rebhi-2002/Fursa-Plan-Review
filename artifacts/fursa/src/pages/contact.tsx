@@ -16,7 +16,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Mail, MapPin, Clock, Send, CheckCircle2 } from "lucide-react";
+import { Mail, MapPin, Clock, Send, CheckCircle2, Loader2 } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 
 const contactSchema = z.object({
   name: z.string().min(2),
@@ -37,20 +38,33 @@ export default function ContactPage() {
     defaultValues: { name: "", email: "", subject: "", message: "" },
   });
 
-  const onSubmit = (_values: ContactFormValues) => {
-    setSubmitted(true);
-    toast.success(t("contact.success"));
+  const submitMutation = useMutation({
+    mutationFn: async (values: ContactFormValues) => {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+      if (!res.ok) throw new Error("Failed to submit");
+    },
+    onSuccess: () => {
+      setSubmitted(true);
+      toast.success(t("contact.success"));
+    },
+    onError: () => {
+      toast.error(t("common.error"));
+    },
+  });
+
+  const onSubmit = (values: ContactFormValues) => {
+    submitMutation.mutate(values);
   };
 
   return (
     <div className="container py-12 max-w-5xl">
       <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold tracking-tight mb-3">
-          {t("contact.title")}
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          {t("contact.subtitle")}
-        </p>
+        <h1 className="text-4xl font-bold tracking-tight mb-3">{t("contact.title")}</h1>
+        <p className="text-lg text-muted-foreground max-w-xl mx-auto">{t("contact.subtitle")}</p>
       </div>
 
       <div className="grid gap-8 md:grid-cols-5">
@@ -65,9 +79,7 @@ export default function ContactPage() {
                     <Mail className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">
-                      {t("contact.emailLabel")}
-                    </p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{t("contact.emailLabel")}</p>
                     <p className="text-sm font-medium">{t("contact.info.email")}</p>
                   </div>
                 </div>
@@ -76,9 +88,7 @@ export default function ContactPage() {
                     <MapPin className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">
-                      {t("contact.info.locationLabel")}
-                    </p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{t("contact.info.locationLabel")}</p>
                     <p className="text-sm font-medium">{t("contact.info.location")}</p>
                   </div>
                 </div>
@@ -87,9 +97,7 @@ export default function ContactPage() {
                     <Clock className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">
-                      {t("contact.info.hoursLabel")}
-                    </p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{t("contact.info.hoursLabel")}</p>
                     <p className="text-sm font-medium">{t("contact.info.hours")}</p>
                   </div>
                 </div>
@@ -106,18 +114,11 @@ export default function ContactPage() {
                   <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">
                     <CheckCircle2 className="h-8 w-8 text-green-600" />
                   </div>
-                  <h3 className="text-xl font-semibold">
-                    {t("contact.successTitle")}
-                  </h3>
-                  <p className="text-muted-foreground max-w-sm">
-                    {t("contact.successDesc")}
-                  </p>
+                  <h3 className="text-xl font-semibold">{t("contact.successTitle")}</h3>
+                  <p className="text-muted-foreground max-w-sm">{t("contact.successDesc")}</p>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      setSubmitted(false);
-                      form.reset();
-                    }}
+                    onClick={() => { setSubmitted(false); form.reset(); }}
                     className="mt-2"
                   >
                     {t("contact.sendAnother")}
@@ -125,10 +126,7 @@ export default function ContactPage() {
                 </div>
               ) : (
                 <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="space-y-4"
-                  >
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <FormField
                         control={form.control}
@@ -137,11 +135,7 @@ export default function ContactPage() {
                           <FormItem>
                             <FormLabel>{t("contact.name")}</FormLabel>
                             <FormControl>
-                              <Input
-                                placeholder={t("contact.namePlaceholder")}
-                                dir={lang === "ar" ? "rtl" : "ltr"}
-                                {...field}
-                              />
+                              <Input placeholder={t("contact.namePlaceholder")} dir={lang === "ar" ? "rtl" : "ltr"} {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -154,12 +148,7 @@ export default function ContactPage() {
                           <FormItem>
                             <FormLabel>{t("contact.emailLabel")}</FormLabel>
                             <FormControl>
-                              <Input
-                                placeholder="you@example.com"
-                                type="email"
-                                dir="ltr"
-                                {...field}
-                              />
+                              <Input placeholder="you@example.com" type="email" dir="ltr" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -173,11 +162,7 @@ export default function ContactPage() {
                         <FormItem>
                           <FormLabel>{t("contact.subject")}</FormLabel>
                           <FormControl>
-                            <Input
-                              placeholder={t("contact.subjectPlaceholder")}
-                              dir={lang === "ar" ? "rtl" : "ltr"}
-                              {...field}
-                            />
+                            <Input placeholder={t("contact.subjectPlaceholder")} dir={lang === "ar" ? "rtl" : "ltr"} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -190,19 +175,18 @@ export default function ContactPage() {
                         <FormItem>
                           <FormLabel>{t("contact.message")}</FormLabel>
                           <FormControl>
-                            <Textarea
-                              placeholder={t("contact.messagePlaceholder")}
-                              rows={5}
-                              dir={lang === "ar" ? "rtl" : "ltr"}
-                              {...field}
-                            />
+                            <Textarea placeholder={t("contact.messagePlaceholder")} rows={5} dir={lang === "ar" ? "rtl" : "ltr"} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full gap-2">
-                      <Send className="h-4 w-4" />
+                    <Button type="submit" className="w-full gap-2" disabled={submitMutation.isPending}>
+                      {submitMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
                       {t("contact.send")}
                     </Button>
                   </form>

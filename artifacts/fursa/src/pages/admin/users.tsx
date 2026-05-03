@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import {
   useListAdminUsers,
@@ -28,7 +28,9 @@ import {
   Briefcase,
   FileText,
   Ban,
+  Search,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
@@ -43,13 +45,23 @@ export default function AdminUsers() {
   const locale = lang === "ar" ? ar : enUS;
   const queryClient = useQueryClient();
 
-  const [roleFilter, setRoleFilter] = useState<ListAdminUsersRole | typeof ALL>(
-    ALL,
-  );
+  const [roleFilter, setRoleFilter] = useState<ListAdminUsersRole | typeof ALL>(ALL);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: users, isLoading } = useListAdminUsers({
+  const { data: allUsers, isLoading } = useListAdminUsers({
     role: roleFilter === ALL ? undefined : roleFilter,
   });
+
+  const users = useMemo(() => {
+    if (!allUsers || !searchQuery.trim()) return allUsers;
+    const q = searchQuery.toLowerCase();
+    return allUsers.filter(
+      (u) =>
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        (u.location ?? "").toLowerCase().includes(q),
+    );
+  }, [allUsers, searchQuery]);
 
   const toggleActiveMutation = useToggleUserActive({
     mutation: {
@@ -125,28 +137,32 @@ export default function AdminUsers() {
           </div>
         </div>
 
-        <Select
-          value={roleFilter}
-          onValueChange={(val) =>
-            setRoleFilter(val as ListAdminUsersRole | typeof ALL)
-          }
-        >
-          <SelectTrigger className="w-full sm:w-[200px] bg-background">
-            <SelectValue placeholder={t("admin.users.filterRole")} />
-          </SelectTrigger>
-          <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
-            <SelectItem value={ALL}>{t("admin.users.filterAll")}</SelectItem>
-            <SelectItem value="seeker">
-              {t("admin.users.filterSeekers")}
-            </SelectItem>
-            <SelectItem value="employer">
-              {t("admin.users.filterEmployers")}
-            </SelectItem>
-            <SelectItem value="admin">
-              {t("admin.users.filterAdmins")}
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <div className="relative flex-1 sm:w-[220px]">
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("admin.users.searchPlaceholder")}
+              className="ps-9 bg-background h-10"
+              dir={lang === "ar" ? "rtl" : "ltr"}
+            />
+          </div>
+          <Select
+            value={roleFilter}
+            onValueChange={(val) => setRoleFilter(val as ListAdminUsersRole | typeof ALL)}
+          >
+            <SelectTrigger className="w-[160px] bg-background">
+              <SelectValue placeholder={t("admin.users.filterRole")} />
+            </SelectTrigger>
+            <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
+              <SelectItem value={ALL}>{t("admin.users.filterAll")}</SelectItem>
+              <SelectItem value="seeker">{t("admin.users.filterSeekers")}</SelectItem>
+              <SelectItem value="employer">{t("admin.users.filterEmployers")}</SelectItem>
+              <SelectItem value="admin">{t("admin.users.filterAdmins")}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="space-y-4">

@@ -1,8 +1,9 @@
 import { Router, type IRouter, type Request, type Response } from "express";
-import { db, usersTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, usersTable, applicationsTable, savedJobsTable, jobsTable, notificationsTable } from "@workspace/db";
+import { eq, inArray } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser } from "../middlewares/auth";
+import { clerkClient } from "@clerk/express";
 
 const router: IRouter = Router();
 
@@ -131,6 +132,51 @@ router.post(
       return;
     }
     res.json(serializeUser(updated[0]));
+  },
+);
+
+router.delete(
+  "/me",
+  requireAuth,
+  loadCurrentUser,
+  async (req: Request, res: Response) => {
+    if (!req.currentUser) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
+    }
+    const userId = req.currentUser.id;
+
+    try {
+      await db.delete(savedJobsTable).where(eq(savedJobsTable.userId, userId));
+      await db.delete(applicationsTable).where(eq(applicationsTable.applicantId, userId));
+      await db.delete(notificationsTable).where(eq(notificationsTable.userId, userId));
+
+      if (req.currentUser.role === "employer") {
+        const myJobs = await db
+          .select({ id: jobsTable.id })
+          .from(jobsTable)
+          .where(eq(jobsTable.employerId, userId));
+        if (myJobs.length > 0) {
+          const jobIds = myJobs.map((j) => j.id);
+          await db.delete(applicationsTable).where(inArray(applicationsTable.jobId, jobIds));
+          await db.delete(savedJobsTable).where(inArray(savedJobsTable.jobId, jobIds));
+          await db.delete(jobsTable).where(eq(jobsTable.employerId, userId));
+        }
+      }
+
+      await db.delete(usersTable).where(eq(usersTable.id, userId));
+
+      try {
+        await clerkClient.users.deleteUser(userId);
+      } catch (clerkErr) {
+        req.log.warn({ err: clerkErr }, "Failed to delete Clerk user — DB record already removed");
+      }
+
+      res.status(204).end();
+    } catch (err) {
+      req.log.error({ err }, "Error deleting user account");
+      res.status(500).json({ error: "Failed to delete account" });
+    }
   },
 );
 

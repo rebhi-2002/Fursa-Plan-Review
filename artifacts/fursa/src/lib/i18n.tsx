@@ -675,6 +675,38 @@ const ar: TranslationDictionary = {
   "employer.publicProfile.openJobsTitle": "الوظائف النشطة",
   "employer.publicProfile.noJobs": "لا توجد وظائف نشطة حالياً",
   "employer.publicProfile.viewJob": "عرض الوظيفة",
+
+  // Employers list page
+  "employers.title": "أصحاب العمل",
+  "employers.subtitle": "تعرّف على أصحاب العمل المسجّلين في منصة فُرصة",
+  "employers.searchPlaceholder": "ابحث عن صاحب عمل...",
+  "employers.jobs": "{count} وظيفة",
+  "employers.viewProfile": "عرض الملف",
+  "employers.empty": "لا يوجد أصحاب عمل بعد",
+  "employers.emptyDesc": "لا يوجد أصحاب عمل يطابقون بحثك.",
+
+  // Profile security & delete account
+  "profile.security.title": "الأمان وإدارة الحساب",
+  "profile.security.desc": "غيّر كلمة المرور أو البريد الإلكتروني أو الحسابات المرتبطة من خلال Clerk.",
+  "profile.security.manageBtn": "إدارة أمان الحساب",
+  "profile.deleteAccount.title": "حذف الحساب",
+  "profile.deleteAccount.desc": "احذف حسابك ونهائياً مع جميع بياناتك. لا يمكن التراجع عن هذا الإجراء.",
+  "profile.deleteAccount.btn": "حذف حسابي",
+  "profile.deleteAccount.confirmTitle": "هل أنت متأكد من حذف حسابك؟",
+  "profile.deleteAccount.confirmDesc": "هذا الإجراء دائم ولا يمكن التراجع عنه. سيتم حذف جميع بياناتك وطلباتك ومعلوماتك فوراً.",
+  "profile.deleteAccount.confirmBtn": "نعم، احذف حسابي",
+  "profile.deleteAccount.success": "تم حذف حسابك بنجاح",
+
+  // Applications - new
+  "seeker.applications.edit": "تعديل",
+  "seeker.applications.editLabel": "تعديل رسالة التقديم",
+  "seeker.applications.editSuccess": "تم تحديث الطلب بنجاح",
+  "seeker.applications.coverLetterPlaceholder": "اكتب رسالة تقديمك...",
+  "seeker.applications.contactInfoTitle": "معلومات التواصل مع صاحب العمل",
+  "seeker.applications.withdrawSuccess": "تم سحب الطلب بنجاح",
+
+  // Admin users search
+  "admin.users.searchPlaceholder": "ابحث بالاسم أو البريد...",
 };
 
 const en: TranslationDictionary = {
@@ -1338,6 +1370,38 @@ const en: TranslationDictionary = {
   "employer.publicProfile.openJobsTitle": "Active Job Listings",
   "employer.publicProfile.noJobs": "No active job listings at this time",
   "employer.publicProfile.viewJob": "View Job",
+
+  // Employers list page
+  "employers.title": "Employers",
+  "employers.subtitle": "Discover employers registered on the Fursa platform",
+  "employers.searchPlaceholder": "Search employers...",
+  "employers.jobs": "{count} jobs",
+  "employers.viewProfile": "View Profile",
+  "employers.empty": "No Employers Yet",
+  "employers.emptyDesc": "No employers match your search.",
+
+  // Profile security & delete account
+  "profile.security.title": "Security & Account Management",
+  "profile.security.desc": "Change your password, email, or connected accounts through Clerk.",
+  "profile.security.manageBtn": "Manage Account Security",
+  "profile.deleteAccount.title": "Delete Account",
+  "profile.deleteAccount.desc": "Permanently delete your account and all related data. This action cannot be undone.",
+  "profile.deleteAccount.btn": "Delete My Account",
+  "profile.deleteAccount.confirmTitle": "Are you sure you want to delete your account?",
+  "profile.deleteAccount.confirmDesc": "This action is permanent and cannot be undone. All your data, applications, and information will be deleted immediately.",
+  "profile.deleteAccount.confirmBtn": "Yes, Delete My Account",
+  "profile.deleteAccount.success": "Your account has been deleted successfully",
+
+  // Applications - new
+  "seeker.applications.edit": "Edit",
+  "seeker.applications.editLabel": "Edit Cover Letter",
+  "seeker.applications.editSuccess": "Application updated successfully",
+  "seeker.applications.coverLetterPlaceholder": "Write your cover letter...",
+  "seeker.applications.contactInfoTitle": "Employer Contact Information",
+  "seeker.applications.withdrawSuccess": "Application withdrawn successfully",
+
+  // Admin users search
+  "admin.users.searchPlaceholder": "Search by name, email...",
 };
 
 const dictionaries: Record<Language, TranslationDictionary> = { ar, en };
