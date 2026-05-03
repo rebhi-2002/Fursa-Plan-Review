@@ -256,7 +256,7 @@ export default function JobDetail() {
   };
 
   const jobDescription = job.description?.slice(0, 160).replace(/\n/g, " ") ?? "";
-  const pageTitle = `${job.title} — ${job.employerName} | فُرصة`;
+  const pageTitle = `${job.title} — ${job.employerName} | ${t("app.name")}`;
 
   return (
     <div className="container py-8 max-w-5xl">

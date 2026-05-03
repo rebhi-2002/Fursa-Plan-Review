@@ -79,7 +79,7 @@ export default function AboutPage() {
           </div>
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="p-8 space-y-4">
-              <div className="text-4xl font-extrabold text-primary">فُرصة</div>
+              <div className="text-4xl font-extrabold text-primary">{t("app.name")}</div>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {t("about.quoteDesc")}
               </p>
