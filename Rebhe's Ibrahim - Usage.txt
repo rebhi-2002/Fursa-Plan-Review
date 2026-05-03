@@ -382,3 +382,44 @@ D:\My_Github\Fursa-Plan-Review\artifacts\fursa-slides (main -> origin)
 λ 
 
 [8]
+cd artifacts/fursa
+pnpm add react-helmet-async
+cd artifacts\api-server
+pnpm add express-rate-limit
+{OR just once}
+PS D:\My_Github\Fursa-Plan-Review\
+pnpm install
+
+[9]
+Clerk [https://clerk.com/], Supabase [https://supabase.com/], Resend [https://resend.com/], 
+
+[10]
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa-slides (main -> origin)
+λ pnpm dev
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa-video (main -> origin)
+λ pnpm dev
+D:\My_Github\Fursa-Plan-Review\artifacts\mockup-sandbox (main -> origin)
+λ pnpm dev
+
+D:\My_Github\Fursa-Plan-Review\artifacts\api-server (main -> origin)
+λ pnpm dev
+D:\My_Github\Fursa-Plan-Review\artifacts\fursa (main -> origin)
+λ pnpm dev
+
+[11]
+D:\My_Github\Fursa-Plan-Review\artifacts\mockup-sandbox (main -> origin)
+λ pnpm add -D cross-env
+λ pnpm dev
+
+Component Preview Server
+This server renders individual components for the workspace canvas.
+Access component previews at /preview/ComponentName
+
+/preview/fursa-platform/Applications
+/preview/fursa-platform/EmployerDashboard
+/preview/fursa-platform/JobListings
+/preview/fursa-platform/Landing
+/preview/fursa-platform/Profile
+/preview/fursa-platform/SeekerDashboard
+
+[12]
