@@ -23,6 +23,7 @@ const ar: TranslationDictionary = {
   "nav.signOut": "تسجيل الخروج",
   "nav.menu": "القائمة",
   "nav.notifications": "الإشعارات",
+  "nav.adminPanel": "لوحة الإدارة",
   "nav.toggleLang": "تبديل اللغة",
   "nav.langSwitchTo": "English",
 
@@ -691,6 +692,7 @@ const en: TranslationDictionary = {
   "nav.signOut": "Sign Out",
   "nav.menu": "Menu",
   "nav.notifications": "Notifications",
+  "nav.adminPanel": "Admin Panel",
   "nav.toggleLang": "Toggle Language",
   "nav.langSwitchTo": "العربية",
 

@@ -151,6 +151,15 @@ export function Header() {
       {dbUser?.role && dbUser.onboarded && (
         <>
           <div className="my-2 h-px bg-border" />
+          {dbUser.role === "admin" && (
+            <Link
+              href="/admin"
+              onClick={closeMobile}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20"
+            >
+              <ShieldCheck className="h-5 w-5" /> {t("nav.adminPanel")}
+            </Link>
+          )}
           <Link
             href={`/${dbUser.role}`}
             onClick={closeMobile}
@@ -339,6 +348,16 @@ export function Header() {
             <div className="hidden md:inline-flex">
               <NotificationBell />
             </div>
+          )}
+
+          {dbUser?.role === "admin" && dbUser.onboarded && (
+            <Link
+              href="/admin"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition-colors"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {t("nav.adminPanel") || "Admin Panel"}
+            </Link>
           )}
 
           {clerkUser ? (
