@@ -6,8 +6,32 @@ uri = "file://artifacts/fursa-slides/public/hero-network.png"
 type = "image"
 title = "hero network illustration"
 
+[[generated]]
+id = "iES_WUPsnliP2v1ik2Il_"
+uri = "file://attached_assets/fursa-logo.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "UCck5zfVpOSUFOcIpUAzw"
+uri = "file://attached_assets/fursa-favicon.png"
+type = "image"
+title = "generated_image"
+
 [[outputs]]
 id = "RRJFZVPUnZZAGEvwPT6pJ"
 uri = "file://DEPLOYMENT.md"
 type = "text"
 title = "Fursa Deployment Guide"
+
+[[outputs]]
+id = "thhmEH7WJY1OzXky_7ZPN"
+uri = "file://attached_assets/fursa-logo.png"
+type = "image"
+title = "Fursa Logo (PNG)"
+
+[[outputs]]
+id = "oi7d3w2A5kGY7mBZd12jg"
+uri = "file://attached_assets/fursa-favicon.png"
+type = "image"
+title = "Fursa Favicon (PNG)"
