@@ -108,6 +108,33 @@ export const GetJobResponse = zod.object({
 });
 
 /**
+ * @summary Public employer profile with their open jobs
+ */
+export const GetPublicEmployerProfileParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetPublicEmployerProfileResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  bio: zod.string().nullish(),
+  website: zod.string().nullish(),
+  location: zod.string().nullish(),
+  phone: zod.string().nullish(),
+  jobs: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      description: zod.string(),
+      type: zod.enum(["online", "field", "hybrid"]),
+      category: zod.string(),
+      deadline: zod.coerce.date().nullish(),
+      createdAt: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
  * @summary Current authenticated user profile (auto-creates on first call)
  */
 export const GetCurrentUserResponse = zod.object({
@@ -118,6 +145,7 @@ export const GetCurrentUserResponse = zod.object({
   phone: zod.string().nullish(),
   location: zod.string().nullish(),
   bio: zod.string().nullish(),
+  website: zod.string().nullish(),
   cvObjectPath: zod.string().nullish(),
   isActive: zod.boolean(),
   onboarded: zod.boolean(),
@@ -132,6 +160,7 @@ export const UpdateCurrentUserBody = zod.object({
   phone: zod.string().nullish(),
   location: zod.string().nullish(),
   bio: zod.string().nullish(),
+  website: zod.string().nullish(),
   cvObjectPath: zod.string().nullish(),
 });
 
@@ -143,6 +172,7 @@ export const UpdateCurrentUserResponse = zod.object({
   phone: zod.string().nullish(),
   location: zod.string().nullish(),
   bio: zod.string().nullish(),
+  website: zod.string().nullish(),
   cvObjectPath: zod.string().nullish(),
   isActive: zod.boolean(),
   onboarded: zod.boolean(),
@@ -164,6 +194,7 @@ export const SetUserRoleResponse = zod.object({
   phone: zod.string().nullish(),
   location: zod.string().nullish(),
   bio: zod.string().nullish(),
+  website: zod.string().nullish(),
   cvObjectPath: zod.string().nullish(),
   isActive: zod.boolean(),
   onboarded: zod.boolean(),
@@ -186,6 +217,13 @@ export const ListMyApplicationsResponseItem = zod.object({
 export const ListMyApplicationsResponse = zod.array(
   ListMyApplicationsResponseItem,
 );
+
+/**
+ * @summary Withdraw a pending job application
+ */
+export const WithdrawApplicationParams = zod.object({
+  id: zod.coerce.number(),
+});
 
 /**
  * @summary List jobs saved by current user

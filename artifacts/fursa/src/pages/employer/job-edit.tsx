@@ -807,7 +807,7 @@ export default function EmployerJobDetail() {
                         }
                       >
                         <a
-                          href={`/api/storage${app.cvObjectPath}`}
+                          href={`/api/storage/objects/${(app.cvObjectPath ?? "").replace(/^\/objects\//, "")}`}
                           target="_blank"
                           rel="noreferrer"
                         >

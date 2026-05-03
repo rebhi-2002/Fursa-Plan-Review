@@ -58,31 +58,6 @@ export interface CategoryCount {
   count: number;
 }
 
-export interface PublicEmployerJob {
-  id: number;
-  title: string;
-  description: string;
-  type: JobType;
-  category: string;
-  /** @nullable */
-  deadline?: string | null;
-  createdAt: string;
-}
-
-export interface PublicEmployerProfile {
-  id: string;
-  name: string;
-  /** @nullable */
-  bio?: string | null;
-  /** @nullable */
-  website?: string | null;
-  /** @nullable */
-  location?: string | null;
-  /** @nullable */
-  phone?: string | null;
-  jobs: PublicEmployerJob[];
-}
-
 export interface PublicJob {
   id: number;
   title: string;
@@ -130,13 +105,13 @@ export interface CurrentUser {
   email: string;
   role: Role;
   /** @nullable */
-  website?: string | null;
-  /** @nullable */
   phone?: string | null;
   /** @nullable */
   location?: string | null;
   /** @nullable */
   bio?: string | null;
+  /** @nullable */
+  website?: string | null;
   /** @nullable */
   cvObjectPath?: string | null;
   isActive: boolean;
@@ -151,9 +126,9 @@ export interface UpdateProfileBody {
   /** @nullable */
   location?: string | null;
   /** @nullable */
-  website?: string | null;
-  /** @nullable */
   bio?: string | null;
+  /** @nullable */
+  website?: string | null;
   /** @nullable */
   cvObjectPath?: string | null;
 }
@@ -345,6 +320,30 @@ export interface RequestUploadUrlInput {
 export interface RequestUploadUrlResult {
   uploadURL: string;
   objectPath: string;
+}
+
+export interface PublicEmployerJob {
+  id: number;
+  title: string;
+  description: string;
+  type: JobType;
+  category: string;
+  deadline?: string | null;
+  createdAt: string;
+}
+
+export interface PublicEmployerProfile {
+  id: string;
+  name: string;
+  /** @nullable */
+  bio?: string | null;
+  /** @nullable */
+  website?: string | null;
+  /** @nullable */
+  location?: string | null;
+  /** @nullable */
+  phone?: string | null;
+  jobs: PublicEmployerJob[];
 }
 
 export type NotificationType =

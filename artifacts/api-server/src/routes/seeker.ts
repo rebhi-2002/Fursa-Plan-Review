@@ -143,6 +143,45 @@ router.delete(
   },
 );
 
+router.delete(
+  "/me/applications/:id",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("seeker"),
+  async (req: Request, res: Response) => {
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+    const application = await db
+      .select()
+      .from(applicationsTable)
+      .where(
+        and(
+          eq(applicationsTable.id, id),
+          eq(applicationsTable.applicantId, req.currentUser.id),
+        ),
+      )
+      .limit(1);
+
+    if (!application[0]) {
+      res.status(404).json({ error: "Application not found" });
+      return;
+    }
+
+    if (application[0].status !== "pending") {
+      res.status(409).json({ error: "Cannot withdraw an application that has already been reviewed" });
+      return;
+    }
+
+    await db
+      .delete(applicationsTable)
+      .where(eq(applicationsTable.id, id));
+
+    res.status(204).end();
+  },
+);
+
 router.post(
   "/jobs/:id/apply",
   requireAuth,

@@ -32,6 +32,8 @@ export * from "./myApplication";
 export * from "./notification";
 export * from "./notificationType";
 export * from "./platformStats";
+export * from "./publicEmployerJob";
+export * from "./publicEmployerProfile";
 export * from "./publicJob";
 export * from "./publicJobDetail";
 export * from "./publicJobListResponse";

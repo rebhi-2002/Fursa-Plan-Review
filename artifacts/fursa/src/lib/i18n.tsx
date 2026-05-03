@@ -22,6 +22,7 @@ const ar: TranslationDictionary = {
   "nav.signUp": "إنشاء حساب",
   "nav.signOut": "تسجيل الخروج",
   "nav.menu": "القائمة",
+  "nav.notifications": "الإشعارات",
   "nav.toggleLang": "تبديل اللغة",
   "nav.langSwitchTo": "English",
 
@@ -179,6 +180,13 @@ const ar: TranslationDictionary = {
   "jobs.applyJobClosed": "هذه الوظيفة غير متاحة أو مغلقة",
   "jobs.applyNotSignedIn": "يجب تسجيل الدخول للتقديم",
   "jobs.applyError": "حدث خطأ أثناء إرسال الطلب. حاول مرة أخرى",
+
+  "seeker.applications.withdraw": "سحب الطلب",
+  "seeker.applications.withdrawConfirmTitle": "سحب الطلب؟",
+  "seeker.applications.withdrawConfirmDesc": "هل أنت متأكد من سحب طلبك لوظيفة \"{title}\"؟ لن تتمكن من التراجع عن هذا الإجراء.",
+  "seeker.applications.withdrawConfirm": "نعم، سحب الطلب",
+  "seeker.applications.withdrawSuccess": "تم سحب طلبك بنجاح",
+  "seeker.applications.withdrawError": "تعذر سحب الطلب. حاول مرة أخرى",
 
   // Seeker dashboard
   "seeker.dashboard.title": "لوحة التحكم",
@@ -682,6 +690,7 @@ const en: TranslationDictionary = {
   "nav.signUp": "Sign Up",
   "nav.signOut": "Sign Out",
   "nav.menu": "Menu",
+  "nav.notifications": "Notifications",
   "nav.toggleLang": "Toggle Language",
   "nav.langSwitchTo": "العربية",
 
@@ -839,6 +848,13 @@ const en: TranslationDictionary = {
   "jobs.applyJobClosed": "This job is no longer available or is closed",
   "jobs.applyNotSignedIn": "You must be signed in to apply",
   "jobs.applyError": "An error occurred while submitting your application. Please try again",
+
+  "seeker.applications.withdraw": "Withdraw",
+  "seeker.applications.withdrawConfirmTitle": "Withdraw application?",
+  "seeker.applications.withdrawConfirmDesc": "Are you sure you want to withdraw your application for \"{title}\"? This cannot be undone.",
+  "seeker.applications.withdrawConfirm": "Yes, withdraw",
+  "seeker.applications.withdrawSuccess": "Your application has been withdrawn",
+  "seeker.applications.withdrawError": "Could not withdraw the application. Please try again",
 
   // Seeker
   "seeker.dashboard.title": "Dashboard",

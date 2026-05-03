@@ -1,8 +1,13 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "CiOSSA9dfmQDncnnM69wG"
 uri = "file://artifacts/fursa-slides/public/hero-network.png"
 type = "image"
 title = "hero network illustration"
+
+[[outputs]]
+id = "RRJFZVPUnZZAGEvwPT6pJ"
+uri = "file://DEPLOYMENT.md"
+type = "text"
+title = "Fursa Deployment Guide"

@@ -15,5 +15,7 @@ export interface UpdateProfileBody {
   /** @nullable */
   bio?: string | null;
   /** @nullable */
+  website?: string | null;
+  /** @nullable */
   cvObjectPath?: string | null;
 }

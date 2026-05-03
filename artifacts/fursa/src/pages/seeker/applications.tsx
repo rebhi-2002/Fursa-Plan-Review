@@ -1,21 +1,63 @@
+import { useState } from "react";
 import { Link } from "wouter";
-import { useListMyApplications } from "@workspace/api-client-react";
+import {
+  useListMyApplications,
+  useWithdrawApplication,
+  getListMyApplicationsQueryKey,
+  getGetSeekerDashboardQueryKey,
+} from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Building2, Calendar, ChevronLeft } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { FileText, Building2, Calendar, ChevronLeft, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
+import { toast } from "sonner";
 
 export default function SeekerApplications() {
   const t = useT();
   const { lang } = useLanguageStore();
   const locale = lang === "ar" ? ar : enUS;
+  const queryClient = useQueryClient();
+
+  const [confirmWithdrawId, setConfirmWithdrawId] = useState<number | null>(null);
+  const [confirmWithdrawTitle, setConfirmWithdrawTitle] = useState<string>("");
 
   const { data: applications, isLoading } = useListMyApplications();
+
+  const withdrawMutation = useWithdrawApplication({
+    mutation: {
+      onSuccess: () => {
+        toast.success(t("seeker.applications.withdrawSuccess"));
+        queryClient.invalidateQueries({ queryKey: getListMyApplicationsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getGetSeekerDashboardQueryKey() });
+        setConfirmWithdrawId(null);
+      },
+      onError: () => {
+        toast.error(t("seeker.applications.withdrawError"));
+        setConfirmWithdrawId(null);
+      },
+    },
+  });
+
+  const openWithdrawConfirm = (id: number, title: string) => {
+    setConfirmWithdrawId(id);
+    setConfirmWithdrawTitle(title);
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -107,11 +149,25 @@ export default function SeekerApplications() {
                 </div>
                 <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 shrink-0">
                   {getStatusBadge(app.status)}
-                  <Button variant="outline" size="sm" asChild>
-                    <Link href={`/jobs/${app.jobId}`}>
-                      {t("seeker.applications.viewJob")}
-                    </Link>
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/jobs/${app.jobId}`}>
+                        {t("seeker.applications.viewJob")}
+                      </Link>
+                    </Button>
+                    {app.status === "pending" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => openWithdrawConfirm(app.id, app.jobTitle)}
+                        disabled={withdrawMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1 ms-1" />
+                        {t("seeker.applications.withdraw")}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -135,6 +191,35 @@ export default function SeekerApplications() {
           </Card>
         )}
       </div>
+
+      <AlertDialog
+        open={confirmWithdrawId !== null}
+        onOpenChange={(open) => { if (!open) setConfirmWithdrawId(null); }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("seeker.applications.withdrawConfirmTitle")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("seeker.applications.withdrawConfirmDesc", { title: confirmWithdrawTitle })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (confirmWithdrawId !== null) {
+                  withdrawMutation.mutate({ id: confirmWithdrawId });
+                }
+              }}
+            >
+              {t("seeker.applications.withdrawConfirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -5,24 +5,18 @@
  * Fursa Platform API - Digital Employment Platform for Gaza
  * OpenAPI spec version: 0.1.0
  */
-import type { Role } from "./role";
+import type { PublicEmployerJob } from "./publicEmployerJob";
 
-export interface CurrentUser {
+export interface PublicEmployerProfile {
   id: string;
   name: string;
-  email: string;
-  role: Role;
-  /** @nullable */
-  phone?: string | null;
-  /** @nullable */
-  location?: string | null;
   /** @nullable */
   bio?: string | null;
   /** @nullable */
   website?: string | null;
   /** @nullable */
-  cvObjectPath?: string | null;
-  isActive: boolean;
-  onboarded: boolean;
-  createdAt: Date;
+  location?: string | null;
+  /** @nullable */
+  phone?: string | null;
+  jobs: PublicEmployerJob[];
 }

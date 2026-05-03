@@ -37,6 +37,7 @@ import {
   Users,
   ShieldCheck,
   Building2,
+  Bell,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -237,6 +238,16 @@ export function Header() {
             </>
           )}
         </>
+      )}
+
+      {clerkUser && (
+        <Link
+          href="/notifications"
+          onClick={closeMobile}
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium hover:bg-accent"
+        >
+          <Bell className="h-5 w-5" /> {t("nav.notifications")}
+        </Link>
       )}
 
       <div className="my-2 h-px bg-border" />

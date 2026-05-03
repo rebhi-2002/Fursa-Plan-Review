@@ -21,8 +21,6 @@ import type {
   AdminJob,
   AdminUser,
   CategoryCount,
-  PublicEmployerProfile,
-  PublicEmployerJob,
   CreateApplicationBody,
   CreateJobBody,
   CurrentUser,
@@ -38,6 +36,7 @@ import type {
   MyApplication,
   Notification,
   PlatformStats,
+  PublicEmployerProfile,
   PublicJob,
   PublicJobDetail,
   PublicJobListResponse,
@@ -202,88 +201,6 @@ export function useGetPlatformStats<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetPlatformStatsQueryOptions(options);
-
-  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
-  };
-
-  return { ...query, queryKey: queryOptions.queryKey };
-}
-
-export const getGetPublicEmployerProfileUrl = (id: string) => {
-  return `/api/public/employers/${id}`;
-};
-
-export const getPublicEmployerProfile = async (
-  id: string,
-  options?: RequestInit,
-): Promise<PublicEmployerProfile> => {
-  return customFetch<PublicEmployerProfile>(
-    getGetPublicEmployerProfileUrl(id),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
-};
-
-export const getGetPublicEmployerProfileQueryKey = (id: string) => {
-  return [`/api/public/employers/${id}`] as const;
-};
-
-export const getGetPublicEmployerProfileQueryOptions = <
-  TData = Awaited<ReturnType<typeof getPublicEmployerProfile>>,
-  TError = ErrorType<unknown>,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getPublicEmployerProfile>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-) => {
-  const { query: queryOptions, request: requestOptions } = options ?? {};
-  const queryKey =
-    queryOptions?.queryKey ?? getGetPublicEmployerProfileQueryKey(id);
-  const queryFn: QueryFunction<
-    Awaited<ReturnType<typeof getPublicEmployerProfile>>
-  > = ({ signal }) =>
-    getPublicEmployerProfile(id, { signal, ...requestOptions });
-  return {
-    queryKey,
-    queryFn,
-    enabled: !!id,
-    ...queryOptions,
-  } as UseQueryOptions<
-    Awaited<ReturnType<typeof getPublicEmployerProfile>>,
-    TError,
-    TData
-  >;
-};
-
-export type GetPublicEmployerProfileQueryResult = NonNullable<
-  Awaited<ReturnType<typeof getPublicEmployerProfile>>
->;
-export type GetPublicEmployerProfileQueryError = ErrorType<unknown>;
-
-export function useGetPublicEmployerProfile<
-  TData = Awaited<ReturnType<typeof getPublicEmployerProfile>>,
-  TError = ErrorType<unknown>,
->(
-  id: string,
-  options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getPublicEmployerProfile>>,
-      TError,
-      TData
-    >;
-    request?: SecondParameter<typeof customFetch>;
-  },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getGetPublicEmployerProfileQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -603,6 +520,98 @@ export function useGetJob<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getGetJobQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Public employer profile with their open jobs
+ */
+export const getGetPublicEmployerProfileUrl = (id: string) => {
+  return `/api/public/employers/${id}`;
+};
+
+export const getPublicEmployerProfile = async (
+  id: string,
+  options?: RequestInit,
+): Promise<PublicEmployerProfile> => {
+  return customFetch<PublicEmployerProfile>(
+    getGetPublicEmployerProfileUrl(id),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+};
+
+export const getGetPublicEmployerProfileQueryKey = (id: string) => {
+  return [`/api/public/employers/${id}`] as const;
+};
+
+export const getGetPublicEmployerProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPublicEmployerProfileQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPublicEmployerProfile>>
+  > = ({ signal }) =>
+    getPublicEmployerProfile(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPublicEmployerProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPublicEmployerProfile>>
+>;
+export type GetPublicEmployerProfileQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Public employer profile with their open jobs
+ */
+
+export function useGetPublicEmployerProfile<
+  TData = Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPublicEmployerProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPublicEmployerProfileQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -932,6 +941,90 @@ export function useListMyApplications<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Withdraw a pending job application
+ */
+export const getWithdrawApplicationUrl = (id: number) => {
+  return `/api/me/applications/${id}`;
+};
+
+export const withdrawApplication = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getWithdrawApplicationUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getWithdrawApplicationMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof withdrawApplication>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof withdrawApplication>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["withdrawApplication"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof withdrawApplication>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return withdrawApplication(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type WithdrawApplicationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof withdrawApplication>>
+>;
+
+export type WithdrawApplicationMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Withdraw a pending job application
+ */
+export const useWithdrawApplication = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof withdrawApplication>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof withdrawApplication>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getWithdrawApplicationMutationOptions(options));
+};
 
 /**
  * @summary List jobs saved by current user
