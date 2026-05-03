@@ -1,3 +1,4 @@
+import { HelmetProvider } from "react-helmet-async";
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
@@ -308,13 +309,15 @@ function ClerkAndRouter() {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <LangProvider>
-        <TooltipProvider>
-          <ClerkAndRouter />
-          <Toaster richColors position="top-center" />
-        </TooltipProvider>
-      </LangProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <LangProvider>
+          <TooltipProvider>
+            <ClerkAndRouter />
+            <Toaster richColors position="top-center" />
+          </TooltipProvider>
+        </LangProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   );
 }

@@ -703,7 +703,6 @@ const ar: TranslationDictionary = {
   "seeker.applications.editSuccess": "تم تحديث الطلب بنجاح",
   "seeker.applications.coverLetterPlaceholder": "اكتب رسالة تقديمك...",
   "seeker.applications.contactInfoTitle": "معلومات التواصل مع صاحب العمل",
-  "seeker.applications.withdrawSuccess": "تم سحب الطلب بنجاح",
 
   // Admin users search
   "admin.users.searchPlaceholder": "ابحث بالاسم أو البريد...",
@@ -1398,7 +1397,6 @@ const en: TranslationDictionary = {
   "seeker.applications.editSuccess": "Application updated successfully",
   "seeker.applications.coverLetterPlaceholder": "Write your cover letter...",
   "seeker.applications.contactInfoTitle": "Employer Contact Information",
-  "seeker.applications.withdrawSuccess": "Application withdrawn successfully",
 
   // Admin users search
   "admin.users.searchPlaceholder": "Search by name, email...",

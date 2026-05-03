@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link, useRoute, useLocation } from "wouter";
 import {
   useGetJob,
@@ -201,8 +202,21 @@ export default function JobDetail() {
     };
   };
 
+  const jobDescription = job.description?.slice(0, 160).replace(/\n/g, " ") ?? "";
+  const pageTitle = `${job.title} — ${job.employerName} | فُرصة`;
+
   return (
     <div className="container py-8 max-w-5xl">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={jobDescription} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={jobDescription} />
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={jobDescription} />
+      </Helmet>
       <div className="mb-6">
         <Button
           variant="ghost"

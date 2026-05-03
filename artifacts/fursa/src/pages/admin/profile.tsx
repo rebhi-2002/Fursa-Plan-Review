@@ -6,7 +6,7 @@ import {
   useGetAdminDashboard,
   getGetCurrentUserQueryKey,
 } from "@workspace/api-client-react";
-import { useUser } from "@clerk/react";
+import { useUser, useClerk } from "@clerk/react";
 import { useT, useLanguageStore } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +55,7 @@ export default function AdminProfile() {
   const queryClient = useQueryClient();
   const { data: user, isLoading } = useGetCurrentUser();
   const { user: clerkUser } = useUser();
+  const { openUserProfile } = useClerk();
   const { data: dashStats } = useGetAdminDashboard();
   const updateProfileMutation = useUpdateCurrentUser();
 
@@ -428,6 +429,22 @@ export default function AdminProfile() {
                 </div>
               </form>
             </Form>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/50">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <CardTitle>{t("profile.security.title")}</CardTitle>
+            </div>
+            <CardDescription>{t("profile.security.desc")}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button variant="outline" onClick={() => openUserProfile()}>
+              <Lock className="h-4 w-4 me-2" />
+              {t("profile.security.manageBtn")}
+            </Button>
           </CardContent>
         </Card>
       </div>

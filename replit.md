@@ -36,6 +36,24 @@ After building: **backend exit 0, frontend exit 0** — zero TypeScript errors a
 - **IMPORTANT**: `/employer/jobs/:id/applications` MUST come BEFORE `/employer/jobs/:id` in the Switch
 - Slides deck artifact at `/fursa-slides/`
 
+## Features Implemented (Improvement Plan — All Complete)
+
+- **H1**: Onboarding check in `requireRole` middleware — blocks non-onboarded users from API
+- **H2**: `DELETE /api/me` + delete account UI dialog in seeker + employer profiles
+- **H3**: Clerk `openUserProfile()` security card in all three profile pages (seeker, employer, admin)
+- **M1**: `GET /api/public/employers` + `/employers` list page with search
+- **M2**: Hourly cron in `index.ts` auto-closes expired jobs
+- **M3**: `PATCH /api/seeker/me/applications/:id` + inline cover letter edit UI
+- **M4**: Client-side search filter in admin/users.tsx
+- **M5**: Employer name included in job search `ilike` query
+- **M6**: `contactInfo` shown in accepted application cards (seeker)
+- **L1**: try/catch on seeker API routes with 500 responses
+- **L2**: File type + size validation in storage.ts (PDF/DOC/DOCX/images, max 15MB)
+- **L3**: `POST /api/contact` wired to contact form frontend
+- **L4**: `express-rate-limit` — 300 req/15min general, 60 for writes; `trust proxy: 1` for X-Forwarded-For
+- **L5**: `react-helmet-async` installed; dynamic `<title>`, `og:title`, `og:description` on job detail pages
+- **Recommendation Engine**: Seeker dashboard scores jobs by category history (+3) + bio keyword match (+2), excludes already-applied jobs
+
 ## Key files
 
 - `artifacts/fursa/src/App.tsx` — Clerk provider, router, role guards, AuthLayout vs AppLayout

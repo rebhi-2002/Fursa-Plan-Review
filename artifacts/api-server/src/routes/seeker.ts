@@ -6,7 +6,7 @@ import {
   applicationsTable,
   savedJobsTable,
 } from "@workspace/db";
-import { and, desc, eq, sql, ne } from "drizzle-orm";
+import { and, desc, eq, sql, ne, notInArray } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
 import { createNotification } from "../lib/notifications";
@@ -360,7 +360,27 @@ router.get(
     const userId = req.currentUser.id;
 
     try {
-      const [counts, savedCountRow, recent, recommended] = await Promise.all([
+      // Get seeker's applied job ids to exclude from recommendations
+      const appliedRows = await db
+        .select({
+          jobId: applicationsTable.jobId,
+          category: jobsTable.category,
+        })
+        .from(applicationsTable)
+        .innerJoin(jobsTable, eq(jobsTable.id, applicationsTable.jobId))
+        .where(eq(applicationsTable.applicantId, userId));
+
+      const appliedJobIds = appliedRows.map((r) => r.jobId);
+      const preferredCategories = new Set(appliedRows.map((r) => r.category));
+
+      // Extract bio keywords (words > 2 chars)
+      const bioText = req.currentUser.bio ?? "";
+      const bioKeywords = bioText
+        .split(/\s+/)
+        .map((w) => w.toLowerCase().replace(/[^\u0600-\u06FFa-zA-Z0-9]/g, ""))
+        .filter((w) => w.length > 2);
+
+      const [counts, savedCountRow, recent, candidateJobs] = await Promise.all([
         db
           .select({
             status: applicationsTable.status,
@@ -410,11 +430,38 @@ router.get(
               eq(jobsTable.status, "approved"),
               eq(jobsTable.isOpen, true),
               ne(jobsTable.employerId, userId),
+              appliedJobIds.length > 0
+                ? notInArray(jobsTable.id, appliedJobIds)
+                : undefined,
             ),
           )
           .orderBy(desc(jobsTable.createdAt))
-          .limit(6),
+          .limit(50),
       ]);
+
+      // Score and rank jobs for this seeker
+      const scored = candidateJobs.map((job) => {
+        let score = 0;
+        // +3 for matching a preferred category
+        if (preferredCategories.has(job.category)) score += 3;
+        // +2 for each title word found in bio keywords
+        if (bioKeywords.length > 0) {
+          const titleWords = job.title
+            .toLowerCase()
+            .split(/\s+/)
+            .map((w) => w.replace(/[^\u0600-\u06FFa-zA-Z0-9]/g, ""));
+          for (const tw of titleWords) {
+            if (tw.length > 2 && bioKeywords.some((bk) => tw.includes(bk) || bk.includes(tw))) {
+              score += 2;
+              break;
+            }
+          }
+        }
+        return { ...job, score };
+      });
+
+      scored.sort((a, b) => b.score - a.score || b.createdAt.getTime() - a.createdAt.getTime());
+      const recommended = scored.slice(0, 6);
 
       let pending = 0, accepted = 0, rejected = 0, total = 0;
       for (const row of counts) {
