@@ -261,50 +261,54 @@ function ApplicationCard({
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
-        <div className="flex items-center justify-between px-5 py-3 bg-muted/30 border-b gap-3 flex-wrap">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <User className="h-4 w-4 text-primary" />
-            </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-semibold text-sm">{app.applicantName}</span>
-                {!app.seenByEmployer && (
-                  <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-[10px] py-0 px-1.5 hover:bg-blue-100">
-                    {t("employer.applications.new")}
-                  </Badge>
-                )}
+        {/* Card header — applicant info */}
+        <div className="px-4 sm:px-5 py-3 bg-muted/30 border-b">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <User className="h-4 w-4 text-primary" />
               </div>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5 flex-wrap">
-                <span className="flex items-center gap-1">
-                  <Mail className="h-3 w-3" />
-                  {app.applicantEmail}
-                </span>
-                {app.applicantPhone && (
-                  <span className="flex items-center gap-1">
-                    <Phone className="h-3 w-3" />
-                    {app.applicantPhone}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-sm">{app.applicantName}</span>
+                  {!app.seenByEmployer && (
+                    <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-[10px] py-0 px-1.5 hover:bg-blue-100">
+                      {t("employer.applications.new")}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground mt-0.5">
+                  <span className="flex items-center gap-1 min-w-0">
+                    <Mail className="h-3 w-3 shrink-0" />
+                    <span className="truncate max-w-[180px]">{app.applicantEmail}</span>
                   </span>
-                )}
-                {app.applicantLocation && (
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {app.applicantLocation}
-                  </span>
-                )}
+                  {app.applicantPhone && (
+                    <span className="flex items-center gap-1" dir="ltr">
+                      <Phone className="h-3 w-3 shrink-0" />
+                      {app.applicantPhone}
+                    </span>
+                  )}
+                  {app.applicantLocation && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3 shrink-0" />
+                      {app.applicantLocation}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="h-3 w-3" />
-              {format(new Date(app.createdAt), "MMM d, yyyy", { locale })}
-            </span>
-            {statusBadge(app.status)}
+            {/* Status + date stacked */}
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              {statusBadge(app.status)}
+              <span className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+                <Clock className="h-3 w-3" />
+                {format(new Date(app.createdAt), "MMM d, yyyy", { locale })}
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="px-5 py-4 space-y-3">
+        <div className="px-4 sm:px-5 py-4 space-y-3">
           {app.applicantBio && (
             <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2">
               {app.applicantBio}
@@ -327,53 +331,54 @@ function ApplicationCard({
             </Accordion>
           )}
 
-          <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              {cvUrl ? (
-                <>
-                  <Button variant="outline" size="sm" asChild className="gap-2">
-                    <a href={cvUrl} target="_blank" rel="noopener noreferrer">
-                      <Eye className="h-4 w-4" />
-                      {t("employer.applications.previewCv") || "Preview CV"}
-                    </a>
-                  </Button>
-                  <Button variant="ghost" size="sm" asChild className="gap-2 text-muted-foreground">
-                    <a href={cvUrl} target="_blank" rel="noopener noreferrer" download>
-                      <Download className="h-4 w-4" />
-                      {t("employer.applications.downloadCv")}
-                    </a>
-                  </Button>
-                </>
-              ) : (
-                <span className="text-xs text-muted-foreground italic">
-                  {t("employer.applications.noCv")}
-                </span>
-              )}
-            </div>
-            {app.status === "pending" && (
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1.5 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                  onClick={onReject}
-                  disabled={isPending}
-                >
-                  <XCircle className="h-4 w-4" />
-                  {t("employer.applications.reject")}
+          {/* CV buttons */}
+          <div className="flex flex-wrap items-center gap-2">
+            {cvUrl ? (
+              <>
+                <Button variant="outline" size="sm" asChild className="gap-2">
+                  <a href={cvUrl} target="_blank" rel="noopener noreferrer">
+                    <Eye className="h-4 w-4" />
+                    {t("employer.applications.previewCv")}
+                  </a>
                 </Button>
-                <Button
-                  size="sm"
-                  className="gap-1.5 bg-green-600 text-white hover:bg-green-700"
-                  onClick={onAccept}
-                  disabled={isPending}
-                >
-                  <CheckCircle2 className="h-4 w-4" />
-                  {t("employer.applications.accept")}
+                <Button variant="ghost" size="sm" asChild className="gap-2 text-muted-foreground">
+                  <a href={cvUrl} target="_blank" rel="noopener noreferrer" download>
+                    <Download className="h-4 w-4" />
+                    {t("employer.applications.downloadCv")}
+                  </a>
                 </Button>
-              </div>
+              </>
+            ) : (
+              <span className="text-xs text-muted-foreground italic">
+                {t("employer.applications.noCv")}
+              </span>
             )}
           </div>
+
+          {/* Accept / Reject — full width on mobile */}
+          {app.status === "pending" && (
+            <div className="flex flex-wrap gap-2 pt-1 border-t border-border/40">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 sm:flex-none gap-1.5 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                onClick={onReject}
+                disabled={isPending}
+              >
+                <XCircle className="h-4 w-4" />
+                {t("employer.applications.reject")}
+              </Button>
+              <Button
+                size="sm"
+                className="flex-1 sm:flex-none gap-1.5 bg-green-600 text-white hover:bg-green-700"
+                onClick={onAccept}
+                disabled={isPending}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                {t("employer.applications.accept")}
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
