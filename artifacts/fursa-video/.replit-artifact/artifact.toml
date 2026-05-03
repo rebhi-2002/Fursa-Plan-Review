@@ -1,0 +1,31 @@
+kind = "video"
+previewPath = "/fursa-video/"
+title = "Fursa Platform Walkthrough"
+version = "1.0.0"
+id = "artifacts/fursa-video"
+router = "path"
+
+[[integratedSkills]]
+name = "video-js"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/fursa-video/" ]
+localPort = 24975
+
+[services.development]
+run = "pnpm --filter @workspace/fursa-video run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/fursa-video", "run", "build" ]
+publicDir = "artifacts/fursa-video/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24975"
+BASE_PATH = "/fursa-video/"
