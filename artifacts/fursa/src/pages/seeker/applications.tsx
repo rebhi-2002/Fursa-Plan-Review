@@ -139,61 +139,63 @@ export default function SeekerApplications() {
           <>
           {(applications as any[]).slice(0, displayCount).map((app) => (
             <Card key={app.id} className="border-border/50 hover:shadow-md transition-all">
-              <CardContent className="p-5 flex flex-col gap-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-3">
-                    <div>
-                      <Link href={`/jobs/${app.jobId}`} className="text-lg font-bold hover:text-primary transition-colors">
-                        {app.jobTitle}
-                      </Link>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center">
-                        <Building2 className="h-4 w-4 mr-2 ms-2 opacity-70" />
-                        {app.employerName}
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-2 ms-2 opacity-70" />
-                        {t("seeker.applications.appliedOn", {
-                          date: format(new Date(app.createdAt), "PPP", { locale }),
-                        })}
-                      </div>
-                    </div>
+              <CardContent className="p-4 sm:p-5 flex flex-col gap-0">
+                {/* Header row: title + badge */}
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <Link
+                    href={`/jobs/${app.jobId}`}
+                    className="text-base sm:text-lg font-bold hover:text-primary transition-colors leading-snug"
+                  >
+                    {app.jobTitle}
+                  </Link>
+                  <div className="shrink-0 mt-0.5">{getStatusBadge(app.status)}</div>
+                </div>
+
+                {/* Meta info */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground mb-4">
+                  <div className="flex items-center">
+                    <Building2 className="h-3.5 w-3.5 mr-1.5 ms-1.5 opacity-70 shrink-0" />
+                    {app.employerName}
                   </div>
-                  <div className="flex flex-row md:flex-col items-center md:items-end justify-between gap-3 shrink-0">
-                    {getStatusBadge(app.status)}
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/jobs/${app.jobId}`}>{t("seeker.applications.viewJob")}</Link>
+                  <div className="flex items-center">
+                    <Calendar className="h-3.5 w-3.5 mr-1.5 ms-1.5 opacity-70 shrink-0" />
+                    {t("seeker.applications.appliedOn", {
+                      date: format(new Date(app.createdAt), "PPP", { locale }),
+                    })}
+                  </div>
+                </div>
+
+                {/* Actions row — full width, wraps on small screens */}
+                <div className="flex flex-wrap items-center gap-2 border-t border-border/40 pt-3">
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/jobs/${app.jobId}`}>{t("seeker.applications.viewJob")}</Link>
+                  </Button>
+                  {app.status === "pending" && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-primary hover:text-primary hover:bg-primary/10"
+                        onClick={() => {
+                          setEditingId(app.id);
+                          setEditCoverLetter(app.coverLetter || "");
+                        }}
+                      >
+                        <Pencil className="h-3.5 w-3.5 mr-1 ms-1" />
+                        {t("seeker.applications.edit")}
                       </Button>
-                      {app.status === "pending" && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-primary hover:text-primary hover:bg-primary/10"
-                            onClick={() => {
-                              setEditingId(app.id);
-                              setEditCoverLetter(app.coverLetter || "");
-                            }}
-                          >
-                            <Pencil className="h-4 w-4 mr-1 ms-1" />
-                            {t("seeker.applications.edit")}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => openWithdrawConfirm(app.id, app.jobTitle)}
-                            disabled={withdrawMutation.isPending}
-                          >
-                            <Trash2 className="h-4 w-4 mr-1 ms-1" />
-                            {t("seeker.applications.withdraw")}
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => openWithdrawConfirm(app.id, app.jobTitle)}
+                        disabled={withdrawMutation.isPending}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 mr-1 ms-1" />
+                        {t("seeker.applications.withdraw")}
+                      </Button>
+                    </>
+                  )}
                 </div>
 
                 {editingId === app.id && (
