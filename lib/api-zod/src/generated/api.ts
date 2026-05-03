@@ -102,10 +102,31 @@ export const GetJobResponse = zod.object({
   employerBio: zod.string().nullish(),
   deadline: zod.coerce.date().nullish(),
   isOpen: zod.boolean(),
+  viewsCount: zod.number(),
   createdAt: zod.coerce.date(),
   savedByMe: zod.boolean(),
   appliedByMe: zod.boolean(),
 });
+
+/**
+ * @summary Get similar jobs by category
+ */
+export const GetSimilarJobsParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetSimilarJobsResponseItem = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  description: zod.string(),
+  type: zod.enum(["online", "field", "hybrid"]),
+  category: zod.string(),
+  employerName: zod.string(),
+  employerLocation: zod.string().nullish(),
+  deadline: zod.coerce.date().nullish(),
+  createdAt: zod.coerce.date(),
+});
+export const GetSimilarJobsResponse = zod.array(GetSimilarJobsResponseItem);
 
 /**
  * @summary Public employer profile with their open jobs
@@ -132,6 +153,65 @@ export const GetPublicEmployerProfileResponse = zod.object({
       createdAt: zod.coerce.date(),
     }),
   ),
+});
+
+/**
+ * @summary Public seeker profile (name, bio, location)
+ */
+export const GetPublicSeekerProfileParams = zod.object({
+  id: zod.coerce.string(),
+});
+
+export const GetPublicSeekerProfileResponse = zod.object({
+  id: zod.string(),
+  name: zod.string(),
+  bio: zod.string().nullish(),
+  location: zod.string().nullish(),
+});
+
+/**
+ * @summary List all message conversation threads
+ */
+export const ListMessageThreadsResponseItem = zod.object({
+  userId: zod.string(),
+  userName: zod.string(),
+  userRole: zod.enum(["seeker", "employer", "admin"]),
+  lastMessage: zod.string(),
+  lastMessageAt: zod.coerce.date(),
+  unreadCount: zod.number(),
+});
+export const ListMessageThreadsResponse = zod.array(
+  ListMessageThreadsResponseItem,
+);
+
+/**
+ * @summary Get messages with a specific user
+ */
+export const GetMessagesParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const GetMessagesResponseItem = zod.object({
+  id: zod.number(),
+  senderId: zod.string(),
+  recipientId: zod.string(),
+  body: zod.string(),
+  read: zod.boolean(),
+  createdAt: zod.coerce.date(),
+});
+export const GetMessagesResponse = zod.array(GetMessagesResponseItem);
+
+/**
+ * @summary Send a message to a user
+ */
+export const SendMessageParams = zod.object({
+  userId: zod.coerce.string(),
+});
+
+export const sendMessageBodyBodyMax = 2000;
+
+export const SendMessageBody = zod.object({
+  body: zod.string().min(1).max(sendMessageBodyBodyMax),
 });
 
 /**
@@ -210,8 +290,10 @@ export const ListMyApplicationsResponseItem = zod.object({
   jobTitle: zod.string(),
   employerName: zod.string(),
   status: zod.enum(["pending", "accepted", "rejected"]),
+  rejectionNote: zod.string().nullish(),
   coverLetter: zod.string().nullish(),
   cvObjectPath: zod.string().nullish(),
+  contactInfo: zod.string().nullish(),
   createdAt: zod.coerce.date(),
 });
 export const ListMyApplicationsResponse = zod.array(
@@ -271,8 +353,10 @@ export const GetSeekerDashboardResponse = zod.object({
       jobTitle: zod.string(),
       employerName: zod.string(),
       status: zod.enum(["pending", "accepted", "rejected"]),
+      rejectionNote: zod.string().nullish(),
       coverLetter: zod.string().nullish(),
       cvObjectPath: zod.string().nullish(),
+      contactInfo: zod.string().nullish(),
       createdAt: zod.coerce.date(),
     }),
   ),
@@ -472,6 +556,7 @@ export const ListJobApplicationsParams = zod.object({
 export const ListJobApplicationsResponseItem = zod.object({
   id: zod.number(),
   jobId: zod.number(),
+  applicantId: zod.string().optional(),
   applicantName: zod.string(),
   applicantEmail: zod.string(),
   applicantPhone: zod.string().nullish(),
@@ -480,6 +565,7 @@ export const ListJobApplicationsResponseItem = zod.object({
   coverLetter: zod.string().nullish(),
   cvObjectPath: zod.string().nullish(),
   status: zod.enum(["pending", "accepted", "rejected"]),
+  rejectionNote: zod.string().nullish(),
   seenByEmployer: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
@@ -496,11 +582,13 @@ export const UpdateApplicationStatusParams = zod.object({
 
 export const UpdateApplicationStatusBody = zod.object({
   status: zod.enum(["accepted", "rejected"]),
+  rejectionNote: zod.string().nullish(),
 });
 
 export const UpdateApplicationStatusResponse = zod.object({
   id: zod.number(),
   jobId: zod.number(),
+  applicantId: zod.string().optional(),
   applicantName: zod.string(),
   applicantEmail: zod.string(),
   applicantPhone: zod.string().nullish(),
@@ -509,6 +597,7 @@ export const UpdateApplicationStatusResponse = zod.object({
   coverLetter: zod.string().nullish(),
   cvObjectPath: zod.string().nullish(),
   status: zod.enum(["pending", "accepted", "rejected"]),
+  rejectionNote: zod.string().nullish(),
   seenByEmployer: zod.boolean(),
   createdAt: zod.coerce.date(),
 });
@@ -534,6 +623,7 @@ export const GetEmployerDashboardResponse = zod.object({
     zod.object({
       id: zod.number(),
       jobId: zod.number(),
+      applicantId: zod.string().optional(),
       applicantName: zod.string(),
       applicantEmail: zod.string(),
       applicantPhone: zod.string().nullish(),
@@ -542,6 +632,7 @@ export const GetEmployerDashboardResponse = zod.object({
       coverLetter: zod.string().nullish(),
       cvObjectPath: zod.string().nullish(),
       status: zod.enum(["pending", "accepted", "rejected"]),
+      rejectionNote: zod.string().nullish(),
       seenByEmployer: zod.boolean(),
       createdAt: zod.coerce.date(),
     }),

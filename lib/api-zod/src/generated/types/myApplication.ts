@@ -14,8 +14,12 @@ export interface MyApplication {
   employerName: string;
   status: ApplicationStatus;
   /** @nullable */
+  rejectionNote?: string | null;
+  /** @nullable */
   coverLetter?: string | null;
   /** @nullable */
   cvObjectPath?: string | null;
+  /** @nullable */
+  contactInfo?: string | null;
   createdAt: Date;
 }

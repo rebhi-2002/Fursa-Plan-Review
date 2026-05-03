@@ -24,6 +24,7 @@ export interface PublicJobDetail {
   /** @nullable */
   deadline?: Date | null;
   isOpen: boolean;
+  viewsCount: number;
   createdAt: Date;
   savedByMe: boolean;
   appliedByMe: boolean;

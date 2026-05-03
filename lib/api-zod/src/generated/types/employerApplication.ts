@@ -10,6 +10,7 @@ import type { ApplicationStatus } from "./applicationStatus";
 export interface EmployerApplication {
   id: number;
   jobId: number;
+  applicantId?: string;
   applicantName: string;
   applicantEmail: string;
   /** @nullable */
@@ -23,6 +24,8 @@ export interface EmployerApplication {
   /** @nullable */
   cvObjectPath?: string | null;
   status: ApplicationStatus;
+  /** @nullable */
+  rejectionNote?: string | null;
   seenByEmployer: boolean;
   createdAt: Date;
 }

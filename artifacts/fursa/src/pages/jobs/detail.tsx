@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link, useRoute, useLocation } from "wouter";
 import {
   useGetJob,
+  useGetSimilarJobs,
   useApplyToJob,
   useSaveJob,
   useUnsaveJob,
@@ -30,6 +31,10 @@ import {
   BookmarkCheck,
   ArrowRight,
   FileText,
+  Share2,
+  Eye,
+  AlertTriangle,
+  CheckCircle,
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
@@ -62,6 +67,9 @@ export default function JobDetail() {
     query: { enabled: !!jobId, queryKey: getGetJobQueryKey(jobId) },
   });
   const { data: user } = useGetCurrentUser();
+  const { data: similarJobs } = useGetSimilarJobs(jobId, {
+    query: { enabled: !!jobId, queryKey: ["similar-jobs", jobId] as any },
+  });
 
   const saveMutation = useSaveJob({
     mutation: {
@@ -164,6 +172,22 @@ export default function JobDetail() {
     }
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: job.title, url });
+      } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success(t("jobs.shareCopied"));
+      } catch {
+        toast.error(t("common.error"));
+      }
+    }
+  };
+
   const handleApply = () => {
     if (!user) {
       toast.error(t("jobs.signInToApply"));
@@ -200,6 +224,35 @@ export default function JobDetail() {
       url: uploadURL,
       headers: { "Content-Type": file.type },
     };
+  };
+
+  const daysLeft = job.deadline
+    ? Math.ceil(
+        (new Date(job.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      )
+    : null;
+
+  const countdownEl = () => {
+    if (daysLeft === null) return null;
+    if (daysLeft > 0)
+      return (
+        <span className="flex items-center gap-1 text-amber-600 font-semibold">
+          <Clock className="h-3.5 w-3.5" />
+          {t("jobs.daysLeft", { days: daysLeft })}
+        </span>
+      );
+    if (daysLeft === 0)
+      return (
+        <span className="flex items-center gap-1 text-red-600 font-semibold">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          {t("jobs.deadlineToday")}
+        </span>
+      );
+    return (
+      <span className="flex items-center gap-1 text-muted-foreground line-through">
+        {t("jobs.deadlinePassed")}
+      </span>
+    );
   };
 
   const jobDescription = job.description?.slice(0, 160).replace(/\n/g, " ") ?? "";
@@ -266,11 +319,29 @@ export default function JobDetail() {
                     locale,
                   })}
                 </div>
+                {(job as any).viewsCount != null && (
+                  <div className="flex items-center gap-1">
+                    <Eye className="h-4 w-4 opacity-70" />
+                    <span>{(job as any).viewsCount} {t("jobs.views")}</span>
+                  </div>
+                )}
+                {daysLeft !== null && (
+                  <div className="text-sm">{countdownEl()}</div>
+                )}
               </div>
             </div>
 
-            {(!user || user.role === "seeker") && (
-              <div className="flex gap-2">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={handleShare}
+                aria-label={t("jobs.share")}
+                title={t("jobs.share")}
+              >
+                <Share2 className="h-5 w-5" />
+              </Button>
+              {(!user || user.role === "seeker") && (
                 <Button
                   variant="outline"
                   size="icon"
@@ -291,8 +362,8 @@ export default function JobDetail() {
                     <Bookmark className="h-5 w-5" />
                   )}
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           <div className="prose dark:prose-invert max-w-none prose-p:leading-relaxed">
@@ -313,7 +384,7 @@ export default function JobDetail() {
             <CardContent className="p-6">
               {job.appliedByMe ? (
                 <div className="bg-primary/10 text-primary p-4 rounded-xl text-center flex flex-col items-center">
-                  <BookmarkCheck className="h-8 w-8 mb-2" />
+                  <CheckCircle className="h-8 w-8 mb-2" />
                   <span className="font-bold">{t("jobs.applied")}</span>
                   <Link
                     href="/seeker/applications"
@@ -369,6 +440,9 @@ export default function JobDetail() {
                               value={coverLetter}
                               onChange={(e) => setCoverLetter(e.target.value)}
                             />
+                            <p className="text-xs text-muted-foreground text-end">
+                              {coverLetter.length} {t("common.chars")}
+                            </p>
                           </div>
 
                           <div className="space-y-2">
@@ -485,6 +559,49 @@ export default function JobDetail() {
           </Card>
         </div>
       </div>
+
+      {similarJobs && similarJobs.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-xl font-bold mb-4">{t("jobs.similarJobs")}</h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {similarJobs.slice(0, 4).map((sj: any) => (
+              <Card
+                key={sj.id}
+                className="border-border/50 hover:shadow-md transition-all group"
+              >
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <Link
+                      href={`/jobs/${sj.id}`}
+                      className="font-bold text-base hover:text-primary transition-colors line-clamp-2"
+                    >
+                      {sj.title}
+                    </Link>
+                    <Badge variant="outline" className="shrink-0 text-xs">
+                      {t(`jobs.type.${sj.type}`)}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+                    <Building2 className="h-3.5 w-3.5 shrink-0" />
+                    {sj.employerName}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Badge className="bg-primary/10 text-primary border-0 text-xs">
+                      {sj.category}
+                    </Badge>
+                    <Button size="sm" variant="ghost" asChild className="h-7 text-xs">
+                      <Link href={`/jobs/${sj.id}`}>
+                        {t("jobs.details")}
+                        <ArrowRight className="h-3 w-3 ms-1 mr-1 rtl:rotate-180" />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

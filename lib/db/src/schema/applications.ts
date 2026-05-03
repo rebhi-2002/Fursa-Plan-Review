@@ -30,6 +30,7 @@ export const applicationsTable = pgTable(
     coverLetter: text("cover_letter"),
     cvObjectPath: text("cv_object_path"),
     status: applicationStatusEnum("status").notNull().default("pending"),
+    rejectionNote: text("rejection_note"),
     seenByEmployer: boolean("seen_by_employer").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

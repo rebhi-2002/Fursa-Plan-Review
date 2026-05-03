@@ -54,6 +54,47 @@ After building: **backend exit 0, frontend exit 0** — zero TypeScript errors a
 - **L5**: `react-helmet-async` installed; dynamic `<title>`, `og:title`, `og:description` on job detail pages
 - **Recommendation Engine**: Seeker dashboard scores jobs by category history (+3) + bio keyword match (+2), excludes already-applied jobs
 
+## T004 Features (18-Item Enhancement Plan — Complete)
+
+### DB Schema (T001)
+- `rejectionNote` (text, nullable) added to `applicationsTable`
+- `viewsCount` (integer, default 0) added to `jobsTable`
+- New `messagesTable` (id, senderId, receiverId, body, createdAt, isRead)
+
+### API Spec & Codegen (T002)
+- `GET /jobs/:id/similar` → similar jobs list
+- `GET /jobs/:id` auto-increments `viewsCount`
+- `PATCH /employer/applications/:id` now accepts `rejectionNote`
+- `GET/POST /me/messages/:userId` → messages CRUD
+- `GET /public/seekers/:id` → public seeker profile
+- `GET /admin/export/users` + `/admin/export/jobs` → CSV download
+- New hooks: `useGetSimilarJobs`, `useGetPublicSeekerProfile`, `useListMessageThreads`, `useGetMessages`, `useSendMessage`
+
+### Backend Routes (T003)
+- `publicJobs.ts`: similar jobs + views increment
+- `employer.ts`: rejection note in status update
+- `messages.ts`: full CRUD (new file)
+- `admin.ts`: CSV export for users and jobs
+
+### Frontend (T004)
+- **Share button** on job detail — Web Share API with clipboard fallback
+- **Countdown timer** on job detail — days left / last day / deadline passed
+- **Views count** display (Eye icon) on job detail
+- **Similar jobs** section at bottom of job detail (2-col grid, top 4)
+- **Rejection note** shown in seeker/applications when status = rejected
+- **Saved jobs type filter** — pill chips (All / Online / Field / Hybrid) with counts
+- **Messages pages** — `/messages` (thread list) + `/messages/:userId` (conversation, Enter to send)
+- **Public seeker profile** — `/seekers/:id` page
+- **Admin CSV export** buttons on dashboard (uses Clerk token for auth)
+- **Dark mode toggle** — Moon/Sun in Header; `src/lib/theme.ts` Zustand store with localStorage + `initTheme()` in `main.tsx`
+- **Word counters** on description + requirements textareas in `employer/job-new.tsx` and `employer/job-edit.tsx`
+- **CV preview button** in employer/applications (opens in new tab) + download button
+
+### New Routes in App.tsx
+- `/messages` → MessagesPage (signed-in, any role)
+- `/messages/:userId` → MessageThread
+- `/seekers/:id` → PublicSeekerProfile (public)
+
 ## Key files
 
 - `artifacts/fursa/src/App.tsx` — Clerk provider, router, role guards, AuthLayout vs AppLayout

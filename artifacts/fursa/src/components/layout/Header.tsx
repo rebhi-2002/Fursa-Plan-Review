@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { useClerk, useUser } from "@clerk/react";
 import { useLanguageStore, useT } from "@/lib/i18n";
+import { useThemeStore } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -38,6 +39,8 @@ import {
   ShieldCheck,
   Building2,
   Bell,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -45,6 +48,7 @@ import { NotificationBell } from "./NotificationBell";
 export function Header() {
   const t = useT();
   const { lang, setLang } = useLanguageStore();
+  const { theme, toggleTheme } = useThemeStore();
   const { user: clerkUser } = useUser();
   const { signOut } = useClerk();
   const { data: dbUser } = useGetCurrentUser();
@@ -271,6 +275,21 @@ export function Header() {
         <Globe className="h-5 w-5" /> {t("nav.langSwitchTo")}
       </button>
 
+      <button
+        onClick={() => {
+          toggleTheme();
+          closeMobile();
+        }}
+        className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium hover:bg-accent text-start"
+      >
+        {theme === "dark" ? (
+          <Sun className="h-5 w-5" />
+        ) : (
+          <Moon className="h-5 w-5" />
+        )}
+        {theme === "dark" ? t("theme.light") : t("theme.dark")}
+      </button>
+
       {!clerkUser ? (
         <>
           <Link
@@ -342,6 +361,20 @@ export function Header() {
             <span className="text-sm font-medium">
               {t("nav.langSwitchTo")}
             </span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="hidden md:inline-flex text-muted-foreground hover:text-foreground"
+            aria-label={t("theme.toggle")}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-4 w-4" />
+            ) : (
+              <Moon className="h-4 w-4" />
+            )}
           </Button>
 
           {clerkUser && (

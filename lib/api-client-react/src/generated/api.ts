@@ -33,6 +33,8 @@ import type {
   ListAdminJobsParams,
   ListAdminUsersParams,
   ListJobsParams,
+  Message,
+  MessageThread,
   MyApplication,
   Notification,
   PlatformStats,
@@ -40,10 +42,12 @@ import type {
   PublicJob,
   PublicJobDetail,
   PublicJobListResponse,
+  PublicSeekerProfile,
   RejectJobInput,
   RequestUploadUrlInput,
   RequestUploadUrlResult,
   SeekerDashboard,
+  SendMessageBody,
   SetRoleBody,
   UpdateApplicationBody,
   UpdateJobBody,
@@ -529,6 +533,93 @@ export function useGetJob<
 }
 
 /**
+ * @summary Get similar jobs by category
+ */
+export const getGetSimilarJobsUrl = (id: number) => {
+  return `/api/jobs/${id}/similar`;
+};
+
+export const getSimilarJobs = async (
+  id: number,
+  options?: RequestInit,
+): Promise<PublicJob[]> => {
+  return customFetch<PublicJob[]>(getGetSimilarJobsUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetSimilarJobsQueryKey = (id: number) => {
+  return [`/api/jobs/${id}/similar`] as const;
+};
+
+export const getGetSimilarJobsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSimilarJobs>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSimilarJobs>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetSimilarJobsQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSimilarJobs>>> = ({
+    signal,
+  }) => getSimilarJobs(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSimilarJobs>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetSimilarJobsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSimilarJobs>>
+>;
+export type GetSimilarJobsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get similar jobs by category
+ */
+
+export function useGetSimilarJobs<
+  TData = Awaited<ReturnType<typeof getSimilarJobs>>,
+  TError = ErrorType<unknown>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSimilarJobs>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetSimilarJobsQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
  * @summary Public employer profile with their open jobs
  */
 export const getGetPublicEmployerProfileUrl = (id: string) => {
@@ -619,6 +710,343 @@ export function useGetPublicEmployerProfile<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Public seeker profile (name, bio, location)
+ */
+export const getGetPublicSeekerProfileUrl = (id: string) => {
+  return `/api/public/seekers/${id}`;
+};
+
+export const getPublicSeekerProfile = async (
+  id: string,
+  options?: RequestInit,
+): Promise<PublicSeekerProfile> => {
+  return customFetch<PublicSeekerProfile>(getGetPublicSeekerProfileUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetPublicSeekerProfileQueryKey = (id: string) => {
+  return [`/api/public/seekers/${id}`] as const;
+};
+
+export const getGetPublicSeekerProfileQueryOptions = <
+  TData = Awaited<ReturnType<typeof getPublicSeekerProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPublicSeekerProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetPublicSeekerProfileQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getPublicSeekerProfile>>
+  > = ({ signal }) => getPublicSeekerProfile(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getPublicSeekerProfile>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetPublicSeekerProfileQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getPublicSeekerProfile>>
+>;
+export type GetPublicSeekerProfileQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Public seeker profile (name, bio, location)
+ */
+
+export function useGetPublicSeekerProfile<
+  TData = Awaited<ReturnType<typeof getPublicSeekerProfile>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getPublicSeekerProfile>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetPublicSeekerProfileQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary List all message conversation threads
+ */
+export const getListMessageThreadsUrl = () => {
+  return `/api/me/messages/threads`;
+};
+
+export const listMessageThreads = async (
+  options?: RequestInit,
+): Promise<MessageThread[]> => {
+  return customFetch<MessageThread[]>(getListMessageThreadsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMessageThreadsQueryKey = () => {
+  return [`/api/me/messages/threads`] as const;
+};
+
+export const getListMessageThreadsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMessageThreads>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMessageThreads>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMessageThreadsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listMessageThreads>>
+  > = ({ signal }) => listMessageThreads({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMessageThreads>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMessageThreadsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMessageThreads>>
+>;
+export type ListMessageThreadsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all message conversation threads
+ */
+
+export function useListMessageThreads<
+  TData = Awaited<ReturnType<typeof listMessageThreads>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listMessageThreads>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMessageThreadsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get messages with a specific user
+ */
+export const getGetMessagesUrl = (userId: string) => {
+  return `/api/me/messages/${userId}`;
+};
+
+export const getMessages = async (
+  userId: string,
+  options?: RequestInit,
+): Promise<Message[]> => {
+  return customFetch<Message[]>(getGetMessagesUrl(userId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMessagesQueryKey = (userId: string) => {
+  return [`/api/me/messages/${userId}`] as const;
+};
+
+export const getGetMessagesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMessages>>,
+  TError = ErrorType<unknown>,
+>(
+  userId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMessages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMessagesQueryKey(userId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMessages>>> = ({
+    signal,
+  }) => getMessages(userId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!userId,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMessages>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMessagesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMessages>>
+>;
+export type GetMessagesQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Get messages with a specific user
+ */
+
+export function useGetMessages<
+  TData = Awaited<ReturnType<typeof getMessages>>,
+  TError = ErrorType<unknown>,
+>(
+  userId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMessages>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMessagesQueryOptions(userId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Send a message to a user
+ */
+export const getSendMessageUrl = (userId: string) => {
+  return `/api/me/messages/${userId}`;
+};
+
+export const sendMessage = async (
+  userId: string,
+  sendMessageBody: SendMessageBody,
+  options?: RequestInit,
+): Promise<Message> => {
+  return customFetch<Message>(getSendMessageUrl(userId), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(sendMessageBody),
+  });
+};
+
+export const getSendMessageMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { userId: string; data: BodyType<SendMessageBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { userId: string; data: BodyType<SendMessageBody> },
+  TContext
+> => {
+  const mutationKey = ["sendMessage"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof sendMessage>>,
+    { userId: string; data: BodyType<SendMessageBody> }
+  > = (props) => {
+    const { userId, data } = props ?? {};
+
+    return sendMessage(userId, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type SendMessageMutationResult = NonNullable<
+  Awaited<ReturnType<typeof sendMessage>>
+>;
+export type SendMessageMutationBody = BodyType<SendMessageBody>;
+export type SendMessageMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Send a message to a user
+ */
+export const useSendMessage = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof sendMessage>>,
+    TError,
+    { userId: string; data: BodyType<SendMessageBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof sendMessage>>,
+  TError,
+  { userId: string; data: BodyType<SendMessageBody> },
+  TContext
+> => {
+  return useMutation(getSendMessageMutationOptions(options));
+};
 
 /**
  * @summary Current authenticated user profile (auto-creates on first call)

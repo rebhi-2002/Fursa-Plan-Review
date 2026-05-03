@@ -22,6 +22,7 @@ import {
   X,
   Check,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -233,6 +234,20 @@ export default function SeekerApplications() {
                           {t("seeker.applications.contactInfoTitle")}
                         </p>
                         <p className="text-sm text-green-700 whitespace-pre-wrap">{app.contactInfo}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {app.status === "rejected" && app.rejectionNote && (
+                  <div className="border-t pt-4">
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-red-50 border border-red-200">
+                      <AlertCircle className="h-5 w-5 text-red-700 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-red-800 mb-1">
+                          {t("seeker.applications.rejectionNote")}
+                        </p>
+                        <p className="text-sm text-red-700">{app.rejectionNote}</p>
                       </div>
                     </div>
                   </div>

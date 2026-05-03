@@ -29,6 +29,7 @@ function serializeMyApp(row: {
   jobTitle: string;
   employerName: string;
   status: "pending" | "accepted" | "rejected";
+  rejectionNote?: string | null;
   coverLetter: string | null;
   cvObjectPath: string | null;
   contactInfo?: string | null;
@@ -38,6 +39,7 @@ function serializeMyApp(row: {
     ...row,
     createdAt: row.createdAt.toISOString(),
     contactInfo: row.contactInfo ?? null,
+    rejectionNote: row.rejectionNote ?? null,
   };
 }
 
@@ -73,6 +75,7 @@ router.get(
           jobTitle: jobsTable.title,
           employerName: usersTable.name,
           status: applicationsTable.status,
+          rejectionNote: applicationsTable.rejectionNote,
           coverLetter: applicationsTable.coverLetter,
           cvObjectPath: applicationsTable.cvObjectPath,
           contactInfo: jobsTable.contactInfo,

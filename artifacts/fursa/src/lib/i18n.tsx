@@ -706,8 +706,59 @@ const ar: TranslationDictionary = {
   "seeker.applications.coverLetterPlaceholder": "اكتب رسالة تقديمك...",
   "seeker.applications.contactInfoTitle": "معلومات التواصل مع صاحب العمل",
 
+  // CV preview
+  "employer.applications.previewCv": "معاينة السيرة الذاتية",
+
   // Admin users search
   "admin.users.searchPlaceholder": "ابحث بالاسم أو البريد...",
+
+  // Share & views
+  "jobs.share": "مشاركة",
+  "jobs.shareCopied": "تم نسخ رابط الوظيفة",
+  "jobs.views": "مشاهدة",
+  "jobs.daysLeft": "{days} يوم متبقٍ",
+  "jobs.deadlineToday": "آخر يوم للتقديم",
+  "jobs.deadlinePassed": "انتهى موعد التقديم",
+  "jobs.similarJobs": "وظائف مشابهة",
+  "jobs.noSimilar": "لا توجد وظائف مشابهة حالياً",
+
+  // Rejection note
+  "seeker.applications.rejectionNote": "سبب الرفض:",
+
+  // Saved filter
+  "seeker.saved.filterType": "تصفية حسب النوع",
+
+  // Messages
+  "messages.title": "الرسائل",
+  "messages.threads": "المحادثات",
+  "messages.empty": "لا توجد محادثات",
+  "messages.emptyDesc": "لم تتلقَّ أي رسائل بعد.",
+  "messages.send": "إرسال",
+  "messages.placeholder": "اكتب رسالتك...",
+  "messages.back": "العودة للرسائل",
+  "messages.conversationEmpty": "لا توجد رسائل في هذه المحادثة بعد",
+  "messages.you": "أنت",
+  "messages.unread": "غير مقروء",
+
+  // Public seeker profile
+  "seekers.profile.title": "الملف الشخصي للمتقدم",
+  "seekers.profile.back": "رجوع",
+  "seekers.profile.notFound": "لم يتم العثور على الملف الشخصي",
+  "seekers.profile.notFoundDesc": "هذا الملف غير موجود.",
+
+  // Admin export
+  "admin.export.title": "تصدير البيانات",
+  "admin.export.users": "تصدير المستخدمين (CSV)",
+  "admin.export.jobs": "تصدير الوظائف (CSV)",
+
+  // Theme
+  "theme.toggle": "تبديل المظهر",
+  "theme.dark": "وضع مظلم",
+  "theme.light": "وضع مضيء",
+
+  // Word / char counter
+  "common.chars": "حرف",
+  "common.words": "كلمة",
 };
 
 const en: TranslationDictionary = {
@@ -1402,8 +1453,59 @@ const en: TranslationDictionary = {
   "seeker.applications.coverLetterPlaceholder": "Write your cover letter...",
   "seeker.applications.contactInfoTitle": "Employer Contact Information",
 
+  // CV preview
+  "employer.applications.previewCv": "Preview CV",
+
   // Admin users search
   "admin.users.searchPlaceholder": "Search by name, email...",
+
+  // Share & views
+  "jobs.share": "Share",
+  "jobs.shareCopied": "Link copied to clipboard",
+  "jobs.views": "views",
+  "jobs.daysLeft": "{days} days left",
+  "jobs.deadlineToday": "Last day to apply",
+  "jobs.deadlinePassed": "Deadline passed",
+  "jobs.similarJobs": "Similar Jobs",
+  "jobs.noSimilar": "No similar jobs available right now",
+
+  // Rejection note
+  "seeker.applications.rejectionNote": "Rejection reason:",
+
+  // Saved filter
+  "seeker.saved.filterType": "Filter by type",
+
+  // Messages
+  "messages.title": "Messages",
+  "messages.threads": "Conversations",
+  "messages.empty": "No conversations",
+  "messages.emptyDesc": "You haven't received any messages yet.",
+  "messages.send": "Send",
+  "messages.placeholder": "Type your message...",
+  "messages.back": "Back to messages",
+  "messages.conversationEmpty": "No messages in this conversation yet",
+  "messages.you": "You",
+  "messages.unread": "Unread",
+
+  // Public seeker profile
+  "seekers.profile.title": "Applicant Profile",
+  "seekers.profile.back": "Back",
+  "seekers.profile.notFound": "Profile not found",
+  "seekers.profile.notFoundDesc": "This profile does not exist.",
+
+  // Admin export
+  "admin.export.title": "Export Data",
+  "admin.export.users": "Export Users (CSV)",
+  "admin.export.jobs": "Export Jobs (CSV)",
+
+  // Theme
+  "theme.toggle": "Toggle Theme",
+  "theme.dark": "Dark Mode",
+  "theme.light": "Light Mode",
+
+  // Word / char counter
+  "common.chars": "chars",
+  "common.words": "words",
 };
 
 const dictionaries: Record<Language, TranslationDictionary> = { ar, en };

@@ -35,6 +35,7 @@ import {
   Mail,
   Clock,
   User,
+  Eye,
 } from "lucide-react";
 import { format } from "date-fns";
 import type { Locale } from "date-fns";
@@ -327,14 +328,22 @@ function ApplicationCard({
           )}
 
           <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
-            <div>
+            <div className="flex items-center gap-2 flex-wrap">
               {cvUrl ? (
-                <Button variant="outline" size="sm" asChild className="gap-2">
-                  <a href={cvUrl} target="_blank" rel="noopener noreferrer" download>
-                    <Download className="h-4 w-4" />
-                    {t("employer.applications.downloadCv")}
-                  </a>
-                </Button>
+                <>
+                  <Button variant="outline" size="sm" asChild className="gap-2">
+                    <a href={cvUrl} target="_blank" rel="noopener noreferrer">
+                      <Eye className="h-4 w-4" />
+                      {t("employer.applications.previewCv") || "Preview CV"}
+                    </a>
+                  </Button>
+                  <Button variant="ghost" size="sm" asChild className="gap-2 text-muted-foreground">
+                    <a href={cvUrl} target="_blank" rel="noopener noreferrer" download>
+                      <Download className="h-4 w-4" />
+                      {t("employer.applications.downloadCv")}
+                    </a>
+                  </Button>
+                </>
               ) : (
                 <span className="text-xs text-muted-foreground italic">
                   {t("employer.applications.noCv")}

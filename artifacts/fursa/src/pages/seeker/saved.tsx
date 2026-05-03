@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import {
   useListSavedJobs,
@@ -22,11 +23,14 @@ import { useLanguageStore } from "@/lib/i18n";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+type TypeFilter = "all" | "online" | "field" | "hybrid";
+
 export default function SeekerSavedJobs() {
   const t = useT();
   const { lang } = useLanguageStore();
   const locale = lang === "ar" ? ar : enUS;
   const queryClient = useQueryClient();
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
   const { data: savedJobs, isLoading } = useListSavedJobs();
 
@@ -43,6 +47,18 @@ export default function SeekerSavedJobs() {
 
   const handleUnsave = (jobId: number) => {
     unsaveMutation.mutate({ id: jobId });
+  };
+
+  const filtered =
+    savedJobs?.filter((j) => typeFilter === "all" || j.type === typeFilter) ??
+    [];
+
+  const typeFilters: TypeFilter[] = ["all", "online", "field", "hybrid"];
+  const counts: Record<TypeFilter, number> = {
+    all: savedJobs?.length ?? 0,
+    online: savedJobs?.filter((j) => j.type === "online").length ?? 0,
+    field: savedJobs?.filter((j) => j.type === "field").length ?? 0,
+    hybrid: savedJobs?.filter((j) => j.type === "hybrid").length ?? 0,
   };
 
   return (
@@ -68,13 +84,42 @@ export default function SeekerSavedJobs() {
         </div>
       </div>
 
+      {savedJobs && savedJobs.length > 0 && (
+        <div className="flex gap-2 flex-wrap mb-4">
+          {typeFilters.map((f) => (
+            <button
+              key={f}
+              onClick={() => setTypeFilter(f)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                typeFilter === f
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {t(`jobs.type.${f}`)}
+              {counts[f] > 0 && (
+                <span
+                  className={`text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 font-bold ${
+                    typeFilter === f
+                      ? "bg-white/20 text-white"
+                      : "bg-background text-foreground"
+                  }`}
+                >
+                  {counts[f]}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="space-y-4">
         {isLoading ? (
           Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-36 w-full rounded-xl" />
           ))
-        ) : savedJobs && savedJobs.length > 0 ? (
-          savedJobs.map((job) => (
+        ) : filtered.length > 0 ? (
+          filtered.map((job) => (
             <Card
               key={job.id}
               className="border-border/50 hover:shadow-md transition-all group"
@@ -136,6 +181,18 @@ export default function SeekerSavedJobs() {
               </CardContent>
             </Card>
           ))
+        ) : savedJobs && savedJobs.length > 0 ? (
+          <Card className="border-dashed bg-muted/20">
+            <CardContent className="p-12 text-center flex flex-col items-center">
+              <Bookmark className="h-16 w-16 text-muted-foreground opacity-20 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">
+                {t("seeker.saved.empty")}
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                {t("seeker.saved.emptyDesc")}
+              </p>
+            </CardContent>
+          </Card>
         ) : (
           <Card className="border-dashed bg-muted/20">
             <CardContent className="p-12 text-center flex flex-col items-center">

@@ -50,6 +50,9 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminJobs from "@/pages/admin/jobs";
 import AdminUsers from "@/pages/admin/users";
 import AdminProfile from "@/pages/admin/profile";
+import MessagesPage from "@/pages/messages/index";
+import MessageThread from "@/pages/messages/thread";
+import PublicSeekerProfile from "@/pages/seekers/profile";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -229,6 +232,19 @@ function Router() {
             </Route>
             <Route path="/employer/profile">
               <RoleGuard role="employer"><EmployerProfile /></RoleGuard>
+            </Route>
+
+            {/* Messages Routes */}
+            <Route path="/messages">
+              <MessagesPage />
+            </Route>
+            <Route path="/messages/:userId">
+              <MessageThread />
+            </Route>
+
+            {/* Public Seeker Profile */}
+            <Route path="/seekers/:id">
+              <PublicSeekerProfile />
             </Route>
 
             {/* Admin Routes */}

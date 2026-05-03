@@ -8,6 +8,7 @@ import seekerRouter from "./seeker";
 import employerRouter from "./employer";
 import adminRouter from "./admin";
 import notificationsRouter from "./notifications";
+import messagesRouter from "./messages";
 import contactRouter from "./contact";
 
 const router: IRouter = Router();
@@ -18,6 +19,7 @@ router.use(platformRouter);
 router.use(publicJobsRouter);
 router.use(meRouter);
 router.use(notificationsRouter);
+router.use(messagesRouter);
 router.use(seekerRouter);
 router.use(employerRouter);
 router.use(adminRouter);

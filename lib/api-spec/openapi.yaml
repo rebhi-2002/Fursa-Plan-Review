@@ -142,6 +142,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /jobs/{id}/similar:
+    get:
+      operationId: getSimilarJobs
+      tags: [jobs]
+      summary: Get similar jobs by category
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicJob"
+
   /public/employers/{id}:
     get:
       operationId: getPublicEmployerProfile
@@ -166,6 +187,96 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+
+  /public/seekers/{id}:
+    get:
+      operationId: getPublicSeekerProfile
+      tags: [jobs]
+      summary: Public seeker profile (name, bio, location)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicSeekerProfile"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /me/messages/threads:
+    get:
+      operationId: listMessageThreads
+      tags: [me]
+      summary: List all message conversation threads
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MessageThread"
+
+  /me/messages/{userId}:
+    get:
+      operationId: getMessages
+      tags: [me]
+      summary: Get messages with a specific user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+    post:
+      operationId: sendMessage
+      tags: [me]
+      summary: Send a message to a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendMessageBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
 
   /me:
     get:
@@ -847,6 +958,8 @@ components:
           format: date-time
         isOpen:
           type: boolean
+        viewsCount:
+          type: integer
         createdAt:
           type: string
           format: date-time
@@ -863,6 +976,7 @@ components:
         - contactInfo
         - employerName
         - isOpen
+        - viewsCount
         - createdAt
         - savedByMe
         - appliedByMe
@@ -960,9 +1074,13 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/ApplicationStatus"
+        rejectionNote:
+          type: ["string", "null"]
         coverLetter:
           type: ["string", "null"]
         cvObjectPath:
+          type: ["string", "null"]
+        contactInfo:
           type: ["string", "null"]
         createdAt:
           type: string
@@ -1091,6 +1209,8 @@ components:
           type: integer
         jobId:
           type: integer
+        applicantId:
+          type: string
         applicantName:
           type: string
         applicantEmail:
@@ -1107,6 +1227,8 @@ components:
           type: ["string", "null"]
         status:
           $ref: "#/components/schemas/ApplicationStatus"
+        rejectionNote:
+          type: ["string", "null"]
         seenByEmployer:
           type: boolean
         createdAt:
@@ -1127,6 +1249,8 @@ components:
         status:
           type: string
           enum: [accepted, rejected]
+        rejectionNote:
+          type: ["string", "null"]
       required: [status]
 
     EmployerDashboard:
@@ -1342,6 +1466,64 @@ components:
           items:
             $ref: "#/components/schemas/PublicEmployerJob"
       required: [id, name, jobs]
+
+    PublicSeekerProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        bio:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+      required: [id, name]
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+        senderId:
+          type: string
+        recipientId:
+          type: string
+        body:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, senderId, recipientId, body, read, createdAt]
+
+    MessageThread:
+      type: object
+      properties:
+        userId:
+          type: string
+        userName:
+          type: string
+        userRole:
+          $ref: "#/components/schemas/Role"
+        lastMessage:
+          type: string
+        lastMessageAt:
+          type: string
+          format: date-time
+        unreadCount:
+          type: integer
+      required: [userId, userName, userRole, lastMessage, lastMessageAt, unreadCount]
+
+    SendMessageBody:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      required: [body]
 
     NotificationType:
       type: string

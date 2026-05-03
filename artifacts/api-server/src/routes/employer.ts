@@ -26,6 +26,7 @@ const updateJobBodySchema = jobBodySchema.partial();
 
 const updateAppStatusSchema = z.object({
   status: z.enum(["accepted", "rejected", "pending"]),
+  rejectionNote: z.string().max(1000).nullable().optional(),
 });
 
 function isoOrNull(d: Date | null | undefined): string | null {
@@ -220,6 +221,7 @@ router.get(
       .select({
         id: applicationsTable.id,
         jobId: applicationsTable.jobId,
+        applicantId: usersTable.id,
         applicantName: usersTable.name,
         applicantEmail: usersTable.email,
         applicantPhone: usersTable.phone,
@@ -228,6 +230,7 @@ router.get(
         coverLetter: applicationsTable.coverLetter,
         cvObjectPath: applicationsTable.cvObjectPath,
         status: applicationsTable.status,
+        rejectionNote: applicationsTable.rejectionNote,
         seenByEmployer: applicationsTable.seenByEmployer,
         createdAt: applicationsTable.createdAt,
       })
@@ -236,7 +239,7 @@ router.get(
       .where(eq(applicationsTable.jobId, id))
       .orderBy(desc(applicationsTable.createdAt));
     res.json(
-      rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })),
+      rows.map((r) => ({ ...r, rejectionNote: r.rejectionNote ?? null, createdAt: r.createdAt.toISOString() })),
     );
   },
 );
@@ -271,7 +274,11 @@ router.patch(
 
     const updated = await db
       .update(applicationsTable)
-      .set({ status: parsed.data.status, seenByEmployer: true })
+      .set({
+        status: parsed.data.status,
+        seenByEmployer: true,
+        rejectionNote: parsed.data.status === "rejected" ? (parsed.data.rejectionNote ?? null) : null,
+      })
       .where(eq(applicationsTable.id, id))
       .returning();
     const a = updated[0]!;
@@ -303,6 +310,7 @@ router.patch(
     res.json({
       id: a.id,
       jobId: a.jobId,
+      applicantId: row.applicant.id,
       applicantName: row.applicant.name,
       applicantEmail: row.applicant.email,
       applicantPhone: row.applicant.phone,
@@ -311,6 +319,7 @@ router.patch(
       coverLetter: a.coverLetter,
       cvObjectPath: a.cvObjectPath,
       status: a.status,
+      rejectionNote: a.rejectionNote ?? null,
       seenByEmployer: a.seenByEmployer,
       createdAt: a.createdAt.toISOString(),
     });

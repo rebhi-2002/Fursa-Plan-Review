@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { db, jobsTable, usersTable, applicationsTable, savedJobsTable } from "@workspace/db";
-import { and, eq, ilike, or, desc, sql, asc } from "drizzle-orm";
+import { and, eq, ilike, ne, or, desc, sql, asc } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
 
 const router: IRouter = Router();
@@ -130,6 +130,7 @@ router.get("/jobs/:id", async (req: Request, res: Response) => {
         employerBio: usersTable.bio,
         deadline: jobsTable.deadline,
         isOpen: jobsTable.isOpen,
+        viewsCount: jobsTable.viewsCount,
         createdAt: jobsTable.createdAt,
         status: jobsTable.status,
       })
@@ -173,9 +174,15 @@ router.get("/jobs/:id", async (req: Request, res: Response) => {
       appliedByMe = applied.length > 0;
     }
 
+    await db
+      .update(jobsTable)
+      .set({ viewsCount: sql`${jobsTable.viewsCount} + 1` })
+      .where(eq(jobsTable.id, id));
+
     const { status: _s, ...rest } = job;
     res.json({
       ...rest,
+      viewsCount: (rest.viewsCount ?? 0) + 1,
       deadline: rest.deadline ? rest.deadline.toISOString() : null,
       createdAt: rest.createdAt.toISOString(),
       savedByMe,
@@ -185,6 +192,89 @@ router.get("/jobs/:id", async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to load job" });
   }
 });
+
+router.get("/jobs/:id/similar", async (req: Request, res: Response) => {
+  try {
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid job id" }); return; }
+
+    const sourceRows = await db
+      .select({ category: jobsTable.category })
+      .from(jobsTable)
+      .where(eq(jobsTable.id, id))
+      .limit(1);
+
+    const category = sourceRows[0]?.category;
+    if (!category) { res.json([]); return; }
+
+    const rows = await db
+      .select({
+        id: jobsTable.id,
+        title: jobsTable.title,
+        description: jobsTable.description,
+        type: jobsTable.type,
+        category: jobsTable.category,
+        employerName: usersTable.name,
+        employerLocation: usersTable.location,
+        deadline: jobsTable.deadline,
+        createdAt: jobsTable.createdAt,
+      })
+      .from(jobsTable)
+      .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
+      .where(
+        and(
+          eq(jobsTable.category, category),
+          eq(jobsTable.status, "approved"),
+          eq(jobsTable.isOpen, true),
+          ne(jobsTable.id, id),
+        ),
+      )
+      .orderBy(desc(jobsTable.createdAt))
+      .limit(4);
+
+    res.json(
+      rows.map((r) => ({
+        ...r,
+        deadline: r.deadline ? r.deadline.toISOString() : null,
+        createdAt: r.createdAt.toISOString(),
+      })),
+    );
+  } catch (err) {
+    res.status(500).json({ error: "Failed to load similar jobs" });
+  }
+});
+
+router.get(
+  "/public/seekers/:id",
+  async (req: Request, res: Response) => {
+    try {
+      const id = String(req.params["id"] ?? "");
+      if (!id) { res.status(400).json({ error: "Invalid id" }); return; }
+
+      const rows = await db
+        .select({
+          id: usersTable.id,
+          name: usersTable.name,
+          bio: usersTable.bio,
+          location: usersTable.location,
+        })
+        .from(usersTable)
+        .where(
+          and(
+            eq(usersTable.id, id),
+            eq(usersTable.role, "seeker"),
+            eq(usersTable.isActive, true),
+          ),
+        )
+        .limit(1);
+
+      if (!rows[0]) { res.status(404).json({ error: "Seeker not found" }); return; }
+      res.json(rows[0]);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to load seeker profile" });
+    }
+  },
+);
 
 router.get(
   "/public/employers",

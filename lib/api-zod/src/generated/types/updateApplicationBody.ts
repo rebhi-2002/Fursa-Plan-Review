@@ -9,4 +9,6 @@ import type { UpdateApplicationBodyStatus } from "./updateApplicationBodyStatus"
 
 export interface UpdateApplicationBody {
   status: UpdateApplicationBodyStatus;
+  /** @nullable */
+  rejectionNote?: string | null;
 }

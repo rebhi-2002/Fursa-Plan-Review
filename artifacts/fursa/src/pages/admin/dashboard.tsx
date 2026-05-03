@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { useGetAdminDashboard } from "@workspace/api-client-react";
+import { useAuth } from "@clerk/react";
 import { useT } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,17 +14,47 @@ import {
   Clock,
   ShieldCheck,
   CheckCircle2,
+  Download,
+  Loader2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
+import { toast } from "sonner";
 
 export default function AdminDashboard() {
   const t = useT();
   const { lang } = useLanguageStore();
   const locale = lang === "ar" ? ar : enUS;
+  const { getToken } = useAuth();
+  const [exporting, setExporting] = useState<"users" | "jobs" | null>(null);
 
   const { data: dashboard, isLoading } = useGetAdminDashboard();
+
+  const handleExport = async (type: "users" | "jobs") => {
+    setExporting(type);
+    try {
+      const token = await getToken();
+      const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+      const res = await fetch(`${basePath}/api/admin/export/${type}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `fursa-${type}-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error(t("common.error"));
+    } finally {
+      setExporting(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -223,6 +255,49 @@ export default function AdminDashboard() {
                 <Link href="/admin/users">
                   {t("admin.dashboard.gotoUsers")}
                 </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="mt-8">
+        <Card className="border-border/50">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-muted p-2 rounded-lg">
+                <Download className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <h3 className="font-bold text-lg">{t("admin.export.title")}</h3>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExport("users")}
+                disabled={exporting !== null}
+                className="gap-2"
+              >
+                {exporting === "users" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                {t("admin.export.users")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleExport("jobs")}
+                disabled={exporting !== null}
+                className="gap-2"
+              >
+                {exporting === "jobs" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
+                {t("admin.export.jobs")}
               </Button>
             </div>
           </CardContent>

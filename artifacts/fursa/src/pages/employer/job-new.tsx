@@ -218,6 +218,9 @@ export default function EmployerNewJob() {
                         {...field}
                       />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground text-end">
+                      {field.value?.length ?? 0} {t("common.chars")}
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -236,6 +239,9 @@ export default function EmployerNewJob() {
                         {...field}
                       />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground text-end">
+                      {field.value?.length ?? 0} {t("common.chars")}
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}

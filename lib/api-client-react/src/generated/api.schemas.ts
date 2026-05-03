@@ -89,6 +89,7 @@ export interface PublicJobDetail {
   /** @nullable */
   deadline?: string | null;
   isOpen: boolean;
+  viewsCount: number;
   createdAt: string;
   savedByMe: boolean;
   appliedByMe: boolean;
@@ -159,9 +160,13 @@ export interface MyApplication {
   employerName: string;
   status: ApplicationStatus;
   /** @nullable */
+  rejectionNote?: string | null;
+  /** @nullable */
   coverLetter?: string | null;
   /** @nullable */
   cvObjectPath?: string | null;
+  /** @nullable */
+  contactInfo?: string | null;
   createdAt: string;
 }
 
@@ -222,6 +227,7 @@ export interface EmployerJob {
 export interface EmployerApplication {
   id: number;
   jobId: number;
+  applicantId?: string;
   applicantName: string;
   applicantEmail: string;
   /** @nullable */
@@ -235,6 +241,8 @@ export interface EmployerApplication {
   /** @nullable */
   cvObjectPath?: string | null;
   status: ApplicationStatus;
+  /** @nullable */
+  rejectionNote?: string | null;
   seenByEmployer: boolean;
   createdAt: string;
 }
@@ -249,6 +257,8 @@ export const UpdateApplicationBodyStatus = {
 
 export interface UpdateApplicationBody {
   status: UpdateApplicationBodyStatus;
+  /** @nullable */
+  rejectionNote?: string | null;
 }
 
 export interface EmployerDashboard {
@@ -344,6 +354,41 @@ export interface PublicEmployerProfile {
   /** @nullable */
   phone?: string | null;
   jobs: PublicEmployerJob[];
+}
+
+export interface PublicSeekerProfile {
+  id: string;
+  name: string;
+  /** @nullable */
+  bio?: string | null;
+  /** @nullable */
+  location?: string | null;
+}
+
+export interface Message {
+  id: number;
+  senderId: string;
+  recipientId: string;
+  body: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export interface MessageThread {
+  userId: string;
+  userName: string;
+  userRole: Role;
+  lastMessage: string;
+  lastMessageAt: string;
+  unreadCount: number;
+}
+
+export interface SendMessageBody {
+  /**
+   * @minLength 1
+   * @maxLength 2000
+   */
+  body: string;
 }
 
 export type NotificationType =

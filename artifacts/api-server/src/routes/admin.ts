@@ -245,6 +245,94 @@ router.post(
 );
 
 router.get(
+  "/admin/export/csv",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("admin"),
+  async (req: Request, res: Response) => {
+    const type = (req.query["type"] as string) || "users";
+
+    if (type === "jobs") {
+      const rows = await db
+        .select({
+          id: jobsTable.id,
+          title: jobsTable.title,
+          category: jobsTable.category,
+          type: jobsTable.type,
+          status: jobsTable.status,
+          employerName: usersTable.name,
+          employerEmail: usersTable.email,
+          viewsCount: jobsTable.viewsCount,
+          createdAt: jobsTable.createdAt,
+        })
+        .from(jobsTable)
+        .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
+        .orderBy(desc(jobsTable.createdAt));
+
+      const header = "id,title,category,type,status,employer,employerEmail,views,createdAt\n";
+      const csv =
+        header +
+        rows
+          .map((r) =>
+            [
+              r.id,
+              `"${r.title.replace(/"/g, '""')}"`,
+              r.category,
+              r.type,
+              r.status,
+              `"${r.employerName.replace(/"/g, '""')}"`,
+              r.employerEmail,
+              r.viewsCount,
+              r.createdAt.toISOString(),
+            ].join(","),
+          )
+          .join("\n");
+
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", "attachment; filename=jobs.csv");
+      res.send(csv);
+      return;
+    }
+
+    const rows = await db
+      .select({
+        id: usersTable.id,
+        name: usersTable.name,
+        email: usersTable.email,
+        role: usersTable.role,
+        phone: usersTable.phone,
+        location: usersTable.location,
+        isActive: usersTable.isActive,
+        createdAt: usersTable.createdAt,
+      })
+      .from(usersTable)
+      .orderBy(desc(usersTable.createdAt));
+
+    const header = "id,name,email,role,phone,location,isActive,createdAt\n";
+    const csv =
+      header +
+      rows
+        .map((r) =>
+          [
+            r.id,
+            `"${r.name.replace(/"/g, '""')}"`,
+            r.email,
+            r.role,
+            r.phone ?? "",
+            r.location ?? "",
+            r.isActive,
+            r.createdAt.toISOString(),
+          ].join(","),
+        )
+        .join("\n");
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", "attachment; filename=users.csv");
+    res.send(csv);
+  },
+);
+
+router.get(
   "/admin/dashboard",
   requireAuth,
   loadCurrentUser,
