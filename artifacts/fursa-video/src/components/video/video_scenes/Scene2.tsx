@@ -73,7 +73,7 @@ export function Scene2() {
               transition={{ duration: 4, repeat: Infinity }}
             >
               85%
-            </motion.hdiv>
+            </motion.div>
             <p className="text-[1.5vw] text-white/60 mt-2 uppercase tracking-widest">
               Unemployment Rate
             </p>
