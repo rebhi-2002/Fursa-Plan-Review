@@ -37,6 +37,8 @@ const ar: TranslationDictionary = {
   // Generic
   "common.save": "حفظ",
   "common.cancel": "إلغاء",
+  "common.loadMore": "تحميل المزيد",
+  "common.showingOf": "عرض {shown} من {total}",
   "common.confirm": "تأكيد",
   "common.delete": "حذف",
   "common.edit": "تعديل",
@@ -738,6 +740,8 @@ const en: TranslationDictionary = {
   // Generic
   "common.save": "Save",
   "common.cancel": "Cancel",
+  "common.loadMore": "Load More",
+  "common.showingOf": "Showing {shown} of {total}",
   "common.confirm": "Confirm",
   "common.delete": "Delete",
   "common.edit": "Edit",

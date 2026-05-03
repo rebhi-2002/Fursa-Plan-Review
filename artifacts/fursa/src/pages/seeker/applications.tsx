@@ -39,11 +39,14 @@ import { ar, enUS } from "date-fns/locale";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
 
+const PAGE_SIZE = 8;
+
 export default function SeekerApplications() {
   const t = useT();
   const { lang } = useLanguageStore();
   const locale = lang === "ar" ? ar : enUS;
   const queryClient = useQueryClient();
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
 
   const { data: applications, isLoading } = useListMyApplications();
 
@@ -132,7 +135,8 @@ export default function SeekerApplications() {
             <Skeleton key={i} className="h-32 w-full rounded-xl" />
           ))
         ) : applications && applications.length > 0 ? (
-          (applications as any[]).map((app) => (
+          <>
+          {(applications as any[]).slice(0, displayCount).map((app) => (
             <Card key={app.id} className="border-border/50 hover:shadow-md transition-all">
               <CardContent className="p-5 flex flex-col gap-4">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -235,7 +239,22 @@ export default function SeekerApplications() {
                 )}
               </CardContent>
             </Card>
-          ))
+          ))}
+          {displayCount < (applications as any[]).length && (
+            <div className="flex flex-col items-center gap-2 pt-2">
+              <p className="text-sm text-muted-foreground">
+                {t("common.showingOf", { shown: Math.min(displayCount, (applications as any[]).length), total: (applications as any[]).length })}
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setDisplayCount((c) => c + PAGE_SIZE)}
+                className="w-full max-w-xs"
+              >
+                {t("common.loadMore")}
+              </Button>
+            </div>
+          )}
+          </>
         ) : (
           <Card className="border-dashed bg-muted/20">
             <CardContent className="p-12 text-center flex flex-col items-center">

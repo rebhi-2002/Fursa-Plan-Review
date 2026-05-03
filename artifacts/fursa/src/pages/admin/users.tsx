@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
 const ALL = "all";
+const PAGE_SIZE = 10;
 
 export default function AdminUsers() {
   const t = useT();
@@ -47,12 +48,13 @@ export default function AdminUsers() {
 
   const [roleFilter, setRoleFilter] = useState<ListAdminUsersRole | typeof ALL>(ALL);
   const [searchQuery, setSearchQuery] = useState("");
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE);
 
   const { data: allUsers, isLoading } = useListAdminUsers({
     role: roleFilter === ALL ? undefined : roleFilter,
   });
 
-  const users = useMemo(() => {
+  const filteredUsers = useMemo(() => {
     if (!allUsers || !searchQuery.trim()) return allUsers;
     const q = searchQuery.toLowerCase();
     return allUsers.filter(
@@ -62,6 +64,12 @@ export default function AdminUsers() {
         (u.location ?? "").toLowerCase().includes(q),
     );
   }, [allUsers, searchQuery]);
+
+  // Reset display count when filters change
+  const users = useMemo(() => {
+    setDisplayCount(PAGE_SIZE);
+    return filteredUsers;
+  }, [filteredUsers]);
 
   const toggleActiveMutation = useToggleUserActive({
     mutation: {
@@ -171,7 +179,8 @@ export default function AdminUsers() {
             <Skeleton key={i} className="h-32 w-full rounded-xl" />
           ))
         ) : users && users.length > 0 ? (
-          users.map((user) => (
+          <>
+          {users.slice(0, displayCount).map((user) => (
             <Card
               key={user.id}
               className={`border-border/50 ${
@@ -275,7 +284,22 @@ export default function AdminUsers() {
                 </div>
               </CardContent>
             </Card>
-          ))
+          ))}
+          {displayCount < users.length && (
+            <div className="flex flex-col items-center gap-2 pt-2">
+              <p className="text-sm text-muted-foreground">
+                {t("common.showingOf", { shown: Math.min(displayCount, users.length), total: users.length })}
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setDisplayCount((c) => c + PAGE_SIZE)}
+                className="w-full max-w-xs"
+              >
+                {t("common.loadMore")}
+              </Button>
+            </div>
+          )}
+          </>
         ) : (
           <Card className="border-dashed bg-muted/20">
             <CardContent className="p-12 text-center flex flex-col items-center">
