@@ -29,10 +29,18 @@ export function NotificationBell() {
   const [, navigate] = useLocation();
 
   const { data: countData } = useGetUnreadNotificationCount({
-    query: { refetchInterval: 30_000, refetchOnWindowFocus: true },
+    query: {
+      queryKey: getGetUnreadNotificationCountQueryKey(),
+      refetchInterval: 30_000,
+      refetchOnWindowFocus: true,
+    },
   });
   const { data: notifications } = useListMyNotifications({
-    query: { refetchInterval: 30_000, refetchOnWindowFocus: true },
+    query: {
+      queryKey: getListMyNotificationsQueryKey(),
+      refetchInterval: 30_000,
+      refetchOnWindowFocus: true,
+    },
   });
 
   const invalidate = () => {

@@ -85,7 +85,7 @@ router.get("/jobs", async (req: Request, res: Response) => {
 });
 
 router.get("/jobs/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params["id"] ?? "");
+  const id = parseInt(String(req.params["id"] ?? ""), 10);
   if (!Number.isFinite(id)) {
     res.status(400).json({ error: "Invalid job id" });
     return;
@@ -155,7 +155,7 @@ router.get("/jobs/:id", async (req: Request, res: Response) => {
 router.get(
   "/public/employers/:id",
   async (req: Request, res: Response) => {
-    const id = req.params["id"];
+    const id = String(req.params["id"] ?? "");
     if (!id) {
       res.status(400).json({ error: "Invalid id" });
       return;

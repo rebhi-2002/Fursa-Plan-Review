@@ -4,6 +4,16 @@
 
 Arabic/RTL-first job platform connecting talent in Gaza with employers. English secondary toggle. Three roles: Job Seeker, Employer, Admin. Admin-moderated job postings, CV upload, applications, search/filter, role dashboards. Brand color blue `#2563EB`, Cairo font.
 
+## TypeScript Status
+
+All four workspace libs **must be built** before running `tsc --noEmit` in any artifact:
+
+```bash
+npx tsc -b lib/db lib/api-client-react lib/object-storage-web lib/api-zod
+```
+
+After building: **backend exit 0, frontend exit 0** — zero TypeScript errors across the entire codebase.
+
 ## Architecture
 
 - pnpm workspace monorepo, TypeScript 5.9, Node 24

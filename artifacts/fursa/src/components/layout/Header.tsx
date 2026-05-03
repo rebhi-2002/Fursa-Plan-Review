@@ -351,8 +351,8 @@ export function Header() {
               <DropdownMenuContent
                 align="end"
                 className="w-56"
-                dir={lang === "ar" ? "rtl" : "ltr"}
               >
+                <div dir={lang === "ar" ? "rtl" : "ltr"}>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
@@ -373,6 +373,7 @@ export function Header() {
                   <LogOut className="mr-2 ms-2 h-4 w-4" />
                   <span>{t("nav.signOut")}</span>
                 </DropdownMenuItem>
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

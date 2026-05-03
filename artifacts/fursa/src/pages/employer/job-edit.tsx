@@ -11,6 +11,7 @@ import {
   getGetEmployerJobQueryKey,
   getListJobApplicationsQueryKey,
   JobType,
+  UpdateApplicationBodyStatus,
 } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -212,23 +213,20 @@ export default function EmployerJobDetail() {
   };
 
   const handleToggleOpen = () => {
-    toggleOpenMutation.mutate({ data: { id: jobId } });
+    toggleOpenMutation.mutate({ id: jobId });
   };
 
   const handleDelete = () => {
-    deleteMutation.mutate({ data: { id: jobId } });
+    deleteMutation.mutate({ id: jobId });
   };
 
-  const handleUpdateStatus = (
-    appId: number,
-    status: "accepted" | "rejected" | "pending",
-  ) => {
-    updateAppStatusMutation.mutate({ data: { id: appId, status } });
+  const handleUpdateStatus = (appId: number, status: UpdateApplicationBodyStatus) => {
+    updateAppStatusMutation.mutate({ id: appId, data: { status } });
   };
 
   const handleViewApplication = (appId: number, seen: boolean) => {
     if (!seen) {
-      markSeenMutation.mutate({ data: { id: appId } });
+      markSeenMutation.mutate({ id: appId });
     }
   };
 
@@ -765,8 +763,8 @@ export default function EmployerJobDetail() {
                       </Label>
                       <Select
                         value={app.status}
-                        onValueChange={(val: any) => {
-                          handleUpdateStatus(app.id, val);
+                        onValueChange={(val: string) => {
+                          handleUpdateStatus(app.id, val as UpdateApplicationBodyStatus);
                           if (!app.seenByEmployer)
                             handleViewApplication(app.id, app.seenByEmployer);
                         }}
@@ -789,9 +787,6 @@ export default function EmployerJobDetail() {
                         <SelectContent
                           dir={lang === "ar" ? "rtl" : "ltr"}
                         >
-                          <SelectItem value="pending">
-                            {t("employer.applications.statusPending")}
-                          </SelectItem>
                           <SelectItem value="accepted">
                             {t("employer.applications.statusAccepted")}
                           </SelectItem>

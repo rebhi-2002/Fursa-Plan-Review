@@ -54,7 +54,7 @@ router.get(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser) return res.status(401).json({ error: "Unauthorized" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
     const rows = await db
       .select({
         id: applicationsTable.id,
@@ -80,7 +80,7 @@ router.get(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser) return res.status(401).json({ error: "Unauthorized" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
     const rows = await db
       .select({
         id: jobsTable.id,
@@ -112,9 +112,9 @@ router.post(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser) return res.status(401).json({ error: "Unauthorized" });
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     await db
       .insert(savedJobsTable)
       .values({ userId: req.currentUser.id, jobId: id })
@@ -128,9 +128,9 @@ router.delete(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser) return res.status(401).json({ error: "Unauthorized" });
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     await db
       .delete(savedJobsTable)
       .where(
@@ -149,13 +149,11 @@ router.post(
   loadCurrentUser,
   requireRole("seeker"),
   async (req: Request, res: Response) => {
-    if (!req.currentUser) return res.status(401).json({ error: "Unauthorized" });
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id))
-      return res.status(400).json({ error: "Invalid job id" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid job id" }); return; }
     const parsed = applyBodySchema.safeParse(req.body ?? {});
-    if (!parsed.success)
-      return res.status(400).json({ error: "Invalid application data" });
+    if (!parsed.success) { res.status(400).json({ error: "Invalid application data" }); return; }
 
     const job = await db
       .select()
@@ -163,12 +161,12 @@ router.post(
       .where(eq(jobsTable.id, id))
       .limit(1);
     if (!job[0] || job[0].status !== "approved" || !job[0].isOpen) {
-      return res.status(404).json({ error: "Job not available" });
+      res.status(404).json({ error: "Job not available" });
+      return;
     }
     if (job[0].employerId === req.currentUser.id) {
-      return res
-        .status(400)
-        .json({ error: "You cannot apply to your own job" });
+      res.status(400).json({ error: "You cannot apply to your own job" });
+      return;
     }
 
     const existing = await db
@@ -182,7 +180,8 @@ router.post(
       )
       .limit(1);
     if (existing[0]) {
-      return res.status(409).json({ error: "You have already applied to this job" });
+      res.status(409).json({ error: "You have already applied to this job" });
+      return;
     }
 
     const cvPath =
@@ -233,7 +232,7 @@ router.get(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser) return res.status(401).json({ error: "Unauthorized" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
     const userId = req.currentUser.id;
 
     const [counts, savedCountRow, recent, recommended] = await Promise.all([

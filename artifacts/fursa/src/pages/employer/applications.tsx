@@ -56,10 +56,10 @@ export default function EmployerApplications() {
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   const { data: job } = useGetEmployerJob(jobId, {
-    query: { enabled: !isNaN(jobId) },
+    query: { queryKey: getGetEmployerJobQueryKey(jobId), enabled: !isNaN(jobId) },
   });
   const { data: applications, isLoading } = useListJobApplications(jobId, {
-    query: { enabled: !isNaN(jobId) },
+    query: { queryKey: getListJobApplicationsQueryKey(jobId), enabled: !isNaN(jobId) },
   });
   const updateStatusMutation = useUpdateApplicationStatus();
   const markSeenMutation = useMarkApplicationSeen();

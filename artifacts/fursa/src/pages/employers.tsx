@@ -1,6 +1,7 @@
 import { Link, useRoute } from "wouter";
 import {
   useGetPublicEmployerProfile,
+  getGetPublicEmployerProfileQueryKey,
 } from "@workspace/api-client-react";
 import { useT, useLanguageStore } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,7 @@ export default function PublicEmployerProfile() {
     isLoading,
     isError,
   } = useGetPublicEmployerProfile(id, {
-    query: { enabled: !!id },
+    query: { queryKey: getGetPublicEmployerProfileQueryKey(id), enabled: !!id },
   });
 
   if (isLoading) {

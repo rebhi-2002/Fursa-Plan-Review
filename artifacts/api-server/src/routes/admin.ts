@@ -97,14 +97,14 @@ router.post(
   loadCurrentUser,
   requireRole("admin"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     await db
       .update(jobsTable)
       .set({ status: "approved", rejectionReason: null })
       .where(eq(jobsTable.id, id));
     const job = await getAdminJob(id);
-    if (!job) return res.status(404).json({ error: "Not found" });
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
     await createNotification({
       userId: job.employerId,
       type: "job_approved",
@@ -122,16 +122,16 @@ router.post(
   loadCurrentUser,
   requireRole("admin"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     const parsed = rejectBodySchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: "Rejection reason is required" });
+    if (!parsed.success) { res.status(400).json({ error: "Rejection reason is required" }); return; }
     await db
       .update(jobsTable)
       .set({ status: "rejected", rejectionReason: parsed.data.reason })
       .where(eq(jobsTable.id, id));
     const job = await getAdminJob(id);
-    if (!job) return res.status(404).json({ error: "Not found" });
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
     await createNotification({
       userId: job.employerId,
       type: "job_rejected",
@@ -149,8 +149,8 @@ router.delete(
   loadCurrentUser,
   requireRole("admin"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     await db.delete(jobsTable).where(eq(jobsTable.id, id));
     res.status(204).end();
   },
@@ -195,17 +195,18 @@ router.post(
   loadCurrentUser,
   requireRole("admin"),
   async (req: Request, res: Response) => {
-    const id = req.params["id"];
-    if (!id) return res.status(400).json({ error: "Invalid id" });
+    const id = String(req.params["id"] ?? "");
+    if (!id) { res.status(400).json({ error: "Invalid id" }); return; }
     if (id === req.currentUser!.id) {
-      return res.status(400).json({ error: "You cannot disable your own account" });
+      res.status(400).json({ error: "You cannot disable your own account" });
+      return;
     }
     const existing = await db
       .select()
       .from(usersTable)
       .where(eq(usersTable.id, id))
       .limit(1);
-    if (!existing[0]) return res.status(404).json({ error: "Not found" });
+    if (!existing[0]) { res.status(404).json({ error: "Not found" }); return; }
 
     const updated = await db
       .update(usersTable)

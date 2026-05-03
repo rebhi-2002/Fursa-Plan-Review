@@ -266,7 +266,7 @@ export default function SeekerProfile() {
                 maxFileSize={10485760}
                 onGetUploadParameters={handleUploadParams}
                 onComplete={(result) => {
-                  if (result.successful.length > 0) {
+                  if ((result.successful?.length ?? 0) > 0) {
                     handleUploadComplete(result, pendingCvPathRef.current!);
                   }
                 }}

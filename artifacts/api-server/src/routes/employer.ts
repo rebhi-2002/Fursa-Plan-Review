@@ -92,7 +92,8 @@ router.post(
   async (req: Request, res: Response) => {
     const parsed = jobBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ error: "Invalid job data" });
+      res.status(400).json({ error: "Invalid job data" });
+      return;
     }
     const data = parsed.data;
     const inserted = await db
@@ -120,10 +121,10 @@ router.get(
   loadCurrentUser,
   requireRole("employer"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     const job = await loadEmployerJob(id, req.currentUser!.id);
-    if (!job) return res.status(404).json({ error: "Not found" });
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
     res.json(await serializeEmployerJob(job));
   },
 );
@@ -134,13 +135,12 @@ router.patch(
   loadCurrentUser,
   requireRole("employer"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     const parsed = updateJobBodySchema.safeParse(req.body);
-    if (!parsed.success)
-      return res.status(400).json({ error: "Invalid job data" });
+    if (!parsed.success) { res.status(400).json({ error: "Invalid job data" }); return; }
     const job = await loadEmployerJob(id, req.currentUser!.id);
-    if (!job) return res.status(404).json({ error: "Not found" });
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
 
     const updates: Record<string, unknown> = {};
     let resetToPending = false;
@@ -177,10 +177,10 @@ router.delete(
   loadCurrentUser,
   requireRole("employer"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     const job = await loadEmployerJob(id, req.currentUser!.id);
-    if (!job) return res.status(404).json({ error: "Not found" });
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
     await db.delete(jobsTable).where(eq(jobsTable.id, id));
     res.status(204).end();
   },
@@ -192,10 +192,10 @@ router.post(
   loadCurrentUser,
   requireRole("employer"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     const job = await loadEmployerJob(id, req.currentUser!.id);
-    if (!job) return res.status(404).json({ error: "Not found" });
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
     const updated = await db
       .update(jobsTable)
       .set({ isOpen: !job.isOpen })
@@ -211,10 +211,10 @@ router.get(
   loadCurrentUser,
   requireRole("employer"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     const job = await loadEmployerJob(id, req.currentUser!.id);
-    if (!job) return res.status(404).json({ error: "Not found" });
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
 
     const rows = await db
       .select({
@@ -247,10 +247,10 @@ router.patch(
   loadCurrentUser,
   requireRole("employer"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     const parsed = updateAppStatusSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: "Invalid status" });
+    if (!parsed.success) { res.status(400).json({ error: "Invalid status" }); return; }
 
     const rows = await db
       .select({
@@ -265,7 +265,8 @@ router.patch(
       .limit(1);
     const row = rows[0];
     if (!row || row.job.employerId !== req.currentUser!.id) {
-      return res.status(404).json({ error: "Not found" });
+      res.status(404).json({ error: "Not found" });
+      return;
     }
 
     const updated = await db
@@ -316,8 +317,8 @@ router.post(
   loadCurrentUser,
   requireRole("employer"),
   async (req: Request, res: Response) => {
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     const rows = await db
       .select({ app: applicationsTable, job: jobsTable })
       .from(applicationsTable)
@@ -326,7 +327,8 @@ router.post(
       .limit(1);
     const row = rows[0];
     if (!row || row.job.employerId !== req.currentUser!.id) {
-      return res.status(404).json({ error: "Not found" });
+      res.status(404).json({ error: "Not found" });
+      return;
     }
     await db
       .update(applicationsTable)

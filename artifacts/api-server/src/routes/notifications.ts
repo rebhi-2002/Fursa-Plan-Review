@@ -22,8 +22,7 @@ router.get(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser)
-      return res.status(401).json({ error: "Unauthorized" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
     const rows = await db
       .select()
       .from(notificationsTable)
@@ -39,8 +38,7 @@ router.get(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser)
-      return res.status(401).json({ error: "Unauthorized" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
     const rows = await db
       .select({ c: sql<number>`count(*)::int` })
       .from(notificationsTable)
@@ -59,11 +57,9 @@ router.post(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser)
-      return res.status(401).json({ error: "Unauthorized" });
-    const id = parseInt(req.params["id"] ?? "");
-    if (!Number.isFinite(id))
-      return res.status(400).json({ error: "Invalid id" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     await db
       .update(notificationsTable)
       .set({ read: true })
@@ -82,8 +78,7 @@ router.post(
   requireAuth,
   loadCurrentUser,
   async (req: Request, res: Response) => {
-    if (!req.currentUser)
-      return res.status(401).json({ error: "Unauthorized" });
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
     await db
       .update(notificationsTable)
       .set({ read: true })
