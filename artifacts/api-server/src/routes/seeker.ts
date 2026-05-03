@@ -245,8 +245,11 @@ router.post(
     await createNotification({
       userId: job[0].employerId,
       type: "application_received",
-      title: "New application received",
-      body: `${req.currentUser.name} applied to your job: ${job[0].title}`,
+      title: { ar: "طلب توظيف جديد", en: "New application received" },
+      body: {
+        ar: `${req.currentUser.name} تقدّم لوظيفتك: ${job[0].title}`,
+        en: `${req.currentUser.name} applied to your job: ${job[0].title}`,
+      },
       link: `/employer/jobs/${job[0].id}/applications`,
     });
 

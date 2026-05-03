@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNotificationStream } from "@/hooks/useNotificationStream";
+import { localizeNotif } from "@/lib/notifLocalize";
 import {
   useListMyNotifications,
   useGetUnreadNotificationCount,
@@ -140,10 +141,10 @@ export function NotificationBell() {
                           !n.read && "font-semibold",
                         )}
                       >
-                        {n.title}
+                        {localizeNotif(n.title, lang)}
                       </p>
                       <p className="text-xs text-muted-foreground leading-snug">
-                        {n.body}
+                        {localizeNotif(n.body, lang)}
                       </p>
                       <p className="text-[11px] text-muted-foreground">
                         {formatDistanceToNow(new Date(n.createdAt), {

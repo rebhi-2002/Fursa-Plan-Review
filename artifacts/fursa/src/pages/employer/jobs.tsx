@@ -1,10 +1,12 @@
 import { Link } from "wouter";
-import { useListEmployerJobs } from "@workspace/api-client-react";
+import { useListEmployerJobs, useToggleJobOpen } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Briefcase,
   Users,
@@ -18,13 +20,24 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
+import { useQueryClient } from "@tanstack/react-query";
+import { getListEmployerJobsQueryKey } from "@workspace/api-client-react";
 
 export default function EmployerJobs() {
   const t = useT();
   const { lang } = useLanguageStore();
   const locale = lang === "ar" ? ar : enUS;
+  const queryClient = useQueryClient();
 
   const { data: jobs, isLoading } = useListEmployerJobs();
+
+  const toggleMutation = useToggleJobOpen({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListEmployerJobsQueryKey() });
+      },
+    },
+  });
 
   const getStatusBadge = (status: string, isOpen: boolean) => {
     if (status === "rejected") {
@@ -167,10 +180,32 @@ export default function EmployerJobs() {
                   </div>
                 </div>
 
-                <div className="flex flex-row md:flex-col items-center justify-between gap-3 shrink-0 md:w-40 border-t md:border-t-0 md:border-r rtl:md:border-l rtl:md:border-r-0 border-border/50 pt-4 md:pt-0">
+                <div className="flex flex-row md:flex-col items-center justify-between gap-3 shrink-0 md:w-44 border-t md:border-t-0 md:border-r rtl:md:border-l rtl:md:border-r-0 border-border/50 pt-4 md:pt-0 md:ps-4">
                   <div className="sm:hidden w-full text-center">
                     {getStatusBadge(job.status, job.isOpen)}
                   </div>
+
+                  {job.status === "approved" && (
+                    <div className="flex items-center gap-2 w-full justify-between md:justify-start">
+                      <Label
+                        htmlFor={`toggle-${job.id}`}
+                        className="text-xs text-muted-foreground cursor-pointer select-none"
+                      >
+                        {job.isOpen
+                          ? t("employer.jobDetail.acceptingApps")
+                          : t("employer.jobs.statusClosed")}
+                      </Label>
+                      <Switch
+                        id={`toggle-${job.id}`}
+                        checked={job.isOpen}
+                        onCheckedChange={() =>
+                          toggleMutation.mutate({ id: job.id })
+                        }
+                        disabled={toggleMutation.isPending}
+                      />
+                    </div>
+                  )}
+
                   <Button asChild className="w-full">
                     <Link href={`/employer/jobs/${job.id}`}>
                       {t("employer.jobs.manage")}

@@ -285,12 +285,18 @@ router.patch(
             : "application_rejected",
         title:
           parsed.data.status === "accepted"
-            ? "Your application was accepted"
-            : "Your application was not selected",
+            ? { ar: "تم قبول طلبك", en: "Your application was accepted" }
+            : { ar: "لم يتم اختيار طلبك", en: "Your application was not selected" },
         body:
           parsed.data.status === "accepted"
-            ? `Congratulations — ${row.job.title} accepted your application.`
-            : `${row.job.title}: the employer chose another candidate this time.`,
+            ? {
+                ar: `تهانينا — تم قبولك في وظيفة: ${row.job.title}`,
+                en: `Congratulations — ${row.job.title} accepted your application.`,
+              }
+            : {
+                ar: `${row.job.title}: اختار صاحب العمل مرشحاً آخر هذه المرة.`,
+                en: `${row.job.title}: the employer chose another candidate this time.`,
+              },
         link: "/seeker/applications",
       });
     }

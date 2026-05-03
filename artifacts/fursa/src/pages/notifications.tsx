@@ -8,6 +8,7 @@ import {
 } from "@workspace/api-client-react";
 import type { Notification } from "@workspace/api-client-react";
 import { useT, useLanguageStore } from "@/lib/i18n";
+import { localizeNotif } from "@/lib/notifLocalize";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -183,14 +184,14 @@ export default function NotificationsPage() {
                   <p
                     className={`text-sm font-medium leading-snug ${n.read ? "text-foreground/80" : "text-foreground"}`}
                   >
-                    {n.title}
+                    {localizeNotif(n.title, lang)}
                   </p>
                   {!n.read && (
                     <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                  {n.body}
+                  {localizeNotif(n.body, lang)}
                 </p>
                 <p className="text-xs text-muted-foreground/50 mt-1.5">
                   {formatDistanceToNow(new Date(n.createdAt), {

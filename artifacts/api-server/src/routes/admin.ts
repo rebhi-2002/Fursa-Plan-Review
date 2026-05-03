@@ -108,8 +108,11 @@ router.post(
     await createNotification({
       userId: job.employerId,
       type: "job_approved",
-      title: "Your job posting was approved",
-      body: `"${job.title}" is now live and visible to job seekers.`,
+      title: { ar: "تمت الموافقة على إعلانك", en: "Your job posting was approved" },
+      body: {
+        ar: `"${job.title}" أصبح مرئياً الآن للباحثين عن عمل.`,
+        en: `"${job.title}" is now live and visible to job seekers.`,
+      },
       link: `/jobs/${job.id}`,
     });
     res.json(serializeAdminJob(job));
@@ -135,8 +138,11 @@ router.post(
     await createNotification({
       userId: job.employerId,
       type: "job_rejected",
-      title: "Your job posting was rejected",
-      body: `"${job.title}" was rejected. Reason: ${parsed.data.reason}`,
+      title: { ar: "تم رفض إعلانك", en: "Your job posting was rejected" },
+      body: {
+        ar: `"${job.title}" تم رفضه. السبب: ${parsed.data.reason}`,
+        en: `"${job.title}" was rejected. Reason: ${parsed.data.reason}`,
+      },
       link: `/employer/jobs`,
     });
     res.json(serializeAdminJob(job));
