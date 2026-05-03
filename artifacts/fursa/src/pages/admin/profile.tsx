@@ -3,10 +3,11 @@ import { Link } from "wouter";
 import {
   useGetCurrentUser,
   useUpdateCurrentUser,
+  useGetAdminDashboard,
   getGetCurrentUserQueryKey,
 } from "@workspace/api-client-react";
 import { useUser } from "@clerk/react";
-import { useT } from "@/lib/i18n";
+import { useT, useLanguageStore } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import {
   ChevronLeft,
   Loader2,
@@ -25,7 +27,12 @@ import {
   MapPin,
   Phone,
   ShieldCheck,
-  Globe,
+  Users,
+  Briefcase,
+  FileText,
+  Clock,
+  LayoutDashboard,
+  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -44,9 +51,11 @@ import { useQueryClient } from "@tanstack/react-query";
 
 export default function AdminProfile() {
   const t = useT();
+  const { lang } = useLanguageStore();
   const queryClient = useQueryClient();
   const { data: user, isLoading } = useGetCurrentUser();
   const { user: clerkUser } = useUser();
+  const { data: dashStats } = useGetAdminDashboard();
   const updateProfileMutation = useUpdateCurrentUser();
 
   const profileSchema = z.object({
@@ -95,11 +104,45 @@ export default function AdminProfile() {
   const avatarUrl = clerkUser?.imageUrl;
   const primaryEmail = clerkUser?.primaryEmailAddress?.emailAddress;
   const memberSince = clerkUser?.createdAt
-    ? new Date(clerkUser.createdAt).toLocaleDateString()
+    ? new Date(clerkUser.createdAt).toLocaleDateString(
+        lang === "ar" ? "ar-SA" : "en-US",
+        { year: "numeric", month: "long", day: "numeric" }
+      )
     : null;
 
+  const statCards = [
+    {
+      icon: Users,
+      value: dashStats?.totalUsers ?? "—",
+      label: t("admin.profile.statUsers"),
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+    },
+    {
+      icon: Briefcase,
+      value: dashStats?.totalJobs ?? "—",
+      label: t("admin.profile.statJobs"),
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+    },
+    {
+      icon: Clock,
+      value: dashStats?.pendingJobs ?? "—",
+      label: t("admin.profile.statPending"),
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+    },
+    {
+      icon: FileText,
+      value: dashStats?.totalApplications ?? "—",
+      label: t("admin.profile.statApplications"),
+      color: "text-violet-600",
+      bg: "bg-violet-50",
+    },
+  ];
+
   return (
-    <div className="container py-8 max-w-3xl">
+    <div className="container py-8 max-w-4xl">
       <div className="mb-6 flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/admin">
@@ -117,64 +160,171 @@ export default function AdminProfile() {
       </div>
 
       <div className="grid gap-6">
-        <Card className="overflow-hidden">
-          <div className="h-24 bg-gradient-to-r from-primary/80 to-primary" />
-          <CardContent className="pt-0">
-            <div className="-mt-12 flex flex-col sm:flex-row items-start sm:items-end gap-4">
+        {/* Hero card */}
+        <Card className="overflow-hidden border-0 shadow-md">
+          <div className="h-32 bg-gradient-to-br from-primary via-primary/90 to-indigo-700 relative">
+            <div className="absolute inset-0 opacity-10"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, white 0px, white 1px, transparent 0, transparent 50%)",
+                backgroundSize: "16px 16px",
+              }}
+            />
+          </div>
+          <CardContent className="pt-0 pb-6 px-6">
+            <div className="-mt-14 flex flex-col sm:flex-row items-start sm:items-end gap-5">
               <div className="relative shrink-0">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
                     alt={user?.name || ""}
-                    className="h-24 w-24 rounded-2xl border-4 border-background object-cover shadow-md"
+                    className="h-28 w-28 rounded-2xl border-4 border-background object-cover shadow-lg"
                   />
                 ) : (
-                  <div className="h-24 w-24 rounded-2xl border-4 border-background bg-primary/20 flex items-center justify-center shadow-md">
-                    <ShieldCheck className="h-10 w-10 text-primary" />
+                  <div className="h-28 w-28 rounded-2xl border-4 border-background bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center shadow-lg">
+                    <ShieldCheck className="h-12 w-12 text-primary" />
                   </div>
                 )}
+                <span className="absolute -bottom-1.5 -end-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-primary shadow border-2 border-background">
+                  <ShieldCheck className="h-3.5 w-3.5 text-white" />
+                </span>
               </div>
-              <div className="flex-1 pb-1 space-y-1">
+
+              <div className="flex-1 pb-1 min-w-0 space-y-1.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="text-xl font-bold">{user?.name || "—"}</h2>
-                  <Badge
-                    variant="default"
-                    className="text-xs bg-primary text-primary-foreground"
-                  >
-                    {t("role.admin")}
+                  <h2 className="text-2xl font-bold leading-tight">
+                    {user?.name || "—"}
+                  </h2>
+                  <Badge className="bg-primary text-primary-foreground text-xs shrink-0">
+                    {t("admin.profile.platformAdmin")}
                   </Badge>
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+
+                <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted-foreground">
                   {primaryEmail && (
                     <span className="flex items-center gap-1.5">
-                      <Mail className="h-3.5 w-3.5" />
-                      {primaryEmail}
+                      <Mail className="h-3.5 w-3.5 opacity-70" />
+                      <span dir="ltr">{primaryEmail}</span>
                     </span>
                   )}
                   {user?.location && (
                     <span className="flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5" />
+                      <MapPin className="h-3.5 w-3.5 opacity-70" />
                       {user.location}
                     </span>
                   )}
                   {user?.phone && (
-                    <span className="flex items-center gap-1.5 dir-ltr">
-                      <Phone className="h-3.5 w-3.5" />
+                    <span className="flex items-center gap-1.5" dir="ltr">
+                      <Phone className="h-3.5 w-3.5 opacity-70" />
                       {user.phone}
                     </span>
                   )}
+                  {memberSince && (
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground/70">
+                      <Clock className="h-3.5 w-3.5 opacity-60" />
+                      {t("admin.profile.adminSince")} {memberSince}
+                    </span>
+                  )}
                 </div>
-                {memberSince && (
-                  <p className="text-xs text-muted-foreground/70">
-                    {t("seeker.profile.memberSince")} {memberSince}
-                  </p>
-                )}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 hidden sm:flex"
+                asChild
+              >
+                <Link href="/admin">
+                  <LayoutDashboard className="h-4 w-4 me-2" />
+                  {t("admin.profile.gotoDashboard")}
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Platform stats */}
+        <div>
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-1">
+            {t("admin.profile.statsTitle")}
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {statCards.map((s) => (
+              <Card key={s.label} className="border-border/40 shadow-sm">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className={`h-10 w-10 rounded-xl ${s.bg} flex items-center justify-center shrink-0`}>
+                    <s.icon className={`h-5 w-5 ${s.color}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+                    <p className="text-xs text-muted-foreground leading-tight">{s.label}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <Card className="border-border/40">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">{t("admin.profile.quickLinks")}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-3">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/users">
+                <Users className="h-4 w-4 me-2" />
+                {t("admin.profile.gotoUsers")}
+              </Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/admin/jobs">
+                <Briefcase className="h-4 w-4 me-2" />
+                {t("admin.profile.gotoJobs")}
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Account info (read-only) */}
+        <Card className="border-border/40">
+          <CardHeader className="pb-3">
+            <div className="flex items-start gap-3">
+              <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0 mt-0.5">
+                <Lock className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div>
+                <CardTitle className="text-base">{t("admin.profile.securitySection")}</CardTitle>
+                <CardDescription className="text-sm mt-0.5">
+                  {t("admin.profile.securityDesc")}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  {t("admin.profile.emailLabel")}
+                </p>
+                <p className="text-sm font-medium" dir="ltr">
+                  {primaryEmail || "—"}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  {t("admin.profile.roleLabel")}
+                </p>
+                <Badge variant="default" className="bg-primary text-primary-foreground text-xs">
+                  {t("admin.profile.platformAdmin")}
+                </Badge>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Edit form */}
+        <Card className="border-border/40">
           <CardHeader>
             <CardTitle>{t("admin.profile.basicInfo")}</CardTitle>
             <CardDescription>{t("admin.profile.basicInfoDesc")}</CardDescription>
@@ -259,7 +409,9 @@ export default function AdminProfile() {
                   )}
                 />
 
-                <div className="flex justify-end gap-4 pt-4 border-t border-border/50">
+                <Separator />
+
+                <div className="flex justify-end gap-3">
                   <Button type="button" variant="outline" asChild>
                     <Link href="/admin">{t("common.cancel")}</Link>
                   </Button>
@@ -269,7 +421,7 @@ export default function AdminProfile() {
                     className="px-8"
                   >
                     {updateProfileMutation.isPending && (
-                      <Loader2 className="mr-2 ms-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="me-2 h-4 w-4 animate-spin" />
                     )}
                     {t("common.save")}
                   </Button>

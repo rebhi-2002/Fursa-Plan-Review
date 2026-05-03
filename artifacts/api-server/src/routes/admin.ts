@@ -177,8 +177,8 @@ router.get(
         phone: usersTable.phone,
         location: usersTable.location,
         isActive: usersTable.isActive,
-        jobsCount: sql<number>`(select count(*)::int from ${jobsTable} where ${jobsTable.employerId} = ${usersTable.id})`,
-        applicationsCount: sql<number>`(select count(*)::int from ${applicationsTable} where ${applicationsTable.applicantId} = ${usersTable.id})`,
+        jobsCount: sql<number>`(select count(*)::int from "jobs" where "jobs"."employer_id" = "users"."id")`,
+        applicationsCount: sql<number>`(select count(*)::int from "applications" where "applications"."applicant_id" = "users"."id")`,
         createdAt: usersTable.createdAt,
       })
       .from(usersTable)
@@ -216,8 +216,8 @@ router.post(
     const u = updated[0]!;
     const counts = await db
       .select({
-        jobs: sql<number>`(select count(*)::int from ${jobsTable} where ${jobsTable.employerId} = ${u.id})`,
-        apps: sql<number>`(select count(*)::int from ${applicationsTable} where ${applicationsTable.applicantId} = ${u.id})`,
+        jobs: sql<number>`(select count(*)::int from "jobs" where "jobs"."employer_id" = "users"."id")`,
+        apps: sql<number>`(select count(*)::int from "applications" where "applications"."applicant_id" = "users"."id")`,
       })
       .from(usersTable)
       .where(eq(usersTable.id, u.id))

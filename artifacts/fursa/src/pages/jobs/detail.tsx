@@ -236,28 +236,30 @@ export default function JobDetail() {
               </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleSaveToggle}
-                aria-label={
-                  job.savedByMe ? t("jobs.unsave") : t("jobs.save")
-                }
-                className={
-                  job.savedByMe
-                    ? "text-primary border-primary/50 bg-primary/5"
-                    : ""
-                }
-                disabled={saveMutation.isPending || unsaveMutation.isPending}
-              >
-                {job.savedByMe ? (
-                  <BookmarkCheck className="h-5 w-5" />
-                ) : (
-                  <Bookmark className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
+            {(!user || user.role === "seeker") && (
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleSaveToggle}
+                  aria-label={
+                    job.savedByMe ? t("jobs.unsave") : t("jobs.save")
+                  }
+                  className={
+                    job.savedByMe
+                      ? "text-primary border-primary/50 bg-primary/5"
+                      : ""
+                  }
+                  disabled={saveMutation.isPending || unsaveMutation.isPending}
+                >
+                  {job.savedByMe ? (
+                    <BookmarkCheck className="h-5 w-5" />
+                  ) : (
+                    <Bookmark className="h-5 w-5" />
+                  )}
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="prose dark:prose-invert max-w-none prose-p:leading-relaxed">
