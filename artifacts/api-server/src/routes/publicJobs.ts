@@ -24,7 +24,13 @@ router.get("/jobs/featured", async (_req: Request, res: Response) => {
     .orderBy(desc(jobsTable.createdAt))
     .limit(6);
 
-  res.json(rows);
+  res.json(
+    rows.map((r) => ({
+      ...r,
+      deadline: r.deadline ? r.deadline.toISOString() : null,
+      createdAt: r.createdAt.toISOString(),
+    })),
+  );
 });
 
 router.get("/jobs", async (req: Request, res: Response) => {
@@ -81,7 +87,14 @@ router.get("/jobs", async (req: Request, res: Response) => {
       .where(where),
   ]);
 
-  res.json({ items, total: totalRow[0]?.c ?? 0 });
+  res.json({
+    items: items.map((r) => ({
+      ...r,
+      deadline: r.deadline ? r.deadline.toISOString() : null,
+      createdAt: r.createdAt.toISOString(),
+    })),
+    total: totalRow[0]?.c ?? 0,
+  });
 });
 
 router.get("/jobs/:id", async (req: Request, res: Response) => {

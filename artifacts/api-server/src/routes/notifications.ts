@@ -2,6 +2,7 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { db, notificationsTable } from "@workspace/db";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { requireAuth, loadCurrentUser } from "../middlewares/auth";
+import { addSseClient, removeSseClient } from "../lib/sseClients";
 
 const router: IRouter = Router();
 
@@ -16,6 +17,35 @@ function serialize(row: typeof notificationsTable.$inferSelect) {
     createdAt: row.createdAt.toISOString(),
   };
 }
+
+router.get(
+  "/me/notifications/stream",
+  requireAuth,
+  loadCurrentUser,
+  (req: Request, res: Response) => {
+    if (!req.currentUser) { res.status(401).end(); return; }
+    const userId = req.currentUser.id;
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+    res.flushHeaders();
+
+    res.write(": connected\n\n");
+
+    addSseClient(userId, res);
+
+    const keepalive = setInterval(() => {
+      try { res.write(": keepalive\n\n"); } catch { /* ignore */ }
+    }, 25_000);
+
+    req.on("close", () => {
+      clearInterval(keepalive);
+      removeSseClient(userId, res);
+    });
+  },
+);
 
 router.get(
   "/me/notifications",

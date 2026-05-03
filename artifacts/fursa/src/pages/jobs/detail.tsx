@@ -168,10 +168,14 @@ export default function JobDetail() {
       toast.error(t("jobs.signInToApply"));
       return;
     }
+    if (coverLetter.trim().length > 0 && coverLetter.trim().length < 20) {
+      toast.error(t("jobs.coverLetterTooShort"));
+      return;
+    }
     applyMutation.mutate({
       id: jobId,
       data: {
-        coverLetter: coverLetter || null,
+        coverLetter: coverLetter.trim() || null,
         cvObjectPath: cvObjectPath || null,
       },
     });

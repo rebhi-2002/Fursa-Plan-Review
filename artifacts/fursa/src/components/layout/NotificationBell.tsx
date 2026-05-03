@@ -1,5 +1,6 @@
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNotificationStream } from "@/hooks/useNotificationStream";
 import {
   useListMyNotifications,
   useGetUnreadNotificationCount,
@@ -28,17 +29,19 @@ export function NotificationBell() {
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
 
+  useNotificationStream();
+
   const { data: countData } = useGetUnreadNotificationCount({
     query: {
       queryKey: getGetUnreadNotificationCountQueryKey(),
-      refetchInterval: 30_000,
+      refetchInterval: 300_000,
       refetchOnWindowFocus: true,
     },
   });
   const { data: notifications } = useListMyNotifications({
     query: {
       queryKey: getListMyNotificationsQueryKey(),
-      refetchInterval: 30_000,
+      refetchInterval: 300_000,
       refetchOnWindowFocus: true,
     },
   });

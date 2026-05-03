@@ -5,6 +5,7 @@ import {
   boolean,
   timestamp,
   pgEnum,
+  index,
 } from "drizzle-orm/pg-core";
 import { usersTable } from "./users";
 
@@ -15,23 +16,32 @@ export const jobStatusEnum = pgEnum("job_status", [
   "rejected",
 ]);
 
-export const jobsTable = pgTable("jobs", {
-  id: serial("id").primaryKey(),
-  employerId: text("employer_id")
-    .notNull()
-    .references(() => usersTable.id, { onDelete: "cascade" }),
-  title: text("title").notNull(),
-  description: text("description").notNull(),
-  requirements: text("requirements"),
-  type: jobTypeEnum("type").notNull(),
-  category: text("category").notNull(),
-  contactInfo: text("contact_info").notNull(),
-  status: jobStatusEnum("status").notNull().default("pending"),
-  rejectionReason: text("rejection_reason"),
-  isOpen: boolean("is_open").notNull().default(true),
-  deadline: timestamp("deadline"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const jobsTable = pgTable(
+  "jobs",
+  {
+    id: serial("id").primaryKey(),
+    employerId: text("employer_id")
+      .notNull()
+      .references(() => usersTable.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    requirements: text("requirements"),
+    type: jobTypeEnum("type").notNull(),
+    category: text("category").notNull(),
+    contactInfo: text("contact_info").notNull(),
+    status: jobStatusEnum("status").notNull().default("pending"),
+    rejectionReason: text("rejection_reason"),
+    isOpen: boolean("is_open").notNull().default(true),
+    deadline: timestamp("deadline"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("jobs_status_idx").on(table.status),
+    index("jobs_category_idx").on(table.category),
+    index("jobs_employer_idx").on(table.employerId),
+    index("jobs_status_open_idx").on(table.status, table.isOpen),
+  ],
+);
 
 export type JobRow = typeof jobsTable.$inferSelect;
 export type InsertJob = typeof jobsTable.$inferInsert;
