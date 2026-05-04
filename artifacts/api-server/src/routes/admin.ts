@@ -9,6 +9,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
 import { createNotification } from "../lib/notifications";
+import { addAdminSseClient, removeAdminSseClient, broadcastAdminEvent } from "../lib/adminSse";
 
 const router: IRouter = Router();
 
@@ -95,6 +96,29 @@ async function getAdminJob(id: number) {
   return rows[0] ?? null;
 }
 
+router.get(
+  "/admin/dashboard/stream",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("admin"),
+  (req: Request, res: Response) => {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+    res.flushHeaders();
+    res.write(": connected\n\n");
+    addAdminSseClient(res);
+    const keepalive = setInterval(() => {
+      try { res.write(": keepalive\n\n"); } catch { /* ignore */ }
+    }, 25_000);
+    req.on("close", () => {
+      clearInterval(keepalive);
+      removeAdminSseClient(res);
+    });
+  },
+);
+
 router.post(
   "/admin/jobs/:id/approve",
   requireAuth,
@@ -119,6 +143,7 @@ router.post(
       },
       link: `/jobs/${job.id}`,
     });
+    broadcastAdminEvent("stats_changed", { action: "job_approved", jobId: id });
     res.json(serializeAdminJob(job));
   },
 );
@@ -149,6 +174,7 @@ router.post(
       },
       link: `/employer/jobs`,
     });
+    broadcastAdminEvent("stats_changed", { action: "job_rejected", jobId: id });
     res.json(serializeAdminJob(job));
   },
 );
@@ -162,6 +188,7 @@ router.delete(
     const id = parseInt(String(req.params["id"] ?? ""), 10);
     if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
     await db.delete(jobsTable).where(eq(jobsTable.id, id));
+    broadcastAdminEvent("stats_changed", { action: "job_deleted", jobId: id });
     res.status(204).end();
   },
 );

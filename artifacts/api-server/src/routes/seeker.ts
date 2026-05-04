@@ -10,6 +10,7 @@ import { and, desc, eq, sql, ne, notInArray } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
 import { createNotification } from "../lib/notifications";
+import { broadcastAdminEvent } from "../lib/adminSse";
 
 const router: IRouter = Router();
 
@@ -332,6 +333,7 @@ router.post(
         },
         link: `/employer/jobs/${job[0].id}/applications`,
       });
+      broadcastAdminEvent("stats_changed", { action: "new_application", jobId: job[0].id });
 
       const a = inserted[0]!;
       res.status(201).json(

@@ -9,6 +9,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
 import { createNotification } from "../lib/notifications";
+import { broadcastAdminEvent } from "../lib/adminSse";
 
 const router: IRouter = Router();
 
@@ -112,7 +113,15 @@ router.post(
         isOpen: true,
       })
       .returning();
-    res.status(201).json(await serializeEmployerJob(inserted[0]!));
+    const newJob = inserted[0]!;
+    broadcastAdminEvent("new_job_pending", {
+      id: newJob.id,
+      title: newJob.title,
+      category: newJob.category,
+      type: newJob.type,
+      employerName: req.currentUser!.name,
+    });
+    res.status(201).json(await serializeEmployerJob(newJob));
   },
 );
 
