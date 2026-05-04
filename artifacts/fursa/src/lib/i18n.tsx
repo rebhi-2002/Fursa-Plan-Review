@@ -17,6 +17,7 @@ const ar: TranslationDictionary = {
   // Navigation
   "nav.home": "الرئيسية",
   "nav.jobs": "الوظائف",
+  "nav.employers": "أصحاب العمل",
   "nav.dashboard": "لوحة التحكم",
   "nav.signIn": "تسجيل الدخول",
   "nav.signUp": "إنشاء حساب",
@@ -771,6 +772,7 @@ const en: TranslationDictionary = {
   // Navigation
   "nav.home": "Home",
   "nav.jobs": "Jobs",
+  "nav.employers": "Employers",
   "nav.dashboard": "Dashboard",
   "nav.signIn": "Sign In",
   "nav.signUp": "Sign Up",

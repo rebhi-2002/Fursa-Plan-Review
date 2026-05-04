@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useGetAdminDashboard } from "@workspace/api-client-react";
+import { useGetAdminDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { useAuth } from "@clerk/react";
 import { useT } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +30,8 @@ export default function AdminDashboard() {
   const [exporting, setExporting] = useState<"users" | "jobs" | null>(null);
 
   const { data: dashboard, isLoading } = useGetAdminDashboard();
+  const { data: currentUser } = useGetCurrentUser();
+  const firstName = currentUser?.name?.split(" ")[0] || "";
 
   const handleExport = async (type: "users" | "jobs") => {
     setExporting(type);
@@ -107,7 +109,9 @@ export default function AdminDashboard() {
         <ShieldCheck className="h-8 w-8 text-primary" />
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {t("admin.dashboard.title")}
+            {firstName
+              ? (lang === "ar" ? `مرحباً، ${firstName}!` : `Welcome, ${firstName}!`)
+              : t("admin.dashboard.title")}
           </h1>
           <p className="text-muted-foreground mt-1">
             {t("admin.dashboard.subtitle")}

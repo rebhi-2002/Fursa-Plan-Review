@@ -41,6 +41,7 @@ import {
   Bell,
   Moon,
   Sun,
+  MessageSquare,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -59,23 +60,23 @@ export function Header() {
   const toggleLang = () => setLang(lang === "ar" ? "en" : "ar");
   const closeMobile = () => setMobileOpen(false);
 
-  const isActive = (href: string) => {
-    if (href === "/") return location === "/";
+  const isActive = (href: string, exact = false) => {
+    if (href === "/" || exact) return location === href;
     return location === href || location.startsWith(href + "/");
   };
 
-  const navLinkClass = (href: string) =>
+  const navLinkClass = (href: string, exact = false) =>
     cn(
       "text-sm font-medium transition-colors",
-      isActive(href)
+      isActive(href, exact)
         ? "text-foreground font-semibold underline underline-offset-4 decoration-primary"
         : "text-muted-foreground hover:text-foreground",
     );
 
-  const mobileLinkClass = (href: string) =>
+  const mobileLinkClass = (href: string, exact = false) =>
     cn(
       "flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium transition-colors",
-      isActive(href)
+      isActive(href, exact)
         ? "bg-primary/10 text-primary font-semibold border border-primary/20"
         : "hover:bg-accent",
     );
@@ -87,8 +88,8 @@ export function Header() {
   const renderRoleLinks = (onClick?: () => void) => {
     if (!dbUser?.role || !dbUser.onboarded) return null;
     const role = dbUser.role;
-    const links: { href: string; label: string; icon: any }[] = [
-      { href: `/${role}`, label: t("nav.dashboard"), icon: LayoutDashboard },
+    const links: { href: string; label: string; icon: any; exact?: boolean }[] = [
+      { href: `/${role}`, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
     ];
     if (role === "seeker") {
       links.push(
@@ -115,7 +116,7 @@ export function Header() {
           href={l.href}
           className={cn(
             "w-full flex items-center cursor-pointer",
-            isActive(l.href) && "bg-accent font-semibold",
+            isActive(l.href, l.exact) && "bg-accent font-semibold",
           )}
           onClick={onClick}
         >
@@ -133,6 +134,9 @@ export function Header() {
       </Link>
       <Link href="/jobs" onClick={closeMobile} className={mobileLinkClass("/jobs")}>
         <Briefcase className="h-5 w-5" /> {t("nav.jobs")}
+      </Link>
+      <Link href="/employers" onClick={closeMobile} className={mobileLinkClass("/employers")}>
+        <Building2 className="h-5 w-5" /> {t("nav.employers") || (lang === "ar" ? "أصحاب العمل" : "Employers")}
       </Link>
 
       {dbUser?.role && dbUser.onboarded && (
@@ -155,7 +159,7 @@ export function Header() {
           <Link
             href={`/${dbUser.role}`}
             onClick={closeMobile}
-            className={mobileLinkClass(`/${dbUser.role}`)}
+            className={mobileLinkClass(`/${dbUser.role}`, true)}
           >
             <LayoutDashboard className="h-5 w-5" /> {t("nav.dashboard")}
           </Link>
@@ -198,6 +202,11 @@ export function Header() {
               </Link>
             </>
           )}
+
+          <div className="my-1 h-px bg-border/60" />
+          <Link href="/messages" onClick={closeMobile} className={mobileLinkClass("/messages")}>
+            <MessageSquare className="h-5 w-5" /> {t("messages.title") || (lang === "ar" ? "الرسائل" : "Messages")}
+          </Link>
         </>
       )}
 
@@ -265,6 +274,7 @@ export function Header() {
           <nav className="hidden md:flex gap-6">
             <Link href="/" className={navLinkClass("/")}>{t("nav.home")}</Link>
             <Link href="/jobs" className={navLinkClass("/jobs")}>{t("nav.jobs")}</Link>
+            <Link href="/employers" className={navLinkClass("/employers")}>{t("nav.employers") || (lang === "ar" ? "أصحاب العمل" : "Employers")}</Link>
           </nav>
         </div>
 
@@ -363,7 +373,7 @@ export function Header() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side={lang === "ar" ? "right" : "left"} className="w-72">
+            <SheetContent side={lang === "ar" ? "right" : "left"} className="w-72 overflow-y-auto">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
                   <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
@@ -371,6 +381,11 @@ export function Header() {
                   </div>
                   <span>{t("app.name")}</span>
                 </SheetTitle>
+                {clerkUser && dbUser?.name && (
+                  <p className="text-sm text-muted-foreground text-start mt-1">
+                    {lang === "ar" ? `مرحباً، ${dbUser.name.split(" ")[0]}` : `Hi, ${dbUser.name.split(" ")[0]}`}
+                  </p>
+                )}
               </SheetHeader>
               {mobileNavLinks}
             </SheetContent>

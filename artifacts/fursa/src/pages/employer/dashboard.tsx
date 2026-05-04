@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { useGetEmployerDashboard } from "@workspace/api-client-react";
+import { useGetEmployerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ export default function EmployerDashboard() {
   const locale = lang === "ar" ? ar : enUS;
 
   const { data: dashboard, isLoading } = useGetEmployerDashboard();
+  const { data: currentUser } = useGetCurrentUser();
+  const firstName = currentUser?.name?.split(" ")[0] || "";
 
   if (isLoading) {
     return (
@@ -79,7 +81,9 @@ export default function EmployerDashboard() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {t("employer.dashboard.title")}
+            {firstName
+              ? (lang === "ar" ? `مرحباً، ${firstName}!` : `Welcome, ${firstName}!`)
+              : t("employer.dashboard.title")}
           </h1>
           <p className="text-muted-foreground mt-1">
             {t("employer.dashboard.subtitle")}

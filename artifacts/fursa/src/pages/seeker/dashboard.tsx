@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { useGetSeekerDashboard } from "@workspace/api-client-react";
+import { useGetSeekerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ export default function SeekerDashboard() {
   const locale = lang === "ar" ? ar : enUS;
 
   const { data: dashboard, isLoading } = useGetSeekerDashboard();
+  const { data: currentUser } = useGetCurrentUser();
+  const firstName = currentUser?.name?.split(" ")[0] || "";
 
   if (isLoading) {
     return (
@@ -107,7 +109,9 @@ export default function SeekerDashboard() {
       <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {t("seeker.dashboard.title")}
+            {firstName
+              ? (lang === "ar" ? `مرحباً، ${firstName}!` : `Welcome, ${firstName}!`)
+              : t("seeker.dashboard.title")}
           </h1>
           <p className="text-muted-foreground mt-1">
             {t("seeker.dashboard.welcome")}
