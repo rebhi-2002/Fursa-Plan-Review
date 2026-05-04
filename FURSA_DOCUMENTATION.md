@@ -1,571 +1,552 @@
-# Fursa (فُرصة) — Complete Project Documentation
+# توثيق منصة فُرصة — Fursa Platform Documentation
 
-> Arabic/RTL-first digital employment platform for Gaza. Connecting talent with opportunity.
-
----
-
-## Table of Contents
-
-1. [Project Overview](#1-project-overview)
-2. [Tech Stack](#2-tech-stack)
-3. [Monorepo Structure](#3-monorepo-structure)
-4. [Environment Variables & Secrets](#4-environment-variables--secrets)
-5. [Database Schema](#5-database-schema)
-6. [API Reference](#6-api-reference)
-7. [Frontend Architecture](#7-frontend-architecture)
-8. [Authentication & Authorization](#8-authentication--authorization)
-9. [Internationalization (i18n)](#9-internationalization-i18n)
-10. [Roles & Permissions](#10-roles--permissions)
-11. [Pages & Routes](#11-pages--routes)
-12. [Components](#12-components)
-13. [Running Locally](#13-running-locally)
-14. [Deployment](#14-deployment)
-15. [Slide Deck](#15-slide-deck)
-16. [Known Limitations & Future Work](#16-known-limitations--future-work)
+> **منصة توظيف رقمية** تربط بين الباحثين عن عمل وأصحاب العمل، مع لوحة إدارة كاملة.  
+> A digital employment platform connecting job seekers with employers, featuring a full admin panel.
 
 ---
 
-## 1. Project Overview
+## 📋 فهرس المحتويات / Table of Contents
 
-**Fursa** (Arabic: فُرصة, meaning "opportunity") is a bilingual (Arabic/English) digital employment platform built for Gaza. It supports three user roles — job seekers, employers, and admins — each with their own dashboard, profile, and set of CRUD capabilities.
-
-### Goals
-
-- Provide a centralized, trustworthy job board for Gaza
-- Full RTL (right-to-left) support for Arabic-speaking users
-- Instant AR ↔ EN language toggle without page reload
-- Role-based access control enforced on both frontend and backend
-- Production-grade auth via Clerk (Google sign-in, email/password)
+1. [هيكل المشروع](#1-هيكل-المشروع)
+2. [صفحات الموقع حسب دور المستخدم](#2-صفحات-الموقع-حسب-دور-المستخدم)
+3. [تفاصيل الـ Header والـ Footer](#3-تفاصيل-الـ-header-والـ-footer)
+4. [مسارات الباكيند (API Routes)](#4-مسارات-الباكيند-api-routes)
+5. [قاعدة البيانات](#5-قاعدة-البيانات)
+6. [المتغيرات البيئية (Environment Variables)](#6-المتغيرات-البيئية)
+7. [تدفق المصادقة](#7-تدفق-المصادقة)
 
 ---
 
-## 2. Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 18, Vite, TypeScript, Tailwind CSS v4 |
-| Routing | Wouter |
-| State / Data | TanStack Query v5 |
-| UI Components | shadcn/ui (Radix UI primitives) |
-| Icons | Lucide React |
-| Authentication | Clerk (with Clerk React SDK) |
-| Backend | Express.js + TypeScript |
-| ORM | Drizzle ORM |
-| Database | Supabase PostgreSQL |
-| Monorepo | pnpm workspaces |
-| API Codegen | OpenAPI + custom codegen (`@workspace/api-client-react`) |
-
----
-
-## 3. Monorepo Structure
+## 1. هيكل المشروع
 
 ```
-/workspace
+workspace/
 ├── artifacts/
-│   ├── fursa/                    # React + Vite frontend
-│   │   ├── src/
-│   │   │   ├── App.tsx           # Root router — auth layout + all routes
-│   │   │   ├── components/
-│   │   │   │   ├── layout/
-│   │   │   │   │   ├── AppLayout.tsx
-│   │   │   │   │   ├── Header.tsx
-│   │   │   │   │   ├── Footer.tsx
-│   │   │   │   │   ├── RoleGuard.tsx
-│   │   │   │   │   └── NotificationBell.tsx
-│   │   │   │   └── ui/           # shadcn components
-│   │   │   ├── pages/
-│   │   │   │   ├── home.tsx
-│   │   │   │   ├── jobs/         # Public job listings + detail
-│   │   │   │   ├── seeker/       # dashboard, applications, saved, profile
-│   │   │   │   ├── employer/     # dashboard, jobs, job-new, job-edit, profile
-│   │   │   │   ├── admin/        # dashboard, jobs, users, profile
-│   │   │   │   ├── auth/         # sign-in, sign-up (no header/footer)
-│   │   │   │   ├── about.tsx
-│   │   │   │   ├── privacy.tsx
-│   │   │   │   ├── terms.tsx
-│   │   │   │   ├── onboarding.tsx
-│   │   │   │   └── not-found.tsx
-│   │   │   └── lib/
-│   │   │       ├── i18n.tsx      # AR + EN translation dictionaries
-│   │   │       └── queryClient.ts
-│   │   ├── vite.config.ts
-│   │   └── package.json          # @workspace/fursa
+│   ├── fursa/                        # التطبيق الرئيسي (React + Vite)
+│   │   └── src/
+│   │       ├── App.tsx               # نقطة الدخول، الـ routing، Clerk provider
+│   │       ├── main.tsx              # تهيئة React
+│   │       ├── index.css             # التصميم العام (Tailwind)
+│   │       ├── components/
+│   │       │   ├── layout/
+│   │       │   │   ├── AppLayout.tsx       # الغلاف الرئيسي (Header + Footer)
+│   │       │   │   ├── Header.tsx          # شريط التنقل العلوي
+│   │       │   │   ├── Footer.tsx          # تذييل الصفحة
+│   │       │   │   ├── RoleGuard.tsx       # حماية المسارات حسب الدور
+│   │       │   │   └── NotificationBell.tsx # أيقونة الإشعارات
+│   │       │   ├── ErrorBoundary.tsx       # معالجة أخطاء React
+│   │       │   └── ui/                     # مكونات shadcn/ui
+│   │       ├── pages/
+│   │       │   ├── home.tsx               # الصفحة الرئيسية
+│   │       │   ├── about.tsx              # صفحة عن المنصة
+│   │       │   ├── contact.tsx            # صفحة التواصل
+│   │       │   ├── faq.tsx                # الأسئلة الشائعة
+│   │       │   ├── privacy.tsx            # سياسة الخصوصية
+│   │       │   ├── terms.tsx              # شروط الاستخدام
+│   │       │   ├── not-found.tsx          # صفحة 404 (توجيه ذكي حسب الدور)
+│   │       │   ├── onboarding.tsx         # استكمال الملف الشخصي
+│   │       │   ├── notifications.tsx      # صفحة الإشعارات
+│   │       │   ├── employers.tsx          # ملف صاحب العمل العام
+│   │       │   ├── employers-list.tsx     # قائمة أصحاب العمل
+│   │       │   ├── auth/
+│   │       │   │   ├── sign-in.tsx        # تسجيل الدخول (Clerk)
+│   │       │   │   └── sign-up.tsx        # إنشاء حساب (Clerk)
+│   │       │   ├── jobs/
+│   │       │   │   ├── index.tsx          # قائمة الوظائف مع فلاتر البحث
+│   │       │   │   └── detail.tsx         # تفاصيل وظيفة واحدة
+│   │       │   ├── messages/
+│   │       │   │   ├── index.tsx          # قائمة المحادثات
+│   │       │   │   └── thread.tsx         # محادثة فردية
+│   │       │   ├── seeker/
+│   │       │   │   ├── dashboard.tsx      # لوحة تحكم الباحث
+│   │       │   │   ├── applications.tsx   # طلبات التقديم
+│   │       │   │   ├── saved.tsx          # الوظائف المحفوظة
+│   │       │   │   └── profile.tsx        # الملف الشخصي
+│   │       │   ├── employer/
+│   │       │   │   ├── dashboard.tsx      # لوحة تحكم صاحب العمل
+│   │       │   │   ├── jobs.tsx           # إدارة الوظائف
+│   │       │   │   ├── job-new.tsx        # نشر وظيفة جديدة
+│   │       │   │   ├── job-edit.tsx       # تعديل وظيفة موجودة
+│   │       │   │   ├── applications.tsx   # طلبات التوظيف الواردة
+│   │       │   │   └── profile.tsx        # ملف الشركة
+│   │       │   ├── admin/
+│   │       │   │   ├── dashboard.tsx      # لوحة إدارة المنصة
+│   │       │   │   ├── jobs.tsx           # مراجعة وإدارة الوظائف
+│   │       │   │   ├── users.tsx          # إدارة المستخدمين
+│   │       │   │   └── profile.tsx        # ملف الأدمن
+│   │       │   └── seekers/
+│   │       │       └── profile.tsx        # ملف الباحث العام
+│   │       ├── hooks/                     # Custom React Hooks
+│   │       └── lib/
+│   │           ├── i18n.tsx              # نظام الترجمة (AR/EN)
+│   │           ├── theme.ts              # إدارة الثيم (Dark/Light)
+│   │           ├── queryClient.ts        # إعداد React Query
+│   │           └── utils.ts             # دوال مساعدة
 │   │
-│   ├── api-server/               # Express API server
-│   │   ├── src/
-│   │   │   ├── index.ts          # Server entry point
-│   │   │   ├── db/
-│   │   │   │   ├── schema.ts     # Drizzle schema
-│   │   │   │   └── index.ts      # Drizzle client
-│   │   │   ├── routes/           # Express route handlers
-│   │   │   └── middleware/       # Auth middleware (Clerk verification)
-│   │   └── package.json          # @workspace/api-server
+│   ├── api-server/                       # الباكيند (Express.js + TypeScript)
+│   │   └── src/
+│   │       ├── index.ts                  # نقطة الدخول، تشغيل السيرفر
+│   │       ├── app.ts                    # إعداد Express، middleware، rate limiting
+│   │       ├── routes/
+│   │       │   ├── index.ts             # تجميع جميع المسارات
+│   │       │   ├── health.ts            # فحص صحة السيرفر
+│   │       │   ├── me.ts                # بيانات المستخدم الحالي
+│   │       │   ├── publicJobs.ts        # الوظائف العامة (بدون تسجيل)
+│   │       │   ├── seeker.ts            # مسارات الباحث عن عمل
+│   │       │   ├── employer.ts          # مسارات صاحب العمل
+│   │       │   ├── admin.ts             # مسارات الأدمن
+│   │       │   ├── notifications.ts     # الإشعارات
+│   │       │   ├── messages.ts          # الرسائل
+│   │       │   ├── platform.ts          # إحصاءات المنصة
+│   │       │   ├── storage.ts           # رفع وإدارة الملفات
+│   │       │   └── contact.ts           # نموذج التواصل + إرسال بريد (Resend)
+│   │       ├── middlewares/
+│   │       │   ├── auth.ts              # requireAuth, loadCurrentUser, requireRole
+│   │       │   └── clerkProxyMiddleware.ts # Proxy لـ Clerk في الإنتاج
+│   │       └── lib/
+│   │           ├── logger.ts            # Pino logger
+│   │           ├── notifications.ts     # إنشاء الإشعارات + إرسال البريد (Resend)
+│   │           ├── objectStorage.ts     # إدارة رفع الملفات
+│   │           ├── objectAcl.ts         # صلاحيات الملفات
+│   │           └── sseClients.ts        # Server-Sent Events للإشعارات الفورية
 │   │
-│   └── fursa-slides/             # Presentation slide deck (React)
-│       ├── src/
-│       │   ├── pages/slides/     # 8 slide components
-│       │   ├── data/slides-manifest.json
-│       │   └── index.css         # CSS variables (palette, fonts)
-│       └── public/               # Static assets for slides
+│   ├── fursa-slides/                     # عرض تقديمي (Slides)
+│   ├── fursa-video/                      # فيديو تعريفي (Remotion/Vite)
+│   └── mockup-sandbox/                   # بيئة تصميم المكونات (Vite)
 │
-├── lib/
-│   ├── api-spec/                 # OpenAPI spec + codegen output
-│   └── api-client-react/         # Generated React Query hooks
-│
-├── pnpm-workspace.yaml
-├── package.json
-└── FURSA_DOCUMENTATION.md        # This file
+└── lib/
+    ├── db/                               # قاعدة البيانات (Drizzle ORM + PostgreSQL)
+    │   └── src/
+    │       ├── index.ts                  # تصدير الجداول والـ client
+    │       └── schema/
+    │           ├── index.ts              # تصدير جميع الجداول
+    │           ├── users.ts              # جدول المستخدمين
+    │           ├── jobs.ts               # جدول الوظائف
+    │           ├── applications.ts       # جدول طلبات التوظيف
+    │           ├── savedJobs.ts          # جدول الوظائف المحفوظة
+    │           ├── notifications.ts      # جدول الإشعارات
+    │           └── messages.ts           # جدول الرسائل
+    ├── api-client-react/                 # Client تلقائي للـ API (Orval)
+    ├── api-spec/                         # مواصفات OpenAPI
+    ├── api-zod/                          # Zod schemas
+    └── object-storage-web/               # أدوات رفع الملفات للفرونتيند
 ```
 
 ---
 
-## 4. Environment Variables & Secrets
+## 2. صفحات الموقع حسب دور المستخدم
 
-### Frontend (`artifacts/fursa/.env`)
+### 👤 الزائر (Guest) — غير مسجل
 
-| Variable | Description |
-|---|---|
-| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key (starts with `pk_`) |
-| `VITE_API_URL` | Base URL of the API server (e.g. `http://localhost:3001`) |
-| `VITE_BASE_PATH` | App base path (usually `/`) |
-| `PORT` | Vite dev server port (default: `3000`) |
-| `VITE_CLERK_PROXY_URL` | (Production only) Clerk proxy URL for deployed environments |
-
-### API Server (`artifacts/api-server/.env`)
-
-| Variable | Description |
-|---|---|
-| `PORT` | API server port (default: `3001`, Replit: `8080`) |
-| `DATABASE_URL` | PostgreSQL connection string (Supabase) |
-| `CLERK_SECRET_KEY` | Clerk secret key (starts with `sk_`) |
-| `CLERK_PUBLISHABLE_KEY` | Clerk publishable key (same as frontend) |
-
-> **Never commit `.env` files.** All secrets are managed via Replit Secrets.
+| الصفحة | المسار | الوصف |
+|--------|--------|-------|
+| الصفحة الرئيسية | `/` | الوظائف المميزة، الإحصاءات، التصنيفات، طريقة العمل |
+| تصفح الوظائف | `/jobs` | قائمة الوظائف مع فلاتر (نوع، تصنيف، بحث) |
+| تفاصيل وظيفة | `/jobs/:id` | تفاصيل وظيفة واحدة (التقديم يتطلب تسجيل) |
+| قائمة أصحاب العمل | `/employers` | الشركات والمؤسسات المسجلة |
+| ملف صاحب عمل | `/employers/:id` | ملف شركة مع وظائفها النشطة |
+| عن المنصة | `/about` | معلومات عن فُرصة |
+| الأسئلة الشائعة | `/faq` | إجابات على الأسئلة المتكررة |
+| التواصل | `/contact` | نموذج التواصل مع الفريق |
+| سياسة الخصوصية | `/privacy` | سياسة خصوصية البيانات |
+| شروط الاستخدام | `/terms` | شروط وأحكام الاستخدام |
+| تسجيل الدخول | `/sign-in` | نموذج Clerk لتسجيل الدخول |
+| إنشاء حساب | `/sign-up` | نموذج Clerk لإنشاء حساب جديد |
+| صفحة 404 | `/*` | أي مسار غير معروف — زر العودة للرئيسية |
 
 ---
 
-## 5. Database Schema
+### 🔄 مستخدم جديد — بعد التسجيل مباشرةً
 
-All tables use Drizzle ORM with Supabase PostgreSQL. Schema file: `artifacts/api-server/src/db/schema.ts`.
+| الصفحة | المسار | الوصف |
+|--------|--------|-------|
+| استكمال الملف | `/onboarding` | اختيار الدور (باحث/صاحب عمل) وإدخال البيانات الأساسية |
 
-### `users`
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `text` PRIMARY KEY | Clerk user ID (`user_xxx`) |
-| `email` | `text` NOT NULL UNIQUE | |
-| `name` | `text` | Display name |
-| `role` | `text` | `seeker` \| `employer` \| `admin` |
-| `phone` | `text` | |
-| `location` | `text` | |
-| `bio` | `text` | |
-| `createdAt` | `timestamp` | |
-| `updatedAt` | `timestamp` | |
-
-### `jobs`
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PRIMARY KEY | |
-| `title` | `text` NOT NULL | |
-| `description` | `text` NOT NULL | |
-| `location` | `text` | |
-| `type` | `text` | `full-time` \| `part-time` \| `remote` \| `contract` |
-| `salary` | `text` | Optional salary range text |
-| `status` | `text` | `draft` \| `active` \| `closed` |
-| `employerId` | `text` FK → `users.id` | |
-| `createdAt` | `timestamp` | |
-| `updatedAt` | `timestamp` | |
-
-### `applications`
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PRIMARY KEY | |
-| `jobId` | `integer` FK → `jobs.id` | |
-| `seekerId` | `text` FK → `users.id` | |
-| `coverLetter` | `text` | Optional |
-| `status` | `text` | `pending` \| `reviewed` \| `accepted` \| `rejected` |
-| `createdAt` | `timestamp` | |
-
-### `savedJobs`
-
-| Column | Type | Notes |
-|---|---|---|
-| `id` | `serial` PRIMARY KEY | |
-| `jobId` | `integer` FK → `jobs.id` | |
-| `seekerId` | `text` FK → `users.id` | |
-| `createdAt` | `timestamp` | |
+> يُعاد التوجيه تلقائياً لهذه الصفحة حتى يكمل المستخدم ملفه الشخصي.
 
 ---
 
-## 6. API Reference
+### 🔍 الباحث عن عمل (Seeker) — بعد إكمال Onboarding
 
-Base URL (local): `http://localhost:3001`
-Base URL (production): via Replit deploy proxy
-
-All protected endpoints require a valid Clerk session token sent as `Authorization: Bearer <token>`.
-
-### Auth / Me
-
-| Method | Path | Description | Auth |
-|---|---|---|---|
-| `GET` | `/me` | Get current user profile | Required |
-| `PATCH` | `/me` | Update current user profile | Required |
-| `POST` | `/me/onboard` | Set user role (seeker/employer) | Required |
-
-### Jobs (Public)
-
-| Method | Path | Description | Auth |
-|---|---|---|---|
-| `GET` | `/jobs` | List active jobs (supports `?q=`, `?location=`, `?type=`) | Optional |
-| `GET` | `/jobs/:id` | Get job detail | Optional |
-
-### Jobs (Employer)
-
-| Method | Path | Description | Auth |
-|---|---|---|---|
-| `GET` | `/employer/jobs` | List employer's own jobs | Required (employer) |
-| `POST` | `/employer/jobs` | Create a new job listing | Required (employer) |
-| `PATCH` | `/employer/jobs/:id` | Update a job listing | Required (employer) |
-| `DELETE` | `/employer/jobs/:id` | Delete a job listing | Required (employer) |
-
-### Applications
-
-| Method | Path | Description | Auth |
-|---|---|---|---|
-| `GET` | `/applications` | Get seeker's applications | Required (seeker) |
-| `POST` | `/applications` | Apply to a job | Required (seeker) |
-| `DELETE` | `/applications/:id` | Withdraw application | Required (seeker) |
-| `GET` | `/employer/applications/:jobId` | List applicants for a job | Required (employer) |
-| `PATCH` | `/employer/applications/:id` | Update application status | Required (employer) |
-
-### Saved Jobs
-
-| Method | Path | Description | Auth |
-|---|---|---|---|
-| `GET` | `/saved-jobs` | Get seeker's saved jobs | Required (seeker) |
-| `POST` | `/saved-jobs` | Save a job | Required (seeker) |
-| `DELETE` | `/saved-jobs/:jobId` | Unsave a job | Required (seeker) |
-
-### Admin
-
-| Method | Path | Description | Auth |
-|---|---|---|---|
-| `GET` | `/admin/jobs` | List all jobs (any status) | Required (admin) |
-| `PATCH` | `/admin/jobs/:id` | Moderate/update any job | Required (admin) |
-| `DELETE` | `/admin/jobs/:id` | Delete any job | Required (admin) |
-| `GET` | `/admin/users` | List all users | Required (admin) |
-| `PATCH` | `/admin/users/:id` | Update any user | Required (admin) |
-| `DELETE` | `/admin/users/:id` | Delete a user | Required (admin) |
+| الصفحة | المسار | الوصف |
+|--------|--------|-------|
+| لوحة التحكم | `/seeker` | إحصاءات، أحدث الطلبات، وظائف مقترحة |
+| طلبات التقديم | `/seeker/applications` | جميع الوظائف التي تقدم عليها مع حالتها |
+| الوظائف المحفوظة | `/seeker/saved` | الوظائف التي حفظها للمراجعة لاحقاً |
+| الملف الشخصي | `/seeker/profile` | البيانات الشخصية، السيرة الذاتية، الموقع |
+| الإشعارات | `/notifications` | قبول/رفض الطلبات، رسائل جديدة |
+| الرسائل | `/messages` | قائمة المحادثات مع أصحاب العمل |
+| محادثة | `/messages/:userId` | محادثة مباشرة مع صاحب عمل |
+| تفاصيل وظيفة | `/jobs/:id` | عرض التفاصيل والتقديم مباشرةً |
+| ملف باحث عام | `/seekers/:id` | عرض ملف باحث آخر للعموم |
 
 ---
 
-## 7. Frontend Architecture
+### 🏢 صاحب العمل (Employer) — بعد إكمال Onboarding
 
-### Routing Strategy
+| الصفحة | المسار | الوصف |
+|--------|--------|-------|
+| لوحة التحكم | `/employer` | إحصاءات الوظائف والطلبات الواردة |
+| إدارة الوظائف | `/employer/jobs` | قائمة وظائفه مع حالة كل وظيفة |
+| نشر وظيفة جديدة | `/employer/jobs/new` | نموذج إنشاء وظيفة جديدة |
+| تعديل وظيفة | `/employer/jobs/:id` | تعديل تفاصيل وظيفة موجودة |
+| طلبات وظيفة | `/employer/jobs/:id/applications` | المتقدمون مع إمكانية القبول/الرفض |
+| ملف الشركة | `/employer/profile` | بيانات الشركة والموقع والموقع الإلكتروني |
+| الإشعارات | `/notifications` | موافقة الأدمن على الوظائف، رسائل جديدة |
+| الرسائل | `/messages` | التواصل مع الباحثين |
+| محادثة | `/messages/:userId` | محادثة مباشرة مع باحث |
 
-The app uses **Wouter** for client-side routing. There are two distinct layout contexts:
+---
 
-1. **AuthLayout** — Used for `/sign-in` and `/sign-up`. No Header or Footer. Clean centered layout that shows only the Clerk auth component.
+### 🛡️ المدير (Admin) — دور مخصص لا يحتاج Onboarding
 
-2. **AppLayout** — Used for every other route. Includes `<Header>` and `<Footer>`. All role-protected routes are wrapped in `<RoleGuard role="...">`.
+| الصفحة | المسار | الوصف |
+|--------|--------|-------|
+| لوحة الإدارة | `/admin` | إحصاءات المنصة، الوظائف المعلقة، تصدير CSV |
+| إدارة الوظائف | `/admin/jobs` | مراجعة وظائف جديدة، قبولها أو رفضها مع السبب |
+| إدارة المستخدمين | `/admin/users` | جميع المستخدمين، تفعيل/تعطيل الحسابات |
+| الملف الشخصي | `/admin/profile` | بيانات حساب الأدمن |
+| الإشعارات | `/notifications` | إشعارات النظام |
+
+---
+
+### 📌 صفحات مشتركة لجميع المستخدمين المسجلين
+
+| الصفحة | المسار | الوصف |
+|--------|--------|-------|
+| الإشعارات | `/notifications` | مركز الإشعارات الشخصي |
+| الرسائل | `/messages` | قائمة المحادثات |
+| محادثة | `/messages/:userId` | محادثة فردية |
+
+---
+
+## 3. تفاصيل الـ Header والـ Footer
+
+### 🔝 الـ Header (شريط التنقل العلوي)
+
+الشريط يُظهر محتوى مختلف حسب حالة المستخدم، ويُمييز الصفحة النشطة تلقائياً على جميع الأجهزة.
+
+#### للزائر (غير مسجل):
+- شعار فُرصة (رابط للرئيسية)
+- روابط: الرئيسية، الوظائف
+- زر تغيير اللغة (عربي / English)
+- زر تبديل الثيم (مضيء / مظلم)
+- زر "تسجيل الدخول" + زر "إنشاء حساب"
+
+#### للمستخدم المسجل:
+- شعار فُرصة
+- روابط التنقل مع تمييز الصفحة النشطة
+- أيقونة تبديل اللغة
+- أيقونة تبديل الثيم
+- 🔔 جرس الإشعارات مع عداد الإشعارات غير المقروءة
+- للأدمن فقط: زر "لوحة الإدارة" بلون ذهبي مميز
+- أيقونة الصورة الشخصية — تفتح قائمة منسدلة بـ:
+  - الاسم والبريد الإلكتروني
+  - روابط خاصة بالدور (Dashboard, Profile, إلخ)
+  - زر تسجيل الخروج (يعيد التوجيه للرئيسية تلقائياً)
+
+#### القائمة الجانبية للجوال (Mobile Sheet):
+- تفتح من اليمين (للعربية) أو اليسار (للإنجليزية)
+- نفس روابط سطح المكتب مع تمييز الصفحة النشطة بخلفية ملونة `bg-primary/10`
+- زر تغيير اللغة + زر تبديل الثيم
+- زر تسجيل الخروج (يُعيد التوجيه للرئيسية وتحديث الصفحة كاملاً)
+
+**آلية تمييز الصفحة النشطة:**
+- الكمبيوتر: خط تحتي بلون أساسي (`underline-offset-4 decoration-primary`)
+- الجوال: خلفية `bg-primary/10` مع حدود `border-primary/20` ولون نص أساسي
+- زر الأدمن: يزداد تأثيراً (`bg-amber-500/25`) عند التواجد في صفحة الإدارة
+
+---
+
+### 🔻 الـ Footer (تذييل الصفحة)
+
+يظهر في جميع الصفحات (عدا `/sign-in` و `/sign-up`)
+
+| القسم | الروابط |
+|-------|---------|
+| **المنصة** | تصفح الوظائف `/jobs`، عن فُرصة `/about`، الأسئلة الشائعة `/faq`، التواصل `/contact` |
+| **القانونية** | سياسة الخصوصية `/privacy`، شروط الاستخدام `/terms` |
+| **معلومات** | حقوق النشر مع السنة الحالية |
+
+---
+
+## 4. مسارات الباكيند (API Routes)
+
+**Base URL:** `/api`
+
+---
+
+### 🌐 عامة — Public (بدون تسجيل دخول)
+
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| `GET` | `/health` | فحص حالة السيرفر |
+| `GET` | `/jobs/featured` | أحدث 6 وظائف للصفحة الرئيسية |
+| `GET` | `/jobs` | قائمة الوظائف مع فلاتر (search, type, category, limit, offset) |
+| `GET` | `/jobs/:id` | تفاصيل وظيفة + يزيد عداد المشاهدات |
+| `GET` | `/jobs/:id/similar` | وظائف مشابهة من نفس التصنيف |
+| `GET` | `/public/employers` | قائمة أصحاب العمل |
+| `GET` | `/public/employers/:id` | ملف صاحب عمل مع وظائفه |
+| `GET` | `/public/seekers/:id` | ملف باحث عن عمل عام |
+| `GET` | `/platform/stats` | إحصاءات المنصة (مع fallback لـ 0 عند خطأ DB) |
+| `GET` | `/platform/categories` | تصنيفات الوظائف (مع fallback لـ [] عند خطأ DB) |
+| `POST` | `/contact` | إرسال رسالة تواصل (يُرسل بريد لصاحب الموقع + تأكيد للمرسل) |
+
+---
+
+### 🔐 مستخدم حالي — Me
+
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| `GET` | `/me` | بيانات المستخدم الحالي (يُنشئ تلقائياً عند أول دخول) |
+| `PATCH` | `/me` | تعديل الملف الشخصي |
+| `POST` | `/me/role` | تغيير الدور (seeker/employer) |
+| `DELETE` | `/me` | حذف الحساب نهائياً من DB و Clerk |
+
+---
+
+### 🔍 الباحث — Seeker
+
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| `GET` | `/seeker/dashboard` | إحصاءات وبيانات لوحة التحكم |
+| `GET` | `/me/applications` | قائمة الطلبات المقدَّمة |
+| `POST` | `/jobs/:id/apply` | التقديم على وظيفة |
+| `PATCH` | `/me/applications/:id` | تعديل خطاب التقديم / السيرة الذاتية |
+| `DELETE` | `/me/applications/:id` | سحب طلب التقديم |
+| `GET` | `/me/saved` | قائمة الوظائف المحفوظة |
+| `POST` | `/me/saved/:jobId` | حفظ وظيفة |
+| `DELETE` | `/me/saved/:jobId` | إزالة وظيفة من المحفوظات |
+
+---
+
+### 🏢 صاحب العمل — Employer
+
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| `GET` | `/employer/dashboard` | إحصاءات وبيانات لوحة التحكم |
+| `GET` | `/employer/jobs` | قائمة وظائفه |
+| `POST` | `/employer/jobs` | نشر وظيفة جديدة (حالة: معلق) |
+| `GET` | `/employer/jobs/:id` | تفاصيل وظيفة |
+| `PATCH` | `/employer/jobs/:id` | تعديل وظيفة |
+| `DELETE` | `/employer/jobs/:id` | حذف وظيفة |
+| `POST` | `/employer/jobs/:id/toggle-open` | فتح/إغلاق باب التقديم |
+| `GET` | `/employer/jobs/:id/applications` | المتقدمون لوظيفة معينة |
+| `PATCH` | `/employer/applications/:id` | قبول/رفض طلب مع ملاحظة |
+| `POST` | `/employer/applications/:id/seen` | تعليم الطلب كمشاهَد |
+
+---
+
+### 🛡️ الأدمن — Admin
+
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| `GET` | `/admin/dashboard` | إحصاءات شاملة + أحدث الوظائف المعلقة |
+| `GET` | `/admin/jobs` | جميع الوظائف (فلتر: status=pending/approved/rejected) |
+| `POST` | `/admin/jobs/:id/approve` | قبول وظيفة ونشرها |
+| `POST` | `/admin/jobs/:id/reject` | رفض وظيفة (مطلوب: reason) |
+| `DELETE` | `/admin/jobs/:id` | حذف وظيفة |
+| `GET` | `/admin/users` | جميع المستخدمين (فلتر: role=seeker/employer/admin) |
+| `POST` | `/admin/users/:id/toggle-active` | تفعيل/تعطيل حساب |
+| `GET` | `/admin/export/csv?type=users` | تصدير المستخدمين CSV |
+| `GET` | `/admin/export/csv?type=jobs` | تصدير الوظائف CSV |
+
+---
+
+### 🔔 الإشعارات — Notifications
+
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| `GET` | `/notifications` | قائمة إشعارات المستخدم |
+| `GET` | `/notifications/stream` | Server-Sent Events للإشعارات الفورية |
+| `GET` | `/notifications/unread-count` | عدد الإشعارات غير المقروءة |
+| `POST` | `/notifications/:id/read` | تعليم إشعار كمقروء |
+| `POST` | `/notifications/read-all` | تعليم الكل كمقروء |
+
+---
+
+### 💬 الرسائل — Messages
+
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| `GET` | `/messages` | قائمة المحادثات |
+| `GET` | `/messages/:userId` | سجل المحادثة مع مستخدم معين |
+| `POST` | `/messages/:userId` | إرسال رسالة |
+
+---
+
+### 📁 الملفات — Storage
+
+| الطريقة | المسار | الوصف |
+|---------|--------|-------|
+| `POST` | `/storage/uploads/request-url` | طلب Presigned URL لرفع مباشر |
+| `GET` | `/storage/public-objects/*` | الوصول لملف عام |
+| `GET` | `/storage/objects/*` | الوصول لملف خاص (يتحقق من الصلاحيات) |
+
+---
+
+## 5. قاعدة البيانات
+
+**نوع قاعدة البيانات:** PostgreSQL  
+**ORM:** Drizzle ORM
+
+---
+
+### جدول `users` — المستخدمون
+
+| العمود | النوع | الوصف |
+|--------|-------|-------|
+| `id` | `text` PK | معرف Clerk للمستخدم |
+| `name` | `text` | الاسم الكامل |
+| `email` | `text` | البريد الإلكتروني |
+| `role` | `enum` | `seeker` / `employer` / `admin` |
+| `phone` | `text?` | رقم الهاتف |
+| `location` | `text?` | الموقع الجغرافي |
+| `bio` | `text?` | نبذة تعريفية |
+| `cv_object_path` | `text?` | مسار السيرة الذاتية في التخزين |
+| `website` | `text?` | الموقع الإلكتروني |
+| `is_active` | `boolean` | هل الحساب مفعل؟ |
+| `onboarded` | `boolean` | هل أكمل ملفه الشخصي؟ |
+| `created_at` | `timestamp` | تاريخ الإنشاء |
+
+---
+
+### جدول `jobs` — الوظائف
+
+| العمود | النوع | الوصف |
+|--------|-------|-------|
+| `id` | `serial` PK | رقم تلقائي |
+| `employer_id` | `text` FK | معرف صاحب العمل |
+| `title` | `text` | عنوان الوظيفة |
+| `description` | `text` | وصف الوظيفة |
+| `requirements` | `text?` | المتطلبات |
+| `type` | `enum` | `online` / `field` / `hybrid` |
+| `category` | `text` | التصنيف |
+| `contact_info` | `text` | معلومات التواصل |
+| `status` | `enum` | `pending` / `approved` / `rejected` |
+| `rejection_reason` | `text?` | سبب الرفض |
+| `is_open` | `boolean` | باب التقديم مفتوح؟ |
+| `deadline` | `timestamp?` | آخر موعد للتقديم |
+| `views_count` | `integer` | عدد المشاهدات |
+| `created_at` | `timestamp` | تاريخ النشر |
+
+---
+
+### جدول `applications` — طلبات التوظيف
+
+| العمود | النوع | الوصف |
+|--------|-------|-------|
+| `id` | `serial` PK | رقم الطلب |
+| `job_id` | `integer` FK | الوظيفة المتقدَّم عليها |
+| `applicant_id` | `text` FK | الباحث المتقدم |
+| `status` | `enum` | `pending` / `accepted` / `rejected` |
+| `rejection_note` | `text?` | ملاحظة الرفض |
+| `cover_letter` | `text?` | خطاب التقديم |
+| `cv_object_path` | `text?` | مسار السيرة الذاتية |
+| `seen_by_employer` | `boolean` | شاهده صاحب العمل؟ |
+| `created_at` | `timestamp` | تاريخ التقديم |
+
+---
+
+### جدول `saved_jobs` — الوظائف المحفوظة
+
+| العمود | النوع | الوصف |
+|--------|-------|-------|
+| `user_id` | `text` FK | الباحث |
+| `job_id` | `integer` FK | الوظيفة |
+| `created_at` | `timestamp` | تاريخ الحفظ |
+
+---
+
+### جدول `notifications` — الإشعارات
+
+| العمود | النوع | الوصف |
+|--------|-------|-------|
+| `id` | `serial` PK | رقم الإشعار |
+| `user_id` | `text` FK | المستخدم المستهدف |
+| `type` | `enum` | نوع الإشعار |
+| `title` | `text` | عنوان الإشعار (JSON ثنائي اللغة) |
+| `body` | `text` | نص الإشعار (JSON ثنائي اللغة) |
+| `link` | `text?` | رابط ذو صلة |
+| `read` | `boolean` | هل قرأه المستخدم؟ |
+| `created_at` | `timestamp` | وقت الإشعار |
+
+**أنواع الإشعارات:** `job_approved` · `job_rejected` · `new_application` · `application_accepted` · `application_rejected` · `new_message`
+
+---
+
+### جدول `messages` — الرسائل
+
+| العمود | النوع | الوصف |
+|--------|-------|-------|
+| `id` | `serial` PK | رقم الرسالة |
+| `sender_id` | `text` FK | المرسِل |
+| `receiver_id` | `text` FK | المستقبِل |
+| `content` | `text` | نص الرسالة |
+| `read` | `boolean` | قرأها المستقبل؟ |
+| `created_at` | `timestamp` | وقت الإرسال |
+
+---
+
+## 6. المتغيرات البيئية
+
+### الفرونتيند (`artifacts/fursa/.env`)
+
+| المتغير | الوصف | مطلوب؟ |
+|---------|-------|---------|
+| `VITE_CLERK_PUBLISHABLE_KEY` | مفتاح Clerk العام | ✅ |
+| `VITE_CLERK_PROXY_URL` | Proxy لـ Clerk في الإنتاج | للإنتاج فقط |
+
+### الباكيند (`artifacts/api-server/.env`)
+
+| المتغير | الوصف | مطلوب؟ |
+|---------|-------|---------|
+| `CLERK_PUBLISHABLE_KEY` | مفتاح Clerk العام | ✅ |
+| `CLERK_SECRET_KEY` | مفتاح Clerk السري | ✅ |
+| `DATABASE_URL` | رابط قاعدة PostgreSQL | ✅ |
+| `PORT` | منفذ السيرفر (يُعيَّن تلقائياً) | تلقائي |
+| `RESEND_API_KEY` | مفتاح Resend لإرسال البريد | للبريد فقط |
+| `RESEND_FROM_EMAIL` | بريد المرسل (افتراضي: `onboarding@resend.dev`) | اختياري |
+| `RESEND_FROM_NAME` | اسم المرسل (افتراضي: `Fursa`) | اختياري |
+| `CONTACT_RECIPIENT_EMAIL` | البريد الذي تصله رسائل نموذج التواصل | اختياري |
+
+---
+
+## 7. تدفق المصادقة
 
 ```
-App.tsx
-├── /sign-in    → AuthLayout → <SignInPage>
-├── /sign-up    → AuthLayout → <SignUpPage>
-└── *           → AppLayout
-    ├── /                   → <Home>
-    ├── /jobs               → <JobsPage>
-    ├── /jobs/:id           → <JobDetail>
-    ├── /about              → <AboutPage>
-    ├── /privacy            → <PrivacyPage>
-    ├── /terms              → <TermsPage>
-    ├── /onboarding         → <Onboarding> (signed-in only)
-    ├── /seeker/*           → RoleGuard(role="seeker")
-    ├── /employer/*         → RoleGuard(role="employer")
-    └── /admin/*            → RoleGuard(role="admin")
+المستخدم يفتح الموقع
+        │
+        ▼
+هل لديه جلسة Clerk نشطة؟
+        │               │
+       لا              نعم
+        │               │
+        ▼               ▼
+  /sign-in أو     هل موجود في DB?
+  /sign-up              │          │
+                       لا         نعم
+                        │          │
+                        ▼          ▼
+               إنشاء تلقائي  هل onboarded = true?
+               من بيانات Clerk     │           │
+                                  لا          نعم
+                                   │           │
+                                   ▼           ▼
+                              /onboarding  هل الدور صحيح؟
+                             (اختيار دور       │          │
+                              + بيانات)        لا         نعم
+                                              │           │
+                                              ▼           ▼
+                                        redirect       الصفحة المطلوبة
+                                        لصفحته           تُعرض ✅
 ```
 
-### Data Fetching
-
-All API calls use **TanStack Query v5** via generated React Query hooks from `@workspace/api-client-react`. The query client is configured with reasonable stale times and a global error handler.
-
-### State Management
-
-- **Server state**: TanStack Query
-- **Language/locale**: Zustand store in `lib/i18n.tsx`
-- **Auth state**: Clerk React SDK (`useUser`, `useClerk`, `useAuth`)
+**عند تسجيل الخروج:**
+- يتم استدعاء `signOut({ redirectUrl: "/" })` من Clerk
+- يتم مسح جميع bيانات React Query cache
+- يتم إعادة توجيه المستخدم تلقائياً للصفحة الرئيسية مع إعادة تحميل كاملة
 
 ---
 
-## 8. Authentication & Authorization
-
-### Clerk Setup
-
-Fursa uses [Clerk](https://clerk.com) for authentication:
-
-- Social login: Google OAuth
-- Email/password
-- Session management via Clerk's JWT tokens
-- The frontend reads `VITE_CLERK_PUBLISHABLE_KEY`
-- The API server verifies tokens using `CLERK_SECRET_KEY`
-
-### Auth Flow
-
-1. User visits `/sign-in` or `/sign-up` (rendered without Header/Footer in `AuthLayout`)
-2. Clerk handles the auth flow (Google OAuth or email/password)
-3. On success, Clerk creates a session and the user is redirected
-4. If no DB record exists for this Clerk user, they are sent to `/onboarding` to choose their role
-5. After onboarding, a user record is created in PostgreSQL with the chosen role
-
-### Role Guard
-
-`RoleGuard` (`src/components/layout/RoleGuard.tsx`) wraps protected pages. It:
-- Checks if the user is signed in (via `useUser`)
-- Fetches the user's DB record (`/me`)
-- Checks the `role` field matches the required role
-- Redirects to home if not authorized
-
----
-
-## 9. Internationalization (i18n)
-
-### How It Works
-
-The i18n system is a custom, lightweight implementation in `lib/i18n.tsx`:
-
-- A Zustand store holds the current language: `"ar"` (Arabic) or `"en"` (English)
-- `useT()` hook returns a translation function `t(key)` that looks up the current language dictionary
-- Language is persisted to `localStorage` as `"fursa_lang"`
-- The HTML `dir` attribute and `lang` attribute are updated reactively on language change
-
-### Usage
-
-```tsx
-import { useT } from "@/lib/i18n";
-
-function MyComponent() {
-  const t = useT();
-  return <h1>{t("app.name")}</h1>;
-}
-```
-
-### Translation Keys (Selected)
-
-| Key | Arabic | English |
-|---|---|---|
-| `app.name` | فُرصة | Fursa |
-| `app.description` | منصة التوظيف الرقمية في غزة | Gaza's Digital Employment Platform |
-| `nav.home` | الرئيسية | Home |
-| `nav.jobs` | الوظائف | Jobs |
-| `auth.signIn` | تسجيل الدخول | Sign In |
-| `auth.signUp` | إنشاء حساب | Sign Up |
-| `dashboard.seeker.profile` | ملفي الشخصي | My Profile |
-| `dashboard.employer.profile` | ملف الشركة | Company Profile |
-| `footer.about` | عن فُرصة | About Fursa |
-| `footer.privacy` | سياسة الخصوصية | Privacy Policy |
-| `footer.terms` | الشروط والأحكام | Terms of Service |
-
----
-
-## 10. Roles & Permissions
-
-| Action | Guest | Seeker | Employer | Admin |
-|---|---|---|---|---|
-| Browse jobs | ✓ | ✓ | ✓ | ✓ |
-| View job detail | ✓ | ✓ | ✓ | ✓ |
-| Apply to a job | — | ✓ | — | — |
-| Save a job | — | ✓ | — | — |
-| View my applications | — | ✓ | — | — |
-| Post a job | — | — | ✓ | — |
-| Edit/delete own jobs | — | — | ✓ | — |
-| View job applicants | — | — | ✓ | — |
-| Update applicant status | — | — | ✓ | — |
-| Moderate any job | — | — | — | ✓ |
-| Manage all users | — | — | — | ✓ |
-| Delete any content | — | — | — | ✓ |
-
----
-
-## 11. Pages & Routes
-
-### Public Pages
-
-| Path | Component | Description |
-|---|---|---|
-| `/` | `pages/home.tsx` | Hero + job search + featured listings |
-| `/jobs` | `pages/jobs/index.tsx` | Job listing with search + filters |
-| `/jobs/:id` | `pages/jobs/detail.tsx` | Job detail with apply button |
-| `/about` | `pages/about.tsx` | Platform mission, values, CTA |
-| `/privacy` | `pages/privacy.tsx` | Privacy policy (AR + EN) |
-| `/terms` | `pages/terms.tsx` | Terms of service (AR + EN) |
-
-### Auth Pages (No Header/Footer)
-
-| Path | Component | Description |
-|---|---|---|
-| `/sign-in` | `pages/auth/sign-in.tsx` | Clerk sign-in UI (split panel layout) |
-| `/sign-up` | `pages/auth/sign-up.tsx` | Clerk sign-up UI (split panel layout) |
-
-### Protected: Seeker
-
-| Path | Component | Description |
-|---|---|---|
-| `/seeker` | `pages/seeker/dashboard.tsx` | Seeker dashboard |
-| `/seeker/applications` | `pages/seeker/applications.tsx` | My applications list |
-| `/seeker/saved` | `pages/seeker/saved.tsx` | Saved jobs list |
-| `/seeker/profile` | `pages/seeker/profile.tsx` | Edit seeker profile |
-
-### Protected: Employer
-
-| Path | Component | Description |
-|---|---|---|
-| `/employer` | `pages/employer/dashboard.tsx` | Employer dashboard |
-| `/employer/jobs` | `pages/employer/jobs.tsx` | Manage job listings |
-| `/employer/jobs/new` | `pages/employer/job-new.tsx` | Create a new job |
-| `/employer/jobs/:id` | `pages/employer/job-edit.tsx` | Edit a job |
-| `/employer/profile` | `pages/employer/profile.tsx` | Edit company profile |
-
-### Protected: Admin
-
-| Path | Component | Description |
-|---|---|---|
-| `/admin` | `pages/admin/dashboard.tsx` | Admin dashboard |
-| `/admin/jobs` | `pages/admin/jobs.tsx` | Moderate all jobs |
-| `/admin/users` | `pages/admin/users.tsx` | Manage all users |
-| `/admin/profile` | `pages/admin/profile.tsx` | Edit admin profile |
-
----
-
-## 12. Components
-
-### Layout
-
-| Component | Path | Description |
-|---|---|---|
-| `AppLayout` | `components/layout/AppLayout.tsx` | Wrapper with Header + Footer |
-| `Header` | `components/layout/Header.tsx` | Nav, role-aware dropdown, language toggle, mobile sheet |
-| `Footer` | `components/layout/Footer.tsx` | 3-column: brand, platform links, legal links |
-| `RoleGuard` | `components/layout/RoleGuard.tsx` | Role-based route protection |
-| `NotificationBell` | `components/layout/NotificationBell.tsx` | Notification icon in header |
-
-### UI (shadcn/ui)
-
-All shadcn components live in `src/components/ui/`. Standard components used throughout: `Button`, `Card`, `Badge`, `Input`, `Textarea`, `Select`, `Dialog`, `Sheet`, `Avatar`, `DropdownMenu`, `Tooltip`, `Sonner` (toasts), `Skeleton`.
-
----
-
-## 13. Running Locally
-
-### Prerequisites
-
-- Node.js 20+
-- pnpm 9+
-- A Supabase project (or any PostgreSQL)
-- A Clerk application
-
-### Steps
-
-```bash
-# 1. Install dependencies
-pnpm install
-
-# 2. Set environment variables (see Section 4)
-# Create artifacts/fursa/.env and artifacts/api-server/.env
-
-# 3. Push database schema
-cd artifacts/api-server
-pnpm run db:push
-
-# 4. Start the API server (port 3001)
-pnpm --filter @workspace/api-server run dev
-
-# 5. Start the frontend (port 3000)
-pnpm --filter @workspace/fursa run dev
-
-# 6. (Optional) Start the slides deck
-pnpm --filter @workspace/fursa-slides run dev
-```
-
-### On Replit
-
-Start both workflows from the Replit UI:
-- `artifacts/fursa: web` — starts the frontend
-- `artifacts/api-server: API Server` — starts the backend
-
----
-
-## 14. Deployment
-
-The app is deployed via Replit's deployment system. Each artifact maps to a unique path:
-
-| Artifact | Preview Path |
-|---|---|
-| Fursa frontend | `/` |
-| API Server | Internal (not public-facing) |
-| Fursa Slides | `/fursa-slides/` |
-
-### Important Production Notes
-
-- `VITE_CLERK_PROXY_URL` must be set in production to route Clerk requests through the Replit domain
-- `DATABASE_URL` should point to the production Supabase instance
-- All secrets must be set as Replit Secrets (not `.env` files)
-- API server uses `PORT=8080` in Replit production
-
----
-
-## 15. Slide Deck
-
-A professional 8-slide presentation deck is available at `/fursa-slides/`.
-
-### Slides
-
-| # | Title | Layout |
-|---|---|---|
-| 1 | فُرصة · Fursa | Title — hero image, deep blue, gold accents |
-| 2 | The Challenge | Three problem cards on white |
-| 3 | The Platform | Three role columns on deep blue |
-| 4 | How It Works | Four numbered steps on white |
-| 5 | Key Features | Two-column feature list on dark |
-| 6 | Technology Stack | Split panel — blue left + tech tiles right |
-| 7 | Impact | Quote slide on deep blue |
-| 8 | Closing | Brand lockup with network hero image |
-
-### Aesthetic Direction
-
-- **Palette**: Deep blue (#1E3A8A) primary, amber/gold (#F59E0B) accent, near-white (#F8FAFC) background
-- **Typography**: Playfair Display (display/headlines) + Plus Jakarta Sans (body)
-- **Direction**: Bold Editorial meets Warm Storytelling — authoritative but human
-
-### Exporting
-
-To export as PPTX or PDF, use the export controls in the Replit slides preview pane.
-
----
-
-## 16. Known Limitations & Future Work
-
-### Current Limitations
-
-- No email notification system (application status changes are not emailed)
-- No CV/file upload (seekers describe experience in bio text)
-- No real-time features (no websockets — applications list requires manual refresh)
-- No payment/premium tier
-- Admin approval workflow for new job listings is not yet implemented end-to-end
-
-### Suggested Future Features
-
-- Email notifications for application status changes (using Resend or similar)
-- CV/resume file upload (using Supabase Storage)
-- Real-time notifications via Server-Sent Events or WebSockets
-- Job categories and advanced filtering (by category, salary range)
-- Employer verification system
-- Analytics dashboard for admins (applications over time, top jobs)
-- Mobile app (Expo/React Native)
-
----
-
-*Documentation last updated: May 2026*
-*Platform: Fursa (فُرصة) — Gaza's Digital Employment Platform*
+*آخر تحديث: مايو 2026*

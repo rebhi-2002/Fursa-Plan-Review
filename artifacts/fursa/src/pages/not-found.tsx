@@ -1,11 +1,24 @@
-import { Link } from "wouter";
+import { useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
 import { useT } from "@/lib/i18n";
+import { useGetCurrentUser } from "@workspace/api-client-react";
+import { useUser } from "@clerk/react";
 
 export default function NotFound() {
   const t = useT();
+  const { user: clerkUser, isLoaded } = useUser();
+  const { data: dbUser } = useGetCurrentUser();
+  const [, setLocation] = useLocation();
+
+  const homeHref = (() => {
+    if (!isLoaded || !clerkUser) return "/";
+    if (!dbUser) return "/";
+    if (!dbUser.onboarded) return "/onboarding";
+    return `/${dbUser.role}`;
+  })();
 
   return (
     <div className="min-h-[80vh] w-full flex items-center justify-center bg-background px-4">
@@ -22,7 +35,7 @@ export default function NotFound() {
           </h2>
           <p className="text-muted-foreground mb-6">{t("notFound.desc")}</p>
           <Button asChild size="lg" className="w-full">
-            <Link href="/">{t("notFound.home")}</Link>
+            <Link href={homeHref}>{t("notFound.home")}</Link>
           </Button>
         </CardContent>
       </Card>

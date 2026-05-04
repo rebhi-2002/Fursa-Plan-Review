@@ -36,7 +36,7 @@ export default function AdminDashboard() {
     try {
       const token = await getToken();
       const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-      const res = await fetch(`${basePath}/api/admin/export/${type}`, {
+      const res = await fetch(`${basePath}/api/admin/export/csv?type=${type}`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) throw new Error("Export failed");

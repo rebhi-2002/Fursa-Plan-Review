@@ -38,32 +38,36 @@ router.get(
   loadCurrentUser,
   requireRole("admin"),
   async (req: Request, res: Response) => {
-    const status = req.query["status"] as string | undefined;
-    const conditions =
-      status === "pending" || status === "approved" || status === "rejected"
-        ? [eq(jobsTable.status, status)]
-        : [];
-    const rows = await db
-      .select({
-        id: jobsTable.id,
-        title: jobsTable.title,
-        description: jobsTable.description,
-        requirements: jobsTable.requirements,
-        type: jobsTable.type,
-        category: jobsTable.category,
-        contactInfo: jobsTable.contactInfo,
-        status: jobsTable.status,
-        rejectionReason: jobsTable.rejectionReason,
-        employerId: usersTable.id,
-        employerName: usersTable.name,
-        employerEmail: usersTable.email,
-        createdAt: jobsTable.createdAt,
-      })
-      .from(jobsTable)
-      .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(jobsTable.createdAt));
-    res.json(rows.map(serializeAdminJob));
+    try {
+      const status = req.query["status"] as string | undefined;
+      const conditions =
+        status === "pending" || status === "approved" || status === "rejected"
+          ? [eq(jobsTable.status, status)]
+          : [];
+      const rows = await db
+        .select({
+          id: jobsTable.id,
+          title: jobsTable.title,
+          description: jobsTable.description,
+          requirements: jobsTable.requirements,
+          type: jobsTable.type,
+          category: jobsTable.category,
+          contactInfo: jobsTable.contactInfo,
+          status: jobsTable.status,
+          rejectionReason: jobsTable.rejectionReason,
+          employerId: usersTable.id,
+          employerName: usersTable.name,
+          employerEmail: usersTable.email,
+          createdAt: jobsTable.createdAt,
+        })
+        .from(jobsTable)
+        .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
+        .where(conditions.length ? and(...conditions) : undefined)
+        .orderBy(desc(jobsTable.createdAt));
+      res.json(rows.map(serializeAdminJob));
+    } catch (err) {
+      res.status(500).json({ error: "Failed to load jobs" });
+    }
   },
 );
 
@@ -168,30 +172,32 @@ router.get(
   loadCurrentUser,
   requireRole("admin"),
   async (req: Request, res: Response) => {
-    const role = req.query["role"] as string | undefined;
-    const conditions =
-      role === "seeker" || role === "employer" || role === "admin"
-        ? [eq(usersTable.role, role)]
-        : [];
-
-    const rows = await db
-      .select({
-        id: usersTable.id,
-        name: usersTable.name,
-        email: usersTable.email,
-        role: usersTable.role,
-        phone: usersTable.phone,
-        location: usersTable.location,
-        isActive: usersTable.isActive,
-        jobsCount: sql<number>`(select count(*)::int from "jobs" where "jobs"."employer_id" = "users"."id")`,
-        applicationsCount: sql<number>`(select count(*)::int from "applications" where "applications"."applicant_id" = "users"."id")`,
-        createdAt: usersTable.createdAt,
-      })
-      .from(usersTable)
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(usersTable.createdAt));
-
-    res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+    try {
+      const role = req.query["role"] as string | undefined;
+      const conditions =
+        role === "seeker" || role === "employer" || role === "admin"
+          ? [eq(usersTable.role, role)]
+          : [];
+      const rows = await db
+        .select({
+          id: usersTable.id,
+          name: usersTable.name,
+          email: usersTable.email,
+          role: usersTable.role,
+          phone: usersTable.phone,
+          location: usersTable.location,
+          isActive: usersTable.isActive,
+          jobsCount: sql<number>`(select count(*)::int from "jobs" where "jobs"."employer_id" = "users"."id")`,
+          applicationsCount: sql<number>`(select count(*)::int from "applications" where "applications"."applicant_id" = "users"."id")`,
+          createdAt: usersTable.createdAt,
+        })
+        .from(usersTable)
+        .where(conditions.length ? and(...conditions) : undefined)
+        .orderBy(desc(usersTable.createdAt));
+      res.json(rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })));
+    } catch (err) {
+      res.status(500).json({ error: "Failed to load users" });
+    }
   },
 );
 
@@ -250,6 +256,7 @@ router.get(
   loadCurrentUser,
   requireRole("admin"),
   async (req: Request, res: Response) => {
+    try {
     const type = (req.query["type"] as string) || "users";
 
     if (type === "jobs") {
@@ -329,6 +336,9 @@ router.get(
     res.setHeader("Content-Type", "text/csv");
     res.setHeader("Content-Disposition", "attachment; filename=users.csv");
     res.send(csv);
+    } catch (err) {
+      res.status(500).json({ error: "Export failed" });
+    }
   },
 );
 
@@ -338,6 +348,7 @@ router.get(
   loadCurrentUser,
   requireRole("admin"),
   async (_req: Request, res: Response) => {
+    try {
     const [users, jobs, totalApps, recentPending] = await Promise.all([
       db
         .select({ role: usersTable.role, c: sql<number>`count(*)::int` })
@@ -371,18 +382,13 @@ router.get(
         .limit(8),
     ]);
 
-    let totalUsers = 0,
-      seekers = 0,
-      employers = 0;
+    let totalUsers = 0, seekers = 0, employers = 0;
     for (const r of users) {
       totalUsers += r.c;
       if (r.role === "seeker") seekers = r.c;
       else if (r.role === "employer") employers = r.c;
     }
-    let totalJobs = 0,
-      pending = 0,
-      approved = 0,
-      rejected = 0;
+    let totalJobs = 0, pending = 0, approved = 0, rejected = 0;
     for (const r of jobs) {
       totalJobs += r.c;
       if (r.status === "pending") pending = r.c;
@@ -401,6 +407,9 @@ router.get(
       totalApplications: totalApps[0]?.c ?? 0,
       recentPendingJobs: recentPending.map(serializeAdminJob),
     });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to load dashboard data" });
+    }
   },
 );
 

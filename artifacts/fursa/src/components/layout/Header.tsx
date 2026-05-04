@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useClerk, useUser } from "@clerk/react";
 import { useLanguageStore, useT } from "@/lib/i18n";
 import { useThemeStore } from "@/lib/theme";
@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const t = useT();
@@ -53,12 +54,35 @@ export function Header() {
   const { signOut } = useClerk();
   const { data: dbUser } = useGetCurrentUser();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [location] = useLocation();
 
-  const toggleLang = () => {
-    setLang(lang === "ar" ? "en" : "ar");
+  const toggleLang = () => setLang(lang === "ar" ? "en" : "ar");
+  const closeMobile = () => setMobileOpen(false);
+
+  const isActive = (href: string) => {
+    if (href === "/") return location === "/";
+    return location === href || location.startsWith(href + "/");
   };
 
-  const closeMobile = () => setMobileOpen(false);
+  const navLinkClass = (href: string) =>
+    cn(
+      "text-sm font-medium transition-colors",
+      isActive(href)
+        ? "text-foreground font-semibold underline underline-offset-4 decoration-primary"
+        : "text-muted-foreground hover:text-foreground",
+    );
+
+  const mobileLinkClass = (href: string) =>
+    cn(
+      "flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium transition-colors",
+      isActive(href)
+        ? "bg-primary/10 text-primary font-semibold border border-primary/20"
+        : "hover:bg-accent",
+    );
+
+  const handleSignOut = () => {
+    signOut({ redirectUrl: "/" });
+  };
 
   const renderRoleLinks = (onClick?: () => void) => {
     if (!dbUser?.role || !dbUser.onboarded) return null;
@@ -68,64 +92,31 @@ export function Header() {
     ];
     if (role === "seeker") {
       links.push(
-        {
-          href: "/seeker/applications",
-          label: t("dashboard.seeker.applications"),
-          icon: FileText,
-        },
-        {
-          href: "/seeker/saved",
-          label: t("dashboard.seeker.saved"),
-          icon: Bookmark,
-        },
-        {
-          href: "/seeker/profile",
-          label: t("dashboard.seeker.profile"),
-          icon: UserIcon,
-        },
+        { href: "/seeker/applications", label: t("dashboard.seeker.applications"), icon: FileText },
+        { href: "/seeker/saved", label: t("dashboard.seeker.saved"), icon: Bookmark },
+        { href: "/seeker/profile", label: t("dashboard.seeker.profile"), icon: UserIcon },
       );
     } else if (role === "employer") {
       links.push(
-        {
-          href: "/employer/jobs",
-          label: t("dashboard.employer.jobs"),
-          icon: Briefcase,
-        },
-        {
-          href: "/employer/jobs/new",
-          label: t("dashboard.employer.newJob"),
-          icon: Plus,
-        },
-        {
-          href: "/employer/profile",
-          label: t("dashboard.employer.profile"),
-          icon: Building2,
-        },
+        { href: "/employer/jobs", label: t("dashboard.employer.jobs"), icon: Briefcase },
+        { href: "/employer/jobs/new", label: t("dashboard.employer.newJob"), icon: Plus },
+        { href: "/employer/profile", label: t("dashboard.employer.profile"), icon: Building2 },
       );
     } else if (role === "admin") {
       links.push(
-        {
-          href: "/admin/jobs",
-          label: t("dashboard.admin.jobs"),
-          icon: Briefcase,
-        },
-        {
-          href: "/admin/users",
-          label: t("dashboard.admin.users"),
-          icon: Users,
-        },
-        {
-          href: "/admin/profile",
-          label: t("dashboard.admin.profile"),
-          icon: UserIcon,
-        },
+        { href: "/admin/jobs", label: t("dashboard.admin.jobs"), icon: Briefcase },
+        { href: "/admin/users", label: t("dashboard.admin.users"), icon: Users },
+        { href: "/admin/profile", label: t("dashboard.admin.profile"), icon: UserIcon },
       );
     }
     return links.map((l) => (
       <DropdownMenuItem key={l.href} asChild>
         <Link
           href={l.href}
-          className="w-full flex items-center cursor-pointer"
+          className={cn(
+            "w-full flex items-center cursor-pointer",
+            isActive(l.href) && "bg-accent font-semibold",
+          )}
           onClick={onClick}
         >
           <l.icon className="mr-2 ms-2 h-4 w-4" />
@@ -137,18 +128,10 @@ export function Header() {
 
   const mobileNavLinks = (
     <nav className="flex flex-col gap-1 mt-4">
-      <Link
-        href="/"
-        onClick={closeMobile}
-        className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium hover:bg-accent"
-      >
+      <Link href="/" onClick={closeMobile} className={mobileLinkClass("/")}>
         <Home className="h-5 w-5" /> {t("nav.home")}
       </Link>
-      <Link
-        href="/jobs"
-        onClick={closeMobile}
-        className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium hover:bg-accent"
-      >
+      <Link href="/jobs" onClick={closeMobile} className={mobileLinkClass("/jobs")}>
         <Briefcase className="h-5 w-5" /> {t("nav.jobs")}
       </Link>
 
@@ -159,7 +142,12 @@ export function Header() {
             <Link
               href="/admin"
               onClick={closeMobile}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20"
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-base font-semibold border transition-colors",
+                isActive("/admin")
+                  ? "text-amber-700 dark:text-amber-300 bg-amber-500/20 border-amber-500/40"
+                  : "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20 hover:bg-amber-500/20",
+              )}
             >
               <ShieldCheck className="h-5 w-5" /> {t("nav.adminPanel")}
             </Link>
@@ -167,85 +155,45 @@ export function Header() {
           <Link
             href={`/${dbUser.role}`}
             onClick={closeMobile}
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium hover:bg-accent"
+            className={mobileLinkClass(`/${dbUser.role}`)}
           >
             <LayoutDashboard className="h-5 w-5" /> {t("nav.dashboard")}
           </Link>
           {dbUser.role === "seeker" && (
             <>
-              <Link
-                href="/seeker/applications"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
-                <FileText className="h-5 w-5" />{" "}
-                {t("dashboard.seeker.applications")}
+              <Link href="/seeker/applications" onClick={closeMobile} className={mobileLinkClass("/seeker/applications")}>
+                <FileText className="h-5 w-5" /> {t("dashboard.seeker.applications")}
               </Link>
-              <Link
-                href="/seeker/saved"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
+              <Link href="/seeker/saved" onClick={closeMobile} className={mobileLinkClass("/seeker/saved")}>
                 <Bookmark className="h-5 w-5" /> {t("dashboard.seeker.saved")}
               </Link>
-              <Link
-                href="/seeker/profile"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
-                <UserIcon className="h-5 w-5" />{" "}
-                {t("dashboard.seeker.profile")}
+              <Link href="/seeker/profile" onClick={closeMobile} className={mobileLinkClass("/seeker/profile")}>
+                <UserIcon className="h-5 w-5" /> {t("dashboard.seeker.profile")}
               </Link>
             </>
           )}
           {dbUser.role === "employer" && (
             <>
-              <Link
-                href="/employer/jobs"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
-                <Briefcase className="h-5 w-5" />{" "}
-                {t("dashboard.employer.jobs")}
+              <Link href="/employer/jobs" onClick={closeMobile} className={mobileLinkClass("/employer/jobs")}>
+                <Briefcase className="h-5 w-5" /> {t("dashboard.employer.jobs")}
               </Link>
-              <Link
-                href="/employer/jobs/new"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
+              <Link href="/employer/jobs/new" onClick={closeMobile} className={mobileLinkClass("/employer/jobs/new")}>
                 <Plus className="h-5 w-5" /> {t("dashboard.employer.newJob")}
               </Link>
-              <Link
-                href="/employer/profile"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
+              <Link href="/employer/profile" onClick={closeMobile} className={mobileLinkClass("/employer/profile")}>
                 <Building2 className="h-5 w-5" /> {t("dashboard.employer.profile")}
               </Link>
             </>
           )}
           {dbUser.role === "admin" && (
             <>
-              <Link
-                href="/admin/jobs"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
-                <ShieldCheck className="h-5 w-5" />{" "}
-                {t("dashboard.admin.jobs")}
+              <Link href="/admin/jobs" onClick={closeMobile} className={mobileLinkClass("/admin/jobs")}>
+                <ShieldCheck className="h-5 w-5" /> {t("dashboard.admin.jobs")}
               </Link>
-              <Link
-                href="/admin/users"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
+              <Link href="/admin/users" onClick={closeMobile} className={mobileLinkClass("/admin/users")}>
                 <Users className="h-5 w-5" /> {t("dashboard.admin.users")}
               </Link>
-              <Link
-                href="/admin/profile"
-                onClick={closeMobile}
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-base hover:bg-accent"
-              >
+              <Link href="/admin/profile" onClick={closeMobile} className={mobileLinkClass("/admin/profile")}>
                 <UserIcon className="h-5 w-5" /> {t("dashboard.admin.profile")}
               </Link>
             </>
@@ -254,11 +202,7 @@ export function Header() {
       )}
 
       {clerkUser && (
-        <Link
-          href="/notifications"
-          onClick={closeMobile}
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium hover:bg-accent"
-        >
+        <Link href="/notifications" onClick={closeMobile} className={mobileLinkClass("/notifications")}>
           <Bell className="h-5 w-5" /> {t("nav.notifications")}
         </Link>
       )}
@@ -266,27 +210,17 @@ export function Header() {
       <div className="my-2 h-px bg-border" />
 
       <button
-        onClick={() => {
-          toggleLang();
-          closeMobile();
-        }}
+        onClick={() => { toggleLang(); closeMobile(); }}
         className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium hover:bg-accent text-start"
       >
         <Globe className="h-5 w-5" /> {t("nav.langSwitchTo")}
       </button>
 
       <button
-        onClick={() => {
-          toggleTheme();
-          closeMobile();
-        }}
+        onClick={() => { toggleTheme(); closeMobile(); }}
         className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium hover:bg-accent text-start"
       >
-        {theme === "dark" ? (
-          <Sun className="h-5 w-5" />
-        ) : (
-          <Moon className="h-5 w-5" />
-        )}
+        {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         {theme === "dark" ? t("theme.light") : t("theme.dark")}
       </button>
 
@@ -309,10 +243,7 @@ export function Header() {
         </>
       ) : (
         <button
-          onClick={() => {
-            signOut();
-            closeMobile();
-          }}
+          onClick={() => { handleSignOut(); closeMobile(); }}
           className="flex items-center gap-3 rounded-lg px-3 py-2 text-base font-medium text-destructive hover:bg-destructive/10 text-start mt-1"
         >
           <LogOut className="h-5 w-5" /> {t("nav.signOut")}
@@ -329,23 +260,11 @@ export function Header() {
             <div className="bg-primary text-primary-foreground p-1.5 rounded-md">
               <Briefcase className="h-5 w-5" />
             </div>
-            <span className="font-bold text-xl text-foreground">
-              {t("app.name")}
-            </span>
+            <span className="font-bold text-xl text-foreground">{t("app.name")}</span>
           </Link>
           <nav className="hidden md:flex gap-6">
-            <Link
-              href="/"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t("nav.home")}
-            </Link>
-            <Link
-              href="/jobs"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {t("nav.jobs")}
-            </Link>
+            <Link href="/" className={navLinkClass("/")}>{t("nav.home")}</Link>
+            <Link href="/jobs" className={navLinkClass("/jobs")}>{t("nav.jobs")}</Link>
           </nav>
         </div>
 
@@ -358,9 +277,7 @@ export function Header() {
             aria-label={t("nav.toggleLang")}
           >
             <Globe className="h-4 w-4" />
-            <span className="text-sm font-medium">
-              {t("nav.langSwitchTo")}
-            </span>
+            <span className="text-sm font-medium">{t("nav.langSwitchTo")}</span>
           </Button>
 
           <Button
@@ -370,11 +287,7 @@ export function Header() {
             className="hidden md:inline-flex text-muted-foreground hover:text-foreground"
             aria-label={t("theme.toggle")}
           >
-            {theme === "dark" ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
 
           {clerkUser && (
@@ -386,7 +299,12 @@ export function Header() {
           {dbUser?.role === "admin" && dbUser.onboarded && (
             <Link
               href="/admin"
-              className="hidden md:inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition-colors"
+              className={cn(
+                "hidden md:inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold border transition-colors",
+                isActive("/admin")
+                  ? "bg-amber-500/25 text-amber-700 dark:text-amber-300 border-amber-500/40"
+                  : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/25",
+              )}
             >
               <ShieldCheck className="h-3.5 w-3.5" />
               {t("nav.adminPanel") || "Admin Panel"}
@@ -396,46 +314,35 @@ export function Header() {
           {clerkUser ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="relative h-9 w-9 rounded-full hidden md:inline-flex"
-                >
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full hidden md:inline-flex">
                   <Avatar className="h-9 w-9 border border-border">
-                    <AvatarImage
-                      src={clerkUser.imageUrl}
-                      alt={clerkUser.fullName || ""}
-                    />
-                    <AvatarFallback>
-                      {clerkUser.firstName?.[0] || "U"}
-                    </AvatarFallback>
+                    <AvatarImage src={clerkUser.imageUrl} alt={clerkUser.fullName || ""} />
+                    <AvatarFallback>{clerkUser.firstName?.[0] || "U"}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-56"
-              >
+              <DropdownMenuContent align="end" className="w-56">
                 <div dir={lang === "ar" ? "rtl" : "ltr"}>
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      {dbUser?.name || clerkUser.fullName}
-                    </p>
-                    <p className="text-xs leading-none text-muted-foreground">
-                      {clerkUser.primaryEmailAddress?.emailAddress}
-                    </p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {renderRoleLinks()}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => signOut()}
-                  className="text-destructive cursor-pointer focus:text-destructive"
-                >
-                  <LogOut className="mr-2 ms-2 h-4 w-4" />
-                  <span>{t("nav.signOut")}</span>
-                </DropdownMenuItem>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        {dbUser?.name || clerkUser.fullName}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {clerkUser.primaryEmailAddress?.emailAddress}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {renderRoleLinks()}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleSignOut}
+                    className="text-destructive cursor-pointer focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 ms-2 h-4 w-4" />
+                    <span>{t("nav.signOut")}</span>
+                  </DropdownMenuItem>
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -452,19 +359,11 @@ export function Header() {
 
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                aria-label={t("nav.menu")}
-              >
+              <Button variant="ghost" size="icon" className="md:hidden" aria-label={t("nav.menu")}>
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent
-              side={lang === "ar" ? "right" : "left"}
-              className="w-72"
-            >
+            <SheetContent side={lang === "ar" ? "right" : "left"} className="w-72">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2">
                   <div className="bg-primary text-primary-foreground p-1.5 rounded-md">

@@ -84,6 +84,10 @@ const clerkAppearance = {
     cardBox: "bg-background rounded-2xl w-[440px] max-w-full overflow-hidden shadow-md border border-border/50",
     card: "!shadow-none !border-0 !bg-transparent !rounded-none",
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none bg-muted/20",
+    formFieldInput: "border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus-visible:outline-none h-10 px-3 text-sm w-full transition-colors",
+    formFieldLabel: "text-sm font-medium text-foreground mb-1.5",
+    formFieldRow: "mb-4",
+    formButtonPrimary: "bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-md h-10 w-full transition-colors",
   },
 };
 
