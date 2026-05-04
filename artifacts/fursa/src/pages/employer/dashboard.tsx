@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useGetEmployerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
+import { ProfileCompletion } from "@/components/ui/ProfileCompletion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -95,6 +96,17 @@ export default function EmployerDashboard() {
           </Link>
         </Button>
       </div>
+
+      <ProfileCompletion
+        role="employer"
+        name={currentUser?.name}
+        phone={currentUser?.phone}
+        location={currentUser?.location}
+        bio={currentUser?.bio}
+        website={currentUser?.website}
+        profilePath="/employer/profile"
+        className="mb-6"
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {statCards.map((stat, i) => (

@@ -1,4 +1,4 @@
-import { Router, type IRouter, type Request, type Response } from "express";
+import { Router, type IRouter, type Request, type Response, type NextFunction } from "express";
 import {
   db,
   jobsTable,
@@ -98,6 +98,13 @@ async function getAdminJob(id: number) {
 
 router.get(
   "/admin/dashboard/stream",
+  (req: Request, _res: Response, next: NextFunction) => {
+    const token = req.query["token"] as string | undefined;
+    if (token && !req.headers["authorization"]) {
+      req.headers["authorization"] = `Bearer ${token}`;
+    }
+    next();
+  },
   requireAuth,
   loadCurrentUser,
   requireRole("admin"),

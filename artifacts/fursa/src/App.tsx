@@ -238,12 +238,22 @@ function Router() {
               <RoleGuard role="employer"><EmployerProfile /></RoleGuard>
             </Route>
 
-            {/* Messages Routes */}
+            {/* Messages Routes — signed-in only */}
             <Route path="/messages">
-              <MessagesPage />
+              <Show when="signed-in">
+                <MessagesPage />
+              </Show>
+              <Show when="signed-out">
+                <Redirect to="/sign-in" />
+              </Show>
             </Route>
             <Route path="/messages/:userId">
-              <MessageThread />
+              <Show when="signed-in">
+                <MessageThread />
+              </Show>
+              <Show when="signed-out">
+                <Redirect to="/sign-in" />
+              </Show>
             </Route>
 
             {/* Public Seeker Profile */}

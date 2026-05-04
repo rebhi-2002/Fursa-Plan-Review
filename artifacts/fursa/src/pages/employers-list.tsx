@@ -43,13 +43,13 @@ export default function EmployersListPage() {
   });
 
   return (
-    <div className="container py-8 max-w-5xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight mb-2">{t("employers.title")}</h1>
-        <p className="text-muted-foreground">{t("employers.subtitle")}</p>
+    <div className="container py-6 sm:py-8 px-4 sm:px-6 max-w-5xl">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">{t("employers.title")}</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">{t("employers.subtitle")}</p>
       </div>
 
-      <div className="mb-6 relative">
+      <div className="mb-5 relative">
         <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
           value={search}

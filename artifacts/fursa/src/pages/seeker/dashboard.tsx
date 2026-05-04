@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useGetSeekerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
+import { ProfileCompletion } from "@/components/ui/ProfileCompletion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -123,6 +124,17 @@ export default function SeekerDashboard() {
           </Link>
         </Button>
       </div>
+
+      <ProfileCompletion
+        role="seeker"
+        name={currentUser?.name}
+        phone={currentUser?.phone}
+        location={currentUser?.location}
+        bio={currentUser?.bio}
+        cvObjectPath={currentUser?.cvObjectPath}
+        profilePath="/seeker/profile"
+        className="mb-6"
+      />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {statCards.map((stat, i) => (

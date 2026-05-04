@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link } from "wouter";
 import { useGetAdminDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { useAuth } from "@clerk/react";
@@ -16,22 +16,57 @@ import {
   CheckCircle2,
   Download,
   Loader2,
+  Zap,
+  Send,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { getGetAdminDashboardQueryKey } from "@workspace/api-client-react";
+import { useAdminDashboardStream } from "@/hooks/useAdminDashboardStream";
+
+type LiveEvent = {
+  id: number;
+  type: string;
+  label: string;
+  receivedAt: number;
+};
 
 export default function AdminDashboard() {
   const t = useT();
   const { lang } = useLanguageStore();
   const locale = lang === "ar" ? ar : enUS;
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
   const [exporting, setExporting] = useState<"users" | "jobs" | null>(null);
+  const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
+  const [liveCounter, setLiveCounter] = useState(0);
 
   const { data: dashboard, isLoading } = useGetAdminDashboard();
   const { data: currentUser } = useGetCurrentUser();
   const firstName = currentUser?.name?.split(" ")[0] || "";
+
+  const handleStreamEvent = useCallback((e: any) => {
+    queryClient.invalidateQueries({ queryKey: getGetAdminDashboardQueryKey() });
+    const label =
+      e.type === "job_posted"
+        ? (lang === "ar" ? `وظيفة جديدة: ${e.data.title}` : `New job: ${e.data.title}`)
+        : e.type === "application_submitted"
+        ? (lang === "ar" ? `طلب جديد: ${e.data.jobTitle}` : `New application: ${e.data.jobTitle}`)
+        : e.type === "job_approved"
+        ? (lang === "ar" ? `وظيفة مقبولة: ${e.data.title}` : `Job approved: ${e.data.title}`)
+        : (lang === "ar" ? `وظيفة مرفوضة: ${e.data.title}` : `Job rejected: ${e.data.title}`);
+
+    setLiveCounter((c) => c + 1);
+    setLiveEvents((prev) => [
+      { id: Date.now(), type: e.type, label, receivedAt: e.receivedAt },
+      ...prev.slice(0, 4),
+    ]);
+  }, [queryClient, lang]);
+
+  useAdminDashboardStream(handleStreamEvent);
 
   const handleExport = async (type: "users" | "jobs") => {
     setExporting(type);
@@ -105,19 +140,61 @@ export default function AdminDashboard() {
 
   return (
     <div className="container py-8 max-w-6xl">
-      <div className="flex items-center gap-3 mb-8">
-        <ShieldCheck className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {firstName
-              ? (lang === "ar" ? `مرحباً، ${firstName}!` : `Welcome, ${firstName}!`)
-              : t("admin.dashboard.title")}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {t("admin.dashboard.subtitle")}
-          </p>
+      <div className="flex items-center justify-between gap-3 mb-8 flex-wrap">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="h-8 w-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">
+              {firstName
+                ? (lang === "ar" ? `مرحباً، ${firstName}!` : `Welcome, ${firstName}!`)
+                : t("admin.dashboard.title")}
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              {t("admin.dashboard.subtitle")}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-full px-3 py-1.5">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+          </span>
+          <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+            {lang === "ar" ? "مباشر" : "Live"}
+          </span>
+          {liveCounter > 0 && (
+            <Badge className="bg-emerald-500 text-white text-[10px] h-4 px-1.5 min-w-0">
+              +{liveCounter}
+            </Badge>
+          )}
         </div>
       </div>
+
+      {liveEvents.length > 0 && (
+        <div className="mb-6 space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            {lang === "ar" ? "النشاط الأخير" : "Recent activity"}
+          </p>
+          {liveEvents.map((ev) => (
+            <div
+              key={ev.id}
+              className="flex items-center gap-2 text-sm bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 rounded-lg px-3 py-2 animate-in slide-in-from-top-2 duration-300"
+            >
+              {ev.type === "job_posted" ? (
+                <Briefcase className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              ) : ev.type === "application_submitted" ? (
+                <Send className="h-3.5 w-3.5 text-blue-600 shrink-0" />
+              ) : (
+                <Zap className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+              )}
+              <span className="flex-1 text-foreground">{ev.label}</span>
+              <span className="text-xs text-muted-foreground shrink-0">
+                {formatDistanceToNow(new Date(ev.receivedAt), { addSuffix: true, locale })}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {statCards.map((stat, i) => (
