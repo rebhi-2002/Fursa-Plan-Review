@@ -760,6 +760,9 @@ const ar: TranslationDictionary = {
   // Word / char counter
   "common.chars": "حرف",
   "common.words": "كلمة",
+
+  // Employer applications — message button
+  "employer.applications.message": "بدء محادثة",
 };
 
 const en: TranslationDictionary = {
@@ -1457,6 +1460,7 @@ const en: TranslationDictionary = {
 
   // CV preview
   "employer.applications.previewCv": "Preview CV",
+  "employer.applications.message": "Message Applicant",
 
   // Admin users search
   "admin.users.searchPlaceholder": "Search by name, email...",

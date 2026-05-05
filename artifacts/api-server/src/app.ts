@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
+import helmet from "helmet";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
 import rateLimit from "express-rate-limit";
@@ -7,6 +8,7 @@ import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
 } from "./middlewares/clerkProxyMiddleware";
+import { sanitizeBody } from "./middlewares/sanitize";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -40,9 +42,16 @@ if (isProduction) {
   app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 }
 
+app.use(
+  helmet({
+    crossOriginEmbedderPolicy: false,
+    contentSecurityPolicy: false,
+  }),
+);
 app.use(cors({ credentials: true, origin: true }));
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use(sanitizeBody);
 
 app.use(
   clerkMiddleware({

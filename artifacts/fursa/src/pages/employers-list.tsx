@@ -72,42 +72,47 @@ export default function EmployersListPage() {
             <Card key={employer.id} className="border-border/50 hover:shadow-md transition-all">
               <CardContent className="p-5 flex flex-col gap-3">
                 <div className="flex items-start gap-3">
-                  <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
-                    <Building2 className="h-6 w-6 text-indigo-600" />
+                  <div className="h-11 w-11 rounded-xl bg-indigo-100 flex items-center justify-center shrink-0">
+                    <Building2 className="h-5 w-5 text-indigo-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h2 className="font-bold text-lg leading-tight truncate">{employer.name}</h2>
+                    <div className="flex items-start justify-between gap-2 flex-wrap">
+                      <h2 className="font-bold text-base leading-tight">{employer.name}</h2>
+                      <Badge variant="secondary" className="shrink-0 bg-indigo-50 text-indigo-700 border-indigo-200 text-xs">
+                        <Briefcase className="h-3 w-3 me-1" />
+                        {t("employers.jobs", { count: employer.activeJobsCount })}
+                      </Badge>
+                    </div>
                     {employer.location && (
-                      <p className="text-sm text-muted-foreground flex items-center gap-1 mt-0.5">
-                        <MapPin className="h-3.5 w-3.5 shrink-0" />{employer.location}
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <MapPin className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{employer.location}</span>
                       </p>
                     )}
                   </div>
-                  <Badge variant="secondary" className="shrink-0 bg-indigo-50 text-indigo-700 border-indigo-200">
-                    <Briefcase className="h-3 w-3 me-1" />
-                    {t("employers.jobs", { count: employer.activeJobsCount })}
-                  </Badge>
                 </div>
 
                 {employer.bio && (
                   <p className="text-sm text-muted-foreground line-clamp-2">{employer.bio}</p>
                 )}
 
-                <div className="flex items-center justify-between pt-1">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                   {employer.website ? (
                     <a
                       href={employer.website}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-primary hover:underline flex items-center gap-1"
+                      className="text-xs text-primary hover:underline flex items-center gap-1 min-w-0 max-w-[160px]"
                     >
-                      <Globe className="h-3.5 w-3.5" />
-                      {employer.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      <Globe className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">
+                        {employer.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      </span>
                     </a>
                   ) : (
                     <span />
                   )}
-                  <Button size="sm" variant="outline" asChild>
+                  <Button size="sm" variant="outline" className="shrink-0" asChild>
                     <Link href={`/employers/${employer.id}`}>{t("employers.viewProfile")}</Link>
                   </Button>
                 </div>

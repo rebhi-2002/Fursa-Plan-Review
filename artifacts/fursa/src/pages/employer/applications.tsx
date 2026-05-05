@@ -36,6 +36,7 @@ import {
   Clock,
   User,
   Eye,
+  MessageSquare,
 } from "lucide-react";
 import { format } from "date-fns";
 import type { Locale } from "date-fns";
@@ -204,6 +205,7 @@ export default function EmployerApplications() {
               app={app}
               onAccept={() => handleUpdateStatus(app.id, "accepted")}
               onReject={() => handleUpdateStatus(app.id, "rejected")}
+              onMessage={() => setLocation(`/messages/${app.applicantId}`)}
               isPending={updateStatusMutation.isPending}
               statusBadge={statusBadge}
               basePath={basePath}
@@ -237,6 +239,7 @@ type CardProps = {
   app: EmployerApplication;
   onAccept: () => void;
   onReject: () => void;
+  onMessage: () => void;
   isPending: boolean;
   statusBadge: (s: string) => ReactNode;
   basePath: string;
@@ -248,6 +251,7 @@ function ApplicationCard({
   app,
   onAccept,
   onReject,
+  onMessage,
   isPending,
   statusBadge,
   basePath,
@@ -355,30 +359,41 @@ function ApplicationCard({
             )}
           </div>
 
-          {/* Accept / Reject — full width on mobile */}
-          {app.status === "pending" && (
-            <div className="flex flex-wrap gap-2 pt-1 border-t border-border/40">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 sm:flex-none gap-1.5 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-                onClick={onReject}
-                disabled={isPending}
-              >
-                <XCircle className="h-4 w-4" />
-                {t("employer.applications.reject")}
-              </Button>
-              <Button
-                size="sm"
-                className="flex-1 sm:flex-none gap-1.5 bg-green-600 text-white hover:bg-green-700"
-                onClick={onAccept}
-                disabled={isPending}
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                {t("employer.applications.accept")}
-              </Button>
-            </div>
-          )}
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2 pt-1 border-t border-border/40">
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-muted-foreground hover:text-foreground"
+              onClick={onMessage}
+            >
+              <MessageSquare className="h-4 w-4" />
+              {t("employer.applications.message")}
+            </Button>
+            {app.status === "pending" && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 sm:flex-none gap-1.5 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  onClick={onReject}
+                  disabled={isPending}
+                >
+                  <XCircle className="h-4 w-4" />
+                  {t("employer.applications.reject")}
+                </Button>
+                <Button
+                  size="sm"
+                  className="flex-1 sm:flex-none gap-1.5 bg-green-600 text-white hover:bg-green-700"
+                  onClick={onAccept}
+                  disabled={isPending}
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  {t("employer.applications.accept")}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

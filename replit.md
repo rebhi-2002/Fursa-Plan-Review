@@ -23,6 +23,9 @@ After building: **backend exit 0, frontend exit 0** — zero TypeScript errors a
 - **API contract**: OpenAPI in `lib/api-spec`, generates Zod schemas (`lib/api-zod`) and React Query hooks (`lib/api-client-react`)
 - **Object storage**: `lib/object-storage-web` for CV upload (signed URL flow)
 - **Auth**: Clerk (`@clerk/express` server, `@clerk/react` client). On first login, server auto-bootstraps user row from Clerk identity.
+- **Security**: Helmet (HTTP headers), express-rate-limit (generalLimiter 300/15min, writeLimiter 60/15min), Zod validation on all write endpoints, input sanitization middleware (XSS strip)
+- **Logging**: pino + pino-http structured logging (strips query params from URLs)
+- **Cron**: auto-close expired jobs runs on startup + every 60min
 
 ## Routing
 
