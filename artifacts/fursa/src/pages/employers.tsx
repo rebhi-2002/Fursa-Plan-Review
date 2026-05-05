@@ -1,13 +1,19 @@
+import { useState } from "react";
 import { Link, useRoute } from "wouter";
 import {
   useGetPublicEmployerProfile,
   getGetPublicEmployerProfileQueryKey,
+  useGetCurrentUser,
 } from "@workspace/api-client-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@clerk/react";
 import { useT, useLanguageStore } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import {
   ChevronLeft,
   Building2,
@@ -16,13 +22,77 @@ import {
   Phone,
   Briefcase,
   AlertCircle,
+  Star,
+  MessageSquare,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
+interface Review {
+  id: number;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  seekerName: string;
+}
+interface ReviewsData {
+  reviews: Review[];
+  avgRating: number | null;
+  totalReviews: number;
+}
+
+function apiUrl(path: string) {
+  const base = (import.meta.env.BASE_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+  return `${base}/api/${path}`;
+}
+
+async function authFetch(getToken: () => Promise<string | null>, url: string, opts: RequestInit = {}) {
+  const token = await getToken();
+  const headers: Record<string, string> = { "Content-Type": "application/json", ...((opts.headers ?? {}) as Record<string, string>) };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return fetch(url, { ...opts, headers });
+}
+
+function StarRating({ value, max = 5, size = "sm" }: { value: number; max?: number; size?: "sm" | "lg" }) {
+  const sz = size === "lg" ? "h-5 w-5" : "h-4 w-4";
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: max }).map((_, i) => (
+        <Star key={i} className={`${sz} ${i < Math.round(value) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+      ))}
+    </div>
+  );
+}
+
+function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [hover, setHover] = useState(0);
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <button key={i} type="button" onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(0)} onClick={() => onChange(i)} className="cursor-pointer">
+          <Star className={`h-7 w-7 transition-colors ${i <= (hover || value) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function PublicEmployerProfile() {
   const t = useT();
-  const { lang: _lang } = useLanguageStore();
+  const { lang } = useLanguageStore();
   const [, params] = useRoute("/employers/:id");
   const id = params?.id ?? "";
+  const { getToken } = useAuth();
+  const qc = useQueryClient();
+  const { data: currentUser } = useGetCurrentUser();
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   const {
     data: profile,
@@ -30,6 +100,35 @@ export default function PublicEmployerProfile() {
     isError,
   } = useGetPublicEmployerProfile(id, {
     query: { queryKey: getGetPublicEmployerProfileQueryKey(id), enabled: !!id },
+  });
+
+  const { data: reviewsData } = useQuery<ReviewsData>({
+    queryKey: ["employer-reviews", id],
+    queryFn: async () => {
+      const res = await fetch(apiUrl(`employers/${id}/reviews`));
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: !!id,
+  });
+
+  const submitReviewMut = useMutation({
+    mutationFn: async () => {
+      const res = await authFetch(getToken, apiUrl("reviews"), {
+        method: "POST",
+        body: JSON.stringify({ employerId: id, rating: reviewRating, comment: reviewComment.trim() || null }),
+      });
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error((e as any).error || "Failed"); }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast.success(t("reviews.submitted"));
+      qc.invalidateQueries({ queryKey: ["employer-reviews", id] });
+      setReviewOpen(false);
+      setReviewComment("");
+      setReviewRating(5);
+    },
+    onError: (e: any) => toast.error(e.message || t("common.error")),
   });
 
   if (isLoading) {
@@ -120,6 +219,77 @@ export default function PublicEmployerProfile() {
           )}
         </CardContent>
       </Card>
+
+      {/* Reviews Section */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
+            {t("reviews.title")}
+            {reviewsData && reviewsData.totalReviews > 0 && (
+              <Badge variant="secondary" className="font-normal">
+                {reviewsData.avgRating?.toFixed(1)} · {reviewsData.totalReviews}
+              </Badge>
+            )}
+          </h2>
+          {currentUser?.role === "seeker" && (
+            <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  {t("reviews.write")}
+                </Button>
+              </DialogTrigger>
+              <DialogContent dir={lang === "ar" ? "rtl" : "ltr"}>
+                <DialogHeader>
+                  <DialogTitle>{t("reviews.writeTitle")}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-5 py-2">
+                  <div>
+                    <p className="font-medium mb-2">{t("reviews.rating")}</p>
+                    <StarPicker value={reviewRating} onChange={setReviewRating} />
+                  </div>
+                  <div>
+                    <p className="font-medium mb-2">{t("reviews.comment")}</p>
+                    <Textarea value={reviewComment} onChange={(e) => setReviewComment(e.target.value)} className="min-h-[100px]" placeholder={t("reviews.commentPlaceholder")} />
+                  </div>
+                  <Button className="w-full" onClick={() => submitReviewMut.mutate()} disabled={submitReviewMut.isPending}>
+                    {submitReviewMut.isPending ? t("common.submitting") : t("reviews.submit")}
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center">{t("reviews.eligibility")}</p>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+        {!reviewsData || reviewsData.reviews.length === 0 ? (
+          <Card className="border-dashed bg-muted/20 mb-6">
+            <CardContent className="p-6 text-center">
+              <Star className="h-10 w-10 text-muted-foreground/20 mx-auto mb-2" />
+              <p className="text-muted-foreground text-sm">{t("reviews.empty")}</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-3 mb-6">
+            {reviewsData.reviews.slice(0, 5).map((r) => (
+              <Card key={r.id} className="border-border/50">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-medium text-sm">{r.seekerName}</p>
+                      <StarRating value={r.rating} />
+                    </div>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {new Date(r.createdAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
+                    </span>
+                  </div>
+                  {r.comment && <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{r.comment}</p>}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Active Jobs */}
       <div>

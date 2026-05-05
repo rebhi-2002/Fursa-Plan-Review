@@ -193,6 +193,10 @@ export default function JobDetail() {
       toast.error(t("jobs.signInToApply"));
       return;
     }
+    if (!coverLetter.trim() && !cvObjectPath) {
+      toast.error(t("jobs.requireCoverLetterOrCv"));
+      return;
+    }
     if (coverLetter.trim().length > 0 && coverLetter.trim().length < 20) {
       toast.error(t("jobs.coverLetterTooShort"));
       return;

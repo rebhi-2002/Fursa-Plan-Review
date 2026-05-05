@@ -5,6 +5,7 @@ import {
   usersTable,
   applicationsTable,
   savedJobsTable,
+  jobAlertsTable,
 } from "@workspace/db";
 import { and, desc, eq, sql, ne, notInArray } from "drizzle-orm";
 import { z } from "zod";
@@ -15,7 +16,7 @@ import { broadcastAdminEvent } from "../lib/adminSse";
 const router: IRouter = Router();
 
 const applyBodySchema = z.object({
-  coverLetter: z.string().nullable().optional(),
+  coverLetter: z.string().max(5000).nullable().optional(),
   cvObjectPath: z.string().nullable().optional(),
 });
 
@@ -306,6 +307,11 @@ router.post(
 
       const cvPath =
         parsed.data.cvObjectPath ?? req.currentUser.cvObjectPath ?? null;
+
+      if (!parsed.data.coverLetter?.trim() && !cvPath) {
+        res.status(400).json({ error: "Please provide a cover letter or upload a CV" });
+        return;
+      }
 
       const inserted = await db
         .insert(applicationsTable)

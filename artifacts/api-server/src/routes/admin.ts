@@ -4,8 +4,9 @@ import {
   jobsTable,
   usersTable,
   applicationsTable,
+  jobAlertsTable,
 } from "@workspace/db";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql, gte } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
 import { createNotification } from "../lib/notifications";
@@ -150,6 +151,24 @@ router.post(
       },
       link: `/jobs/${job.id}`,
     });
+    // Notify matching job alert subscribers
+    try {
+      const alerts = await db.select().from(jobAlertsTable).where(eq(jobAlertsTable.isActive, true));
+      for (const alert of alerts) {
+        if (alert.userId === job.employerId) continue;
+        const catMatch = alert.categories.length === 0 || alert.categories.includes(job.category);
+        const typeMatch = alert.types.length === 0 || alert.types.includes(job.type);
+        if (catMatch && typeMatch) {
+          await createNotification({
+            userId: alert.userId,
+            type: "new_job_alert",
+            title: { ar: "وظيفة جديدة تناسبك", en: "New matching job posted" },
+            body: { ar: `"${job.title}" في ${job.category}`, en: `"${job.title}" in ${job.category}` },
+            link: `/jobs/${job.id}`,
+          });
+        }
+      }
+    } catch { /* non-critical */ }
     broadcastAdminEvent("stats_changed", { action: "job_approved", jobId: id });
     res.json(serializeAdminJob(job));
   },
@@ -373,6 +392,28 @@ router.get(
     } catch (err) {
       res.status(500).json({ error: "Export failed" });
     }
+  },
+);
+
+router.get(
+  "/admin/analytics",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("admin"),
+  async (req: Request, res: Response) => {
+    try {
+      const days = Math.min(parseInt((req.query["days"] as string) || "30", 10) || 30, 90);
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+      const [jobsData, appsData, usersData] = await Promise.all([
+        db.select({ day: sql<string>`date_trunc('day', ${jobsTable.createdAt})::date::text`, count: sql<number>`count(*)::int` })
+          .from(jobsTable).where(gte(jobsTable.createdAt, since)).groupBy(sql`date_trunc('day', ${jobsTable.createdAt})`).orderBy(sql`date_trunc('day', ${jobsTable.createdAt})`),
+        db.select({ day: sql<string>`date_trunc('day', ${applicationsTable.createdAt})::date::text`, count: sql<number>`count(*)::int` })
+          .from(applicationsTable).where(gte(applicationsTable.createdAt, since)).groupBy(sql`date_trunc('day', ${applicationsTable.createdAt})`).orderBy(sql`date_trunc('day', ${applicationsTable.createdAt})`),
+        db.select({ day: sql<string>`date_trunc('day', ${usersTable.createdAt})::date::text`, count: sql<number>`count(*)::int` })
+          .from(usersTable).where(gte(usersTable.createdAt, since)).groupBy(sql`date_trunc('day', ${usersTable.createdAt})`).orderBy(sql`date_trunc('day', ${usersTable.createdAt})`),
+      ]);
+      res.json({ jobs: jobsData, applications: appsData, users: usersData });
+    } catch { res.status(500).json({ error: "Failed to load analytics" }); }
   },
 );
 

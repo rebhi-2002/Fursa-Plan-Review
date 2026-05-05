@@ -42,6 +42,7 @@ router.get("/jobs", async (req: Request, res: Response) => {
     const search = (req.query["search"] as string | undefined)?.trim();
     const type = req.query["type"] as string | undefined;
     const category = req.query["category"] as string | undefined;
+    const sort = (req.query["sort"] as string | undefined) ?? "newest";
     const limit = Math.min(parseInt(req.query["limit"] as string) || 20, 100);
     const offset = parseInt(req.query["offset"] as string) || 0;
 
@@ -84,7 +85,13 @@ router.get("/jobs", async (req: Request, res: Response) => {
         .from(jobsTable)
         .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
         .where(where)
-        .orderBy(desc(jobsTable.createdAt))
+        .orderBy(
+          sort === "deadline"
+            ? asc(jobsTable.deadline)
+            : sort === "oldest"
+            ? asc(jobsTable.createdAt)
+            : desc(jobsTable.createdAt),
+        )
         .limit(limit)
         .offset(offset),
       db

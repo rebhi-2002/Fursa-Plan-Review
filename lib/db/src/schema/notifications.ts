@@ -15,6 +15,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "application_received",
   "application_accepted",
   "application_rejected",
+  "new_job_alert",
 ]);
 
 export const notificationsTable = pgTable(

@@ -763,6 +763,81 @@ const ar: TranslationDictionary = {
 
   // Employer applications — message button
   "employer.applications.message": "بدء محادثة",
+
+  // Job sort
+  "jobs.sort.newest": "الأحدث أولاً",
+  "jobs.sort.oldest": "الأقدم أولاً",
+  "jobs.sort.deadline": "قرب الموعد النهائي",
+
+  // Apply validation
+  "jobs.requireCoverLetterOrCv": "يرجى إرفاق رسالة تغطية أو سيرة ذاتية",
+
+  // Job Alerts
+  "alerts.title": "تنبيهات الوظائف",
+  "alerts.subtitle": "استقبل إشعاراً فور نشر وظيفة تناسبك",
+  "alerts.new": "تنبيه جديد",
+  "alerts.newTitle": "إنشاء تنبيه وظائف",
+  "alerts.categories": "الفئات",
+  "alerts.types": "نوع العمل",
+  "alerts.allIfEmpty": "إذا تركت الفئات فارغة سيشمل التنبيه كل الفئات",
+  "alerts.save": "حفظ التنبيه",
+  "alerts.created": "تم إنشاء التنبيه",
+  "alerts.deleted": "تم حذف التنبيه",
+  "alerts.empty": "لا توجد تنبيهات بعد",
+  "alerts.emptyDesc": "أنشئ تنبيهاً لتصلك الوظائف المناسبة فور نشرها",
+  "alerts.allCategories": "جميع الفئات",
+  "alerts.allTypes": "جميع الأنواع",
+  "alerts.limit": "الحد الأقصى",
+  "nav.alerts": "تنبيهات الوظائف",
+
+  // CV Builder
+  "cvBuilder.title": "منشئ السيرة الذاتية",
+  "cvBuilder.subtitle": "أنشئ سيرتك الذاتية وقم بطباعتها",
+  "cvBuilder.print": "طباعة / تنزيل PDF",
+  "cvBuilder.personal": "المعلومات الشخصية",
+  "cvBuilder.fullName": "الاسم الكامل",
+  "cvBuilder.email": "البريد الإلكتروني",
+  "cvBuilder.phone": "رقم الهاتف",
+  "cvBuilder.location": "الموقع",
+  "cvBuilder.website": "الموقع الإلكتروني",
+  "cvBuilder.summary": "الملخص المهني",
+  "cvBuilder.summaryPlaceholder": "اكتب ملخصاً مهنياً موجزاً...",
+  "cvBuilder.experience": "الخبرات العملية",
+  "cvBuilder.exp": "خبرة",
+  "cvBuilder.jobTitle": "المسمى الوظيفي",
+  "cvBuilder.company": "اسم الشركة",
+  "cvBuilder.period": "الفترة الزمنية",
+  "cvBuilder.description": "الوصف",
+  "cvBuilder.education": "التعليم",
+  "cvBuilder.edu": "مؤهل",
+  "cvBuilder.degree": "الدرجة العلمية",
+  "cvBuilder.institution": "المؤسسة التعليمية",
+  "cvBuilder.year": "السنة",
+  "cvBuilder.skills": "المهارات",
+  "cvBuilder.skillsHint": "افصل المهارات بفاصلة",
+  "nav.cvBuilder": "منشئ السيرة الذاتية",
+
+  // Company Reviews
+  "reviews.title": "تقييمات الشركة",
+  "reviews.write": "اكتب تقييماً",
+  "reviews.writeTitle": "تقييم صاحب العمل",
+  "reviews.rating": "التقييم",
+  "reviews.comment": "التعليق",
+  "reviews.commentPlaceholder": "شارك تجربتك مع هذه الشركة...",
+  "reviews.submit": "إرسال التقييم",
+  "reviews.submitted": "تم إرسال تقييمك بنجاح",
+  "reviews.eligibility": "يمكنك تقييم أصحاب العمل الذين تقدمت لوظائفهم فقط",
+  "reviews.empty": "لا توجد تقييمات بعد",
+
+  // Analytics
+  "admin.analytics.title": "إحصائيات الأداء",
+  "admin.analytics.jobs": "الوظائف",
+  "admin.analytics.applications": "الطلبات",
+  "admin.analytics.users": "المستخدمون الجدد",
+  "admin.analytics.last30": "آخر 30 يوماً",
+
+  // Common add
+  "common.add": "إضافة",
 };
 
 const en: TranslationDictionary = {
@@ -1512,6 +1587,84 @@ const en: TranslationDictionary = {
   // Word / char counter
   "common.chars": "chars",
   "common.words": "words",
+
+  // Employer applications — message button
+  "employer.applications.message": "Start Conversation",
+
+  // Job sort
+  "jobs.sort.newest": "Newest First",
+  "jobs.sort.oldest": "Oldest First",
+  "jobs.sort.deadline": "Deadline Soon",
+
+  // Apply validation
+  "jobs.requireCoverLetterOrCv": "Please provide a cover letter or attach a CV",
+
+  // Job Alerts
+  "alerts.title": "Job Alerts",
+  "alerts.subtitle": "Get notified when a matching job is posted",
+  "alerts.new": "New Alert",
+  "alerts.newTitle": "Create Job Alert",
+  "alerts.categories": "Categories",
+  "alerts.types": "Job Types",
+  "alerts.allIfEmpty": "Leave empty to match all categories",
+  "alerts.save": "Save Alert",
+  "alerts.created": "Alert created successfully",
+  "alerts.deleted": "Alert deleted",
+  "alerts.empty": "No alerts yet",
+  "alerts.emptyDesc": "Create an alert to be notified when matching jobs are posted",
+  "alerts.allCategories": "All Categories",
+  "alerts.allTypes": "All Types",
+  "alerts.limit": "max",
+  "nav.alerts": "Job Alerts",
+
+  // CV Builder
+  "cvBuilder.title": "CV Builder",
+  "cvBuilder.subtitle": "Build and print your professional CV",
+  "cvBuilder.print": "Print / Download PDF",
+  "cvBuilder.personal": "Personal Information",
+  "cvBuilder.fullName": "Full Name",
+  "cvBuilder.email": "Email",
+  "cvBuilder.phone": "Phone",
+  "cvBuilder.location": "Location",
+  "cvBuilder.website": "Website",
+  "cvBuilder.summary": "Professional Summary",
+  "cvBuilder.summaryPlaceholder": "Write a brief professional summary...",
+  "cvBuilder.experience": "Work Experience",
+  "cvBuilder.exp": "Experience",
+  "cvBuilder.jobTitle": "Job Title",
+  "cvBuilder.company": "Company Name",
+  "cvBuilder.period": "Period",
+  "cvBuilder.description": "Description",
+  "cvBuilder.education": "Education",
+  "cvBuilder.edu": "Qualification",
+  "cvBuilder.degree": "Degree",
+  "cvBuilder.institution": "Institution",
+  "cvBuilder.year": "Year",
+  "cvBuilder.skills": "Skills",
+  "cvBuilder.skillsHint": "Separate skills with a comma",
+  "nav.cvBuilder": "CV Builder",
+
+  // Company Reviews
+  "reviews.title": "Company Reviews",
+  "reviews.write": "Write a Review",
+  "reviews.writeTitle": "Review Employer",
+  "reviews.rating": "Rating",
+  "reviews.comment": "Comment",
+  "reviews.commentPlaceholder": "Share your experience with this employer...",
+  "reviews.submit": "Submit Review",
+  "reviews.submitted": "Your review was submitted successfully",
+  "reviews.eligibility": "You can only review employers you have applied to",
+  "reviews.empty": "No reviews yet",
+
+  // Analytics
+  "admin.analytics.title": "Performance Analytics",
+  "admin.analytics.jobs": "Jobs",
+  "admin.analytics.applications": "Applications",
+  "admin.analytics.users": "New Users",
+  "admin.analytics.last30": "Last 30 days",
+
+  // Common add
+  "common.add": "Add",
 };
 
 const dictionaries: Record<Language, TranslationDictionary> = { ar, en };

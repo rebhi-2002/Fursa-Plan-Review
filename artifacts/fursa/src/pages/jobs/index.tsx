@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import {
   useListJobs,
@@ -23,13 +23,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Clock, Briefcase, Building2, Search } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Search, ArrowUpDown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const ALL = "all";
+type SortOption = "newest" | "oldest" | "deadline";
 
 export default function JobsPage() {
   const t = useT();
@@ -42,6 +43,7 @@ export default function JobsPage() {
   const [search, setSearch] = useState(initialSearch);
   const [category, setCategory] = useState<string>(initialCategory);
   const [type, setType] = useState<ListJobsType | typeof ALL>(ALL);
+  const [sort, setSort] = useState<SortOption>("newest");
 
   const { data: categories } = useListJobCategories();
 
@@ -49,15 +51,31 @@ export default function JobsPage() {
     search: search || undefined,
     category: category === ALL ? undefined : category,
     type: type === ALL ? undefined : (type as ListJobsType),
-    limit: 50,
+    limit: 100,
   });
 
   const locale = lang === "ar" ? ar : enUS;
+
+  const sortedJobs = useMemo(() => {
+    if (!jobsResponse?.items) return [];
+    const items = [...jobsResponse.items];
+    if (sort === "oldest") return items.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    if (sort === "deadline") {
+      return items.sort((a, b) => {
+        if (!a.deadline && !b.deadline) return 0;
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+      });
+    }
+    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [jobsResponse?.items, sort]);
 
   const clearFilters = () => {
     setSearch("");
     setCategory(ALL);
     setType(ALL);
+    setSort("newest");
   };
 
   return (
@@ -82,7 +100,7 @@ export default function JobsPage() {
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 md:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3 md:w-auto flex-wrap">
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger className="w-full sm:w-[200px] bg-background">
                   <SelectValue placeholder={t("jobs.category.all")} />
@@ -108,13 +126,21 @@ export default function JobsPage() {
                 </SelectTrigger>
                 <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
                   <SelectItem value={ALL}>{t("jobs.type.all")}</SelectItem>
-                  <SelectItem value="online">
-                    {t("jobs.type.online")}
-                  </SelectItem>
+                  <SelectItem value="online">{t("jobs.type.online")}</SelectItem>
                   <SelectItem value="field">{t("jobs.type.field")}</SelectItem>
-                  <SelectItem value="hybrid">
-                    {t("jobs.type.hybrid")}
-                  </SelectItem>
+                  <SelectItem value="hybrid">{t("jobs.type.hybrid")}</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
+                <SelectTrigger className="w-full sm:w-[160px] bg-background gap-1.5">
+                  <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+                  <SelectValue placeholder={t("jobs.sort.newest")} />
+                </SelectTrigger>
+                <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
+                  <SelectItem value="newest">{t("jobs.sort.newest")}</SelectItem>
+                  <SelectItem value="oldest">{t("jobs.sort.oldest")}</SelectItem>
+                  <SelectItem value="deadline">{t("jobs.sort.deadline")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -125,7 +151,7 @@ export default function JobsPage() {
           <div className="text-sm text-muted-foreground">
             {isLoading
               ? t("jobs.searching")
-              : t("jobs.found", { count: jobsResponse?.total || 0 })}
+              : t("jobs.found", { count: sortedJobs.length })}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -133,8 +159,8 @@ export default function JobsPage() {
               Array.from({ length: 6 }).map((_, i) => (
                 <Skeleton key={i} className="h-[280px] w-full rounded-2xl" />
               ))
-            ) : jobsResponse?.items && jobsResponse.items.length > 0 ? (
-              jobsResponse.items.map((job) => (
+            ) : sortedJobs.length > 0 ? (
+              sortedJobs.map((job) => (
                 <Card
                   key={job.id}
                   className="flex flex-col h-full hover:shadow-md transition-shadow border-border/50"
@@ -199,11 +225,7 @@ export default function JobsPage() {
                 <p className="text-muted-foreground mt-1">
                   {t("jobs.tryDifferent")}
                 </p>
-                <Button
-                  variant="link"
-                  onClick={clearFilters}
-                  className="mt-4"
-                >
+                <Button variant="link" onClick={clearFilters} className="mt-4">
                   {t("jobs.clearFilters")}
                 </Button>
               </div>

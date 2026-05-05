@@ -10,6 +10,8 @@ import adminRouter from "./admin";
 import notificationsRouter from "./notifications";
 import messagesRouter from "./messages";
 import contactRouter from "./contact";
+import alertsRouter from "./alerts";
+import reviewsRouter from "./reviews";
 
 const router: IRouter = Router();
 
@@ -24,5 +26,7 @@ router.use(seekerRouter);
 router.use(employerRouter);
 router.use(adminRouter);
 router.use(contactRouter);
+router.use(alertsRouter);
+router.use(reviewsRouter);
 
 export default router;
