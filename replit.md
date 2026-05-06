@@ -199,12 +199,22 @@ To run locally:
 6. On profile submit → `PATCH /api/me` auto-sets `onboarded: true` (backend auto-completes onboarding when a user with a role updates their profile)
 7. Redirect to `/{role}` dashboard
 
+## Recent Changes (May 2026)
+
+- **Bug fix**: Employer profile — `-mt-12` moved to avatar div only (website URL no longer pushes layout on large screens)
+- **Bug fix**: Seeker dashboard — removed duplicate `px-4` padding that caused horizontal scroll
+- **i18n**: Duplicate key `employer.applications.message` removed; added `dashboard.seeker.alerts` + `dashboard.seeker.cvBuilder` keys
+- **Routes**: `/seeker/alerts` and `/seeker/cv-builder` added to App.tsx + Header.tsx nav links
+- **Email Alerts**: When admin approves a job, matching seekers receive in-app notification + bilingual HTML email via Resend (JOIN with usersTable to get emails)
+- **Phase 4 SEO**: Job detail pages now include `og:url`, canonical link, and JSON-LD `JobPosting` structured data; home page has full OG/meta tags
+- **Sitemap**: `GET /api/sitemap.xml` returns dynamic XML sitemap with all approved jobs + static pages (cache 1h)
+
 ## Notes
 
 - Both build pipelines (`vite build`, custom esbuild for api-server) skip tsc, so latent typecheck warnings in route handlers (Express 5 `req.params` widened to `string | string[]`, missing returns) do not block deployment.
-- Real-time notifications and email are deferred (not in scope).
 - Seeker profile page (`artifacts/fursa/src/pages/seeker/profile.tsx`) uses `useUser()` from Clerk to show avatar, email, member-since date at the top.
 - Sign-in page has a branded left panel (hidden on mobile) with platform tagline and feature list.
 - Sign-up page is a full role-picker UI (no Clerk form until role is chosen).
+- Sitemap is served at `/api/sitemap.xml` — point Google Search Console to this URL.
 
 See the `pnpm-workspace` skill for workspace structure and conventions.

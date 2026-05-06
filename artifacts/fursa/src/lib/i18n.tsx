@@ -412,6 +412,8 @@ const ar: TranslationDictionary = {
   // Header dropdown shortcuts
   "dashboard.seeker.applications": "طلباتي",
   "dashboard.seeker.saved": "الوظائف المحفوظة",
+  "dashboard.seeker.alerts": "تنبيهات الوظائف",
+  "dashboard.seeker.cvBuilder": "بناء السيرة الذاتية",
   "dashboard.seeker.profile": "ملفي الشخصي",
   "dashboard.employer.jobs": "وظائفي",
   "dashboard.employer.newJob": "نشر وظيفة جديدة",
@@ -1238,6 +1240,8 @@ const en: TranslationDictionary = {
   // Header dropdown shortcuts
   "dashboard.seeker.applications": "My Applications",
   "dashboard.seeker.saved": "Saved Jobs",
+  "dashboard.seeker.alerts": "Job Alerts",
+  "dashboard.seeker.cvBuilder": "CV Builder",
   "dashboard.seeker.profile": "My Profile",
   "dashboard.employer.jobs": "My Jobs",
   "dashboard.employer.newJob": "Post New Job",
@@ -1587,9 +1591,6 @@ const en: TranslationDictionary = {
   // Word / char counter
   "common.chars": "chars",
   "common.words": "words",
-
-  // Employer applications — message button
-  "employer.applications.message": "Start Conversation",
 
   // Job sort
   "jobs.sort.newest": "Newest First",

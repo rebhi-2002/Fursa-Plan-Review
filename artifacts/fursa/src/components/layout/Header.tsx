@@ -42,6 +42,8 @@ import {
   Moon,
   Sun,
   MessageSquare,
+  BellRing,
+  ScrollText,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -95,6 +97,8 @@ export function Header() {
       links.push(
         { href: "/seeker/applications", label: t("dashboard.seeker.applications"), icon: FileText },
         { href: "/seeker/saved", label: t("dashboard.seeker.saved"), icon: Bookmark },
+        { href: "/seeker/alerts", label: t("dashboard.seeker.alerts"), icon: BellRing },
+        { href: "/seeker/cv-builder", label: t("dashboard.seeker.cvBuilder"), icon: ScrollText },
         { href: "/seeker/profile", label: t("dashboard.seeker.profile"), icon: UserIcon },
       );
     } else if (role === "employer") {
@@ -170,6 +174,12 @@ export function Header() {
               </Link>
               <Link href="/seeker/saved" onClick={closeMobile} className={mobileLinkClass("/seeker/saved")}>
                 <Bookmark className="h-5 w-5" /> {t("dashboard.seeker.saved")}
+              </Link>
+              <Link href="/seeker/alerts" onClick={closeMobile} className={mobileLinkClass("/seeker/alerts")}>
+                <BellRing className="h-5 w-5" /> {t("dashboard.seeker.alerts")}
+              </Link>
+              <Link href="/seeker/cv-builder" onClick={closeMobile} className={mobileLinkClass("/seeker/cv-builder")}>
+                <ScrollText className="h-5 w-5" /> {t("dashboard.seeker.cvBuilder")}
               </Link>
               <Link href="/seeker/profile" onClick={closeMobile} className={mobileLinkClass("/seeker/profile")}>
                 <UserIcon className="h-5 w-5" /> {t("dashboard.seeker.profile")}

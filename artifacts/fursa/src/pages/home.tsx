@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Link, useLocation } from "wouter";
 import { useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -108,8 +109,20 @@ export default function Home() {
     },
   ];
 
+  const siteDesc = lang === "ar"
+    ? "فُرصة — منصة التوظيف الرقمية لغزة. تربط الكفاءات بأصحاب الأعمال."
+    : "Fursa — Gaza's digital employment platform connecting talent with employers.";
+
   return (
     <div className="flex flex-col w-full">
+      <Helmet>
+        <title>{t("app.name")} — {lang === "ar" ? "منصة التوظيف في غزة" : "Gaza Employment Platform"}</title>
+        <meta name="description" content={siteDesc} />
+        <meta property="og:title" content={`${t("app.name")} — ${lang === "ar" ? "منصة التوظيف في غزة" : "Gaza Employment Platform"}`} />
+        <meta property="og:description" content={siteDesc} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary" />
+      </Helmet>
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-primary/5 py-20 md:py-32">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">

@@ -9,7 +9,7 @@ import {
 import { and, desc, eq, sql, gte } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
-import { createNotification } from "../lib/notifications";
+import { createNotification, sendNotificationEmail } from "../lib/notifications";
 import { addAdminSseClient, removeAdminSseClient, broadcastAdminEvent } from "../lib/adminSse";
 
 const router: IRouter = Router();
@@ -151,9 +151,20 @@ router.post(
       },
       link: `/jobs/${job.id}`,
     });
-    // Notify matching job alert subscribers
+    // Notify matching job alert subscribers (in-app + email)
     try {
-      const alerts = await db.select().from(jobAlertsTable).where(eq(jobAlertsTable.isActive, true));
+      const alerts = await db
+        .select({
+          userId: jobAlertsTable.userId,
+          categories: jobAlertsTable.categories,
+          types: jobAlertsTable.types,
+          userEmail: usersTable.email,
+          userName: usersTable.name,
+        })
+        .from(jobAlertsTable)
+        .innerJoin(usersTable, eq(usersTable.id, jobAlertsTable.userId))
+        .where(eq(jobAlertsTable.isActive, true));
+
       for (const alert of alerts) {
         if (alert.userId === job.employerId) continue;
         const catMatch = alert.categories.length === 0 || alert.categories.includes(job.category);
@@ -166,6 +177,33 @@ router.post(
             body: { ar: `"${job.title}" في ${job.category}`, en: `"${job.title}" in ${job.category}` },
             link: `/jobs/${job.id}`,
           });
+          // Send email notification
+          if (alert.userEmail) {
+            const appUrl = process.env["APP_URL"] ?? "https://fursa.replit.app";
+            await sendNotificationEmail({
+              to: alert.userEmail,
+              subject: `فُرصة — وظيفة جديدة تناسبك: ${job.title}`,
+              html: `
+                <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
+                  <h2 style="color: #2563eb;">🔔 وظيفة جديدة تناسبك</h2>
+                  <p>مرحباً ${alert.userName}،</p>
+                  <p>تم نشر وظيفة جديدة تتطابق مع تنبيهاتك:</p>
+                  <div style="background: #f0f4ff; border-right: 4px solid #2563eb; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                    <h3 style="margin: 0 0 8px 0; color: #1e40af;">${job.title}</h3>
+                    <p style="margin: 4px 0; color: #555;">📂 ${job.category}</p>
+                    <p style="margin: 4px 0; color: #555;">🏢 ${job.employerName}</p>
+                  </div>
+                  <a href="${appUrl}/jobs/${job.id}" style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 8px;">
+                    عرض الوظيفة
+                  </a>
+                  <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;">
+                  <p style="color: #9ca3af; font-size: 12px;">
+                    لإدارة تنبيهاتك، <a href="${appUrl}/seeker/alerts" style="color: #2563eb;">انقر هنا</a>
+                  </p>
+                </div>
+              `,
+            });
+          }
         }
       }
     } catch { /* non-critical */ }

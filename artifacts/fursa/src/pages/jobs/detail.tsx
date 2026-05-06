@@ -261,6 +261,32 @@ export default function JobDetail() {
 
   const jobDescription = job.description?.slice(0, 160).replace(/\n/g, " ") ?? "";
   const pageTitle = `${job.title} — ${job.employerName} | ${t("app.name")}`;
+  const jobUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/jobs/${job.id}`
+    : `/jobs/${job.id}`;
+
+  const jsonLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "JobPosting",
+    "title": job.title,
+    "description": job.description,
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.employerName,
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": job.employerLocation ?? "Gaza",
+        "addressCountry": "PS",
+      },
+    },
+    "employmentType": job.type === "online" ? "TELECOMMUTE" : "FULL_TIME",
+    "datePosted": job.createdAt,
+    "validThrough": job.deadline ?? undefined,
+    "url": jobUrl,
+  });
 
   return (
     <div className="container py-8 max-w-5xl">
@@ -270,9 +296,13 @@ export default function JobDetail() {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={jobDescription} />
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={jobUrl} />
+        <meta property="og:site_name" content={t("app.name")} />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={jobDescription} />
+        <link rel="canonical" href={jobUrl} />
+        <script type="application/ld+json">{jsonLd}</script>
       </Helmet>
       <div className="mb-6">
         <Button

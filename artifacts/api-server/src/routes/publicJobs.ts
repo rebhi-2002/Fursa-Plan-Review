@@ -283,6 +283,52 @@ router.get(
   },
 );
 
+router.get("/sitemap.xml", async (_req, res) => {
+  try {
+    const appUrl = (process.env["APP_URL"] ?? "https://fursa.replit.app").replace(/\/$/, "");
+
+    const jobs = await db
+      .select({ id: jobsTable.id, createdAt: jobsTable.createdAt })
+      .from(jobsTable)
+      .where(and(eq(jobsTable.status, "approved"), eq(jobsTable.isOpen, true)))
+      .orderBy(desc(jobsTable.createdAt))
+      .limit(500);
+
+    const staticPaths = [
+      { loc: "/", priority: "1.0", changefreq: "daily" },
+      { loc: "/jobs", priority: "0.9", changefreq: "hourly" },
+      { loc: "/employers", priority: "0.7", changefreq: "weekly" },
+      { loc: "/about", priority: "0.5", changefreq: "monthly" },
+      { loc: "/contact", priority: "0.5", changefreq: "monthly" },
+      { loc: "/faq", priority: "0.5", changefreq: "monthly" },
+      { loc: "/privacy", priority: "0.3", changefreq: "yearly" },
+      { loc: "/terms", priority: "0.3", changefreq: "yearly" },
+    ];
+
+    const jobUrls = jobs
+      .map(
+        (j) =>
+          `  <url>\n    <loc>${appUrl}/jobs/${j.id}</loc>\n    <lastmod>${j.createdAt.toISOString().split("T")[0]}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>`,
+      )
+      .join("\n");
+
+    const staticUrls = staticPaths
+      .map(
+        (p) =>
+          `  <url>\n    <loc>${appUrl}${p.loc}</loc>\n    <changefreq>${p.changefreq}</changefreq>\n    <priority>${p.priority}</priority>\n  </url>`,
+      )
+      .join("\n");
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${staticUrls}\n${jobUrls}\n</urlset>`;
+
+    res.setHeader("Content-Type", "application/xml");
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.send(xml);
+  } catch {
+    res.status(500).send("Error generating sitemap");
+  }
+});
+
 router.get(
   "/public/employers",
   async (_req: Request, res: Response) => {

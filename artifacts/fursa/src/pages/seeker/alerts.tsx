@@ -125,7 +125,7 @@ export default function JobAlertsPage() {
   if (!user) return null;
 
   return (
-    <div className="container py-8 max-w-3xl px-4 sm:px-6">
+    <div className="container py-8 max-w-3xl">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
