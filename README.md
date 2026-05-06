@@ -25,17 +25,17 @@
 
 ### المزايا الرئيسية
 
-| المزايا | التفاصيل |
-|---------|----------|
-| 🌐 ثنائية اللغة | عربي (RTL) وإنجليزي (LTR) بشكل كامل |
-| 👔 لوحة صاحب العمل | نشر الوظائف، مراجعة الطلبات، التواصل مع المتقدمين |
-| 🎓 لوحة الباحث | تصفح الوظائف، التقديم، تتبع الحالة، الرسائل |
-| 🛡️ لوحة الإدارة | إدارة المستخدمين والوظائف مع إحصائيات فورية (SSE) |
-| 💬 نظام الرسائل | محادثات مباشرة بين صاحب العمل والمتقدمين |
-| 📊 اكتمال البروفايل | مؤشر تقدم مرمّز بالألوان لتحسين الملف الشخصي |
-| 🔔 الإشعارات | إشعارات فورية داخل التطبيق |
-| 📎 رفع السيرة الذاتية | تحميل ومعاينة وتنزيل ملفات CV |
-| 🔒 أمان كامل | Rate limiting، Helmet، Zod validation |
+| المزايا               | التفاصيل                                          |
+| --------------------- | ------------------------------------------------- |
+| 🌐 ثنائية اللغة       | عربي (RTL) وإنجليزي (LTR) بشكل كامل               |
+| 👔 لوحة صاحب العمل    | نشر الوظائف، مراجعة الطلبات، التواصل مع المتقدمين |
+| 🎓 لوحة الباحث        | تصفح الوظائف، التقديم، تتبع الحالة، الرسائل       |
+| 🛡️ لوحة الإدارة       | إدارة المستخدمين والوظائف مع إحصائيات فورية (SSE) |
+| 💬 نظام الرسائل       | محادثات مباشرة بين صاحب العمل والمتقدمين          |
+| 📊 اكتمال البروفايل   | مؤشر تقدم مرمّز بالألوان لتحسين الملف الشخصي      |
+| 🔔 الإشعارات          | إشعارات فورية داخل التطبيق                        |
+| 📎 رفع السيرة الذاتية | تحميل ومعاينة وتنزيل ملفات CV                     |
+| 🔒 أمان كامل          | Rate limiting، Helmet، Zod validation             |
 
 ### البنية التقنية
 
@@ -52,20 +52,21 @@
 
 ### التقنيات المستخدمة
 
-| الطبقة | التقنيات |
-|--------|----------|
-| Frontend | React 19, Vite, Wouter, TailwindCSS, shadcn/ui |
-| Backend | Node.js, Express 5, TypeScript |
-| قاعدة البيانات | PostgreSQL 17, Drizzle ORM |
-| المصادقة | Clerk (OAuth + Email) |
-| الأمان | Helmet, express-rate-limit, Zod |
-| السجلات | Pino (structured logging) |
-| البريد | Resend |
-| التخزين | Google Cloud Storage |
+| الطبقة         | التقنيات                                       |
+| -------------- | ---------------------------------------------- |
+| Frontend       | React 19, Vite, Wouter, TailwindCSS, shadcn/ui |
+| Backend        | Node.js, Express 5, TypeScript                 |
+| قاعدة البيانات | PostgreSQL 17, Drizzle ORM                     |
+| المصادقة       | Clerk (OAuth + Email)                          |
+| الأمان         | Helmet, express-rate-limit, Zod                |
+| السجلات        | Pino (structured logging)                      |
+| البريد         | Resend                                         |
+| التخزين        | Google Cloud Storage                           |
 
 ### التشغيل المحلي
 
 #### المتطلبات
+
 - Node.js 20+
 - pnpm 9+
 - PostgreSQL 17+
@@ -75,7 +76,7 @@
 
 ```bash
 # 1. استنساخ المشروع
-git clone https://github.com/your-username/fursa.git
+git clone https://github.com/rebhi-2002/Fursa-Plan-Review.git
 cd fursa
 
 # 2. تثبيت الاعتماديات
@@ -95,11 +96,11 @@ pnpm --filter @workspace/api-server run dev   # السيرفر على PORT
 
 ### البيئات والأدوار
 
-| الدور | الصلاحيات |
-|-------|-----------|
-| `seeker` | تصفح الوظائف، التقديم، الرسائل، رفع CV |
-| `employer` | نشر الوظائف، مراجعة الطلبات، التواصل |
-| `admin` | إدارة كاملة للمنصة، إحصائيات، تصدير |
+| الدور      | الصلاحيات                              |
+| ---------- | -------------------------------------- |
+| `seeker`   | تصفح الوظائف، التقديم، الرسائل، رفع CV |
+| `employer` | نشر الوظائف، مراجعة الطلبات، التواصل   |
+| `admin`    | إدارة كاملة للمنصة، إحصائيات، تصدير    |
 
 ### المراحل المخططة
 
@@ -119,17 +120,17 @@ pnpm --filter @workspace/api-server run dev   # السيرفر على PORT
 
 ### Key Features
 
-| Feature | Details |
-|---------|---------|
-| 🌐 Bilingual | Full Arabic (RTL) and English (LTR) support |
-| 👔 Employer Dashboard | Post jobs, review applications, message applicants |
-| 🎓 Seeker Dashboard | Browse jobs, apply, track status, manage messages |
-| 🛡️ Admin Dashboard | Manage users/jobs with real-time stats via SSE |
-| 💬 Messaging System | Direct conversations between employers and applicants |
-| 📊 Profile Completion | Color-coded progress indicator for profile quality |
-| 🔔 Notifications | Real-time in-app notifications |
-| 📎 CV Upload | Upload, preview, and download resume files |
-| 🔒 Security | Rate limiting, Helmet, Zod validation, pino logging |
+| Feature               | Details                                               |
+| --------------------- | ----------------------------------------------------- |
+| 🌐 Bilingual          | Full Arabic (RTL) and English (LTR) support           |
+| 👔 Employer Dashboard | Post jobs, review applications, message applicants    |
+| 🎓 Seeker Dashboard   | Browse jobs, apply, track status, manage messages     |
+| 🛡️ Admin Dashboard    | Manage users/jobs with real-time stats via SSE        |
+| 💬 Messaging System   | Direct conversations between employers and applicants |
+| 📊 Profile Completion | Color-coded progress indicator for profile quality    |
+| 🔔 Notifications      | Real-time in-app notifications                        |
+| 📎 CV Upload          | Upload, preview, and download resume files            |
+| 🔒 Security           | Rate limiting, Helmet, Zod validation, pino logging   |
 
 ### Architecture
 
@@ -146,20 +147,21 @@ pnpm --filter @workspace/api-server run dev   # السيرفر على PORT
 
 ### Tech Stack
 
-| Layer | Technologies |
-|-------|-------------|
+| Layer    | Technologies                                   |
+| -------- | ---------------------------------------------- |
 | Frontend | React 19, Vite, Wouter, TailwindCSS, shadcn/ui |
-| Backend | Node.js, Express 5, TypeScript |
-| Database | PostgreSQL 17, Drizzle ORM |
-| Auth | Clerk (OAuth + Email) |
-| Security | Helmet, express-rate-limit, Zod |
-| Logging | Pino (structured logging) |
-| Email | Resend |
-| Storage | Google Cloud Storage |
+| Backend  | Node.js, Express 5, TypeScript                 |
+| Database | PostgreSQL 17, Drizzle ORM                     |
+| Auth     | Clerk (OAuth + Email)                          |
+| Security | Helmet, express-rate-limit, Zod                |
+| Logging  | Pino (structured logging)                      |
+| Email    | Resend                                         |
+| Storage  | Google Cloud Storage                           |
 
 ### Local Setup
 
 #### Prerequisites
+
 - Node.js 20+
 - pnpm 9+
 - PostgreSQL 17+
@@ -169,7 +171,7 @@ pnpm --filter @workspace/api-server run dev   # السيرفر على PORT
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/your-username/fursa.git
+git clone https://github.com/rebhi-2002/Fursa-Plan-Review.git
 cd fursa
 
 # 2. Install dependencies
@@ -189,11 +191,11 @@ pnpm --filter @workspace/api-server run dev   # Backend on PORT
 
 ### User Roles
 
-| Role | Capabilities |
-|------|-------------|
-| `seeker` | Browse jobs, apply, messages, upload CV |
+| Role       | Capabilities                                |
+| ---------- | ------------------------------------------- |
+| `seeker`   | Browse jobs, apply, messages, upload CV     |
 | `employer` | Post jobs, review applications, communicate |
-| `admin` | Full platform management, stats, exports |
+| `admin`    | Full platform management, stats, exports    |
 
 ### Roadmap
 
@@ -228,14 +230,14 @@ fursa/
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | PostgreSQL connection string |
-| `CLERK_SECRET_KEY` | Clerk backend secret key |
-| `CLERK_PUBLISHABLE_KEY` | Clerk frontend publishable key |
-| `RESEND_API_KEY` | Resend email API key |
-| `GCS_BUCKET_NAME` | Google Cloud Storage bucket |
-| `PORT` | Server port (auto-assigned in Replit) |
+| Variable                | Description                           |
+| ----------------------- | ------------------------------------- |
+| `DATABASE_URL`          | PostgreSQL connection string          |
+| `CLERK_SECRET_KEY`      | Clerk backend secret key              |
+| `CLERK_PUBLISHABLE_KEY` | Clerk frontend publishable key        |
+| `RESEND_API_KEY`        | Resend email API key                  |
+| `GCS_BUCKET_NAME`       | Google Cloud Storage bucket           |
+| `PORT`                  | Server port (auto-assigned in Replit) |
 
 ### Contributing
 
