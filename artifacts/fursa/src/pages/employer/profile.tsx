@@ -151,8 +151,8 @@ export default function EmployerProfile() {
         <Card className="overflow-hidden">
           <div className="h-24 bg-gradient-to-r from-indigo-500/80 to-indigo-600" />
           <CardContent className="pt-0">
-            <div className="-mt-12 flex flex-col sm:flex-row items-start sm:items-end gap-4">
-              <div className="relative shrink-0">
+            <div className="flex flex-col sm:flex-row items-start gap-4">
+              <div className="relative shrink-0 -mt-12">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={user?.name || ""} className="h-24 w-24 rounded-2xl border-4 border-background object-cover shadow-md" />
                 ) : (

@@ -106,7 +106,7 @@ export default function SeekerDashboard() {
   };
 
   return (
-    <div className="container py-8 max-w-5xl px-4 sm:px-6">
+    <div className="container py-8 max-w-5xl overflow-x-hidden">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -136,7 +136,7 @@ export default function SeekerDashboard() {
         className="mb-6"
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 w-full">
         {statCards.map((stat, i) => (
           <Card key={i} className="border-border/50 shadow-sm">
             <CardContent className="p-4 sm:p-5">
