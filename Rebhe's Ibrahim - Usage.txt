@@ -415,12 +415,13 @@ Component Preview Server
 This server renders individual components for the workspace canvas.
 Access component previews at /preview/ComponentName
 
-/preview/fursa-platform/Applications
-/preview/fursa-platform/EmployerDashboard
-/preview/fursa-platform/JobListings
-/preview/fursa-platform/Landing
-/preview/fursa-platform/Profile
-/preview/fursa-platform/SeekerDashboard
+http://localhost:5173/
+  /preview/fursa-platform/Applications
+  /preview/fursa-platform/EmployerDashboard
+  /preview/fursa-platform/JobListings
+  /preview/fursa-platform/Landing
+  /preview/fursa-platform/Profile
+  /preview/fursa-platform/SeekerDashboard
 
 [12]
 D:\My_Github\Fursa-Plan-Review (main -> origin)
@@ -443,3 +444,5 @@ Done in 5.7s using pnpm v10.33.2
 
 D:\My_Github\Fursa-Plan-Review (main -> origin)
 λ
+
+http://localhost:3000/onboarding ??
