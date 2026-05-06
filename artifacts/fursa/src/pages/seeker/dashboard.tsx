@@ -136,7 +136,7 @@ export default function SeekerDashboard() {
         className="mb-6"
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {statCards.map((stat, i) => (
           <Card key={i} className="border-border/50 shadow-sm">
             <CardContent className="p-4 sm:p-5">

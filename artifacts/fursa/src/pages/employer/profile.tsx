@@ -161,7 +161,7 @@ export default function EmployerProfile() {
                   </div>
                 )}
               </div>
-              <div className="flex-1 pb-1 space-y-1">
+              <div className="flex-1 pb-1 space-y-1 sm:pt-3">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-xl font-bold">{user?.name || "—"}</h2>
                   <Badge variant="secondary" className="text-xs bg-indigo-100 text-indigo-800 border-indigo-200">

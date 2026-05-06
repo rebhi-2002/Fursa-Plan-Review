@@ -52,6 +52,8 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminJobs from "@/pages/admin/jobs";
 import AdminUsers from "@/pages/admin/users";
 import AdminProfile from "@/pages/admin/profile";
+import AdminAnalytics from "@/pages/admin/analytics";
+import SeekerActivity from "@/pages/seeker/activity";
 import MessagesPage from "@/pages/messages/index";
 import MessageThread from "@/pages/messages/thread";
 import PublicSeekerProfile from "@/pages/seekers/profile";
@@ -285,6 +287,14 @@ function Router() {
             </Route>
             <Route path="/admin/profile">
               <RoleGuard role="admin"><AdminProfile /></RoleGuard>
+            </Route>
+            <Route path="/admin/analytics">
+              <RoleGuard role="admin"><AdminAnalytics /></RoleGuard>
+            </Route>
+
+            {/* Seeker Activity Log */}
+            <Route path="/seeker/activity">
+              <RoleGuard role="seeker"><SeekerActivity /></RoleGuard>
             </Route>
 
             {/* 404 */}

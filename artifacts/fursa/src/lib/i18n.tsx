@@ -839,6 +839,40 @@ const ar: TranslationDictionary = {
   "admin.analytics.users": "المستخدمون الجدد",
   "admin.analytics.last30": "آخر 30 يوماً",
 
+  // CV Builder extras
+  "cvBuilder.languages": "اللغات",
+  "cvBuilder.langName": "اللغة",
+  "cvBuilder.langLevel": "المستوى",
+  "cvBuilder.lang": "لغة",
+  "cvBuilder.certificates": "الشهادات والدورات",
+  "cvBuilder.certName": "اسم الشهادة",
+  "cvBuilder.issuer": "الجهة المانحة",
+  "cvBuilder.certYear": "السنة",
+  "cvBuilder.cert": "شهادة",
+  "cvBuilder.linkedin": "لينكدإن / الموقع الشخصي",
+  "cvBuilder.printTip": "يطبع السيرة الذاتية فقط دون الحقول",
+
+  // Admin Analytics extra
+  "admin.analytics.weekly": "نشاط آخر 30 يوماً",
+  "admin.analytics.chartJobs": "وظائف جديدة",
+  "admin.analytics.chartApps": "طلبات التوظيف",
+  "admin.analytics.chartUsers": "مستخدمون جدد",
+  "admin.analytics.viewAnalytics": "التحليلات التفصيلية",
+  "admin.analytics.pageTitle": "لوحة التحليلات",
+  "admin.analytics.pageSubtitle": "نظرة شاملة على نشاط المنصة خلال آخر 30 يوماً",
+  "dashboard.admin.analytics": "التحليلات",
+
+  // Seeker Activity Log
+  "dashboard.seeker.activity": "سجل النشاط",
+  "seeker.activity.title": "سجل النشاط",
+  "seeker.activity.subtitle": "تاريخ تفاعلك مع منصة فُرصة",
+  "seeker.activity.empty": "لا يوجد نشاط بعد",
+  "seeker.activity.emptyDesc": "ستظهر هنا طلباتك وتنبيهاتك وأنشطتك الأخيرة",
+  "seeker.activity.applied": "تقدمت لوظيفة",
+  "seeker.activity.saved": "حفظت وظيفة",
+  "seeker.activity.alertCreated": "أنشأت تنبيهاً وظيفياً",
+  "seeker.activity.viewJob": "عرض الوظيفة",
+
   // Common add
   "common.add": "إضافة",
 };
@@ -1665,6 +1699,40 @@ const en: TranslationDictionary = {
   "admin.analytics.applications": "Applications",
   "admin.analytics.users": "New Users",
   "admin.analytics.last30": "Last 30 days",
+
+  // CV Builder extras
+  "cvBuilder.languages": "Languages",
+  "cvBuilder.langName": "Language",
+  "cvBuilder.langLevel": "Proficiency Level",
+  "cvBuilder.lang": "Language",
+  "cvBuilder.certificates": "Certifications & Courses",
+  "cvBuilder.certName": "Certificate Name",
+  "cvBuilder.issuer": "Issuer",
+  "cvBuilder.certYear": "Year",
+  "cvBuilder.cert": "Certificate",
+  "cvBuilder.linkedin": "LinkedIn / Personal Website",
+  "cvBuilder.printTip": "Prints your CV only without the form",
+
+  // Admin Analytics extra
+  "admin.analytics.weekly": "Last 30 Days Activity",
+  "admin.analytics.chartJobs": "New Jobs",
+  "admin.analytics.chartApps": "New Applications",
+  "admin.analytics.chartUsers": "New Users",
+  "admin.analytics.viewAnalytics": "Detailed Analytics",
+  "admin.analytics.pageTitle": "Analytics Dashboard",
+  "admin.analytics.pageSubtitle": "A comprehensive overview of platform activity over the last 30 days",
+  "dashboard.admin.analytics": "Analytics",
+
+  // Seeker Activity Log
+  "dashboard.seeker.activity": "Activity Log",
+  "seeker.activity.title": "Activity Log",
+  "seeker.activity.subtitle": "Your activity history on the Fursa platform",
+  "seeker.activity.empty": "No activity yet",
+  "seeker.activity.emptyDesc": "Your applications, alerts, and recent activities will appear here",
+  "seeker.activity.applied": "Applied for a job",
+  "seeker.activity.saved": "Saved a job",
+  "seeker.activity.alertCreated": "Created a job alert",
+  "seeker.activity.viewJob": "View Job",
 
   // Common add
   "common.add": "Add",

@@ -199,6 +199,17 @@ To run locally:
 6. On profile submit → `PATCH /api/me` auto-sets `onboarded: true` (backend auto-completes onboarding when a user with a role updates their profile)
 7. Redirect to `/{role}` dashboard
 
+## Recent Changes (May 2026 — Session 3)
+
+- **[0] Fix employer profile** — Added `sm:pt-3` to info section so text isn't flush against gradient bar on large screens with website URL present.
+- **[1] Fix seeker dashboard** — Removed `w-full` from stat cards grid; `overflow-x-hidden` kept on container to prevent horizontal scroll.
+- **CV Builder** — Full rewrite: collapsible form sections, 5-color theme picker, new Languages section, new Certifications section, LinkedIn field, pre-fills from user profile, proper `@page A4` print CSS with `print-color-adjust: exact`, live color-matched preview with LTR pinned layout, "Live preview" badge.
+- **Admin Analytics** — New `/admin/analytics` page with recharts: area chart (all 3 series over 30 days), bar chart (jobs), line chart (applications), summary cards per metric. API endpoint `GET /api/admin/analytics` returns daily breakdown for last 30 days.
+- **Seeker Activity Log** — New `/seeker/activity` page: unified timeline of applications + saved jobs + job alerts, sorted by date, with color-coded icons, status badges, and links to jobs.
+- **New routes registered**: `/admin/analytics`, `/seeker/activity`.
+- **RoleNav updated**: Added "سجل النشاط / Activity Log" for seekers, "التحليلات / Analytics" for admins.
+- **i18n**: Added ~30 new keys (CV extras, analytics, activity log) to both AR and EN dicts.
+
 ## Recent Changes (May 2026 — Session 2)
 
 - **RoleNav**: New `RoleNav.tsx` component — horizontal sub-nav bar below header, visible only on desktop (`md+`) for logged-in/onboarded users. Shows all role-specific links + Messages + Notifications as pill tabs with active state. Mounted in `AppLayout.tsx`.

@@ -16,6 +16,8 @@ import {
   Users,
   MessageSquare,
   Bell,
+  Activity,
+  BarChart2,
 } from "lucide-react";
 
 type NavItem = {
@@ -51,6 +53,7 @@ export function RoleNav() {
           { href: "/seeker/saved", label: t("dashboard.seeker.saved"), icon: Bookmark },
           { href: "/seeker/alerts", label: t("dashboard.seeker.alerts"), icon: BellRing },
           { href: "/seeker/cv-builder", label: t("dashboard.seeker.cvBuilder"), icon: ScrollText },
+          { href: "/seeker/activity", label: t("dashboard.seeker.activity"), icon: Activity },
           { href: "/seeker/profile", label: t("dashboard.seeker.profile"), icon: UserIcon },
         ]
       : role === "employer"
@@ -63,6 +66,7 @@ export function RoleNav() {
       ? [
           { href: "/admin/jobs", label: t("dashboard.admin.jobs"), icon: ShieldCheck },
           { href: "/admin/users", label: t("dashboard.admin.users"), icon: Users },
+          { href: "/admin/analytics", label: t("dashboard.admin.analytics"), icon: BarChart2 },
           { href: "/admin/profile", label: t("dashboard.admin.profile"), icon: UserIcon },
         ]
       : [];

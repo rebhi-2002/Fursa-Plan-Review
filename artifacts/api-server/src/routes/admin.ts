@@ -526,4 +526,70 @@ router.get(
   },
 );
 
+// GET /api/admin/analytics — daily activity for last 30 days
+router.get(
+  "/admin/analytics",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("admin"),
+  async (_req: Request, res: Response) => {
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+      const [dailyJobs, dailyApps, dailyUsers] = await Promise.all([
+        db
+          .select({
+            day: sql<string>`date_trunc('day', ${jobsTable.createdAt})::date::text`,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(jobsTable)
+          .where(gte(jobsTable.createdAt, thirtyDaysAgo))
+          .groupBy(sql`date_trunc('day', ${jobsTable.createdAt})`)
+          .orderBy(sql`date_trunc('day', ${jobsTable.createdAt})`),
+        db
+          .select({
+            day: sql<string>`date_trunc('day', ${applicationsTable.createdAt})::date::text`,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(applicationsTable)
+          .where(gte(applicationsTable.createdAt, thirtyDaysAgo))
+          .groupBy(sql`date_trunc('day', ${applicationsTable.createdAt})`)
+          .orderBy(sql`date_trunc('day', ${applicationsTable.createdAt})`),
+        db
+          .select({
+            day: sql<string>`date_trunc('day', ${usersTable.createdAt})::date::text`,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(usersTable)
+          .where(gte(usersTable.createdAt, thirtyDaysAgo))
+          .groupBy(sql`date_trunc('day', ${usersTable.createdAt})`)
+          .orderBy(sql`date_trunc('day', ${usersTable.createdAt})`),
+      ]);
+
+      // Build full 30-day skeleton
+      const dateMap: Record<string, { day: string; jobs: number; applications: number; users: number }> = {};
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        dateMap[key] = { day: key, jobs: 0, applications: 0, users: 0 };
+      }
+      for (const r of dailyJobs) {
+        if (dateMap[r.day]) dateMap[r.day].jobs = r.count;
+      }
+      for (const r of dailyApps) {
+        if (dateMap[r.day]) dateMap[r.day].applications = r.count;
+      }
+      for (const r of dailyUsers) {
+        if (dateMap[r.day]) dateMap[r.day].users = r.count;
+      }
+
+      res.json({ daily: Object.values(dateMap) });
+    } catch {
+      res.status(500).json({ error: "Failed to load analytics" });
+    }
+  },
+);
+
 export default router;
