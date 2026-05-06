@@ -55,6 +55,7 @@ import AdminProfile from "@/pages/admin/profile";
 import MessagesPage from "@/pages/messages/index";
 import MessageThread from "@/pages/messages/thread";
 import PublicSeekerProfile from "@/pages/seekers/profile";
+import DocsPage from "@/pages/docs";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -268,6 +269,9 @@ function Router() {
             <Route path="/seekers/:id">
               <PublicSeekerProfile />
             </Route>
+
+            {/* Docs / User Guide */}
+            <Route path="/docs" component={DocsPage} />
 
             {/* Admin Routes */}
             <Route path="/admin">

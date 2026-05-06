@@ -61,6 +61,14 @@ export function Footer() {
                   {t("footer.contact")}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/docs"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("footer.docs")}
+                </Link>
+              </li>
             </ul>
           </div>
 

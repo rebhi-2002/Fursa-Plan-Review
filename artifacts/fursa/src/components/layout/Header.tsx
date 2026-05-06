@@ -114,6 +114,11 @@ export function Header() {
         { href: "/admin/profile", label: t("dashboard.admin.profile"), icon: UserIcon },
       );
     }
+    // Add shared items for all roles
+    links.push(
+      { href: "/messages", label: lang === "ar" ? "الرسائل" : "Messages", icon: MessageSquare },
+    );
+
     return links.map((l) => (
       <DropdownMenuItem key={l.href} asChild>
         <Link

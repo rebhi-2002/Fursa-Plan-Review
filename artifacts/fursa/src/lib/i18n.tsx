@@ -33,6 +33,7 @@ const ar: TranslationDictionary = {
   "footer.account": "الحساب",
   "footer.platform": "عن فُرصة",
   "footer.findJob": "ابحث عن عمل",
+  "footer.docs": "دليل الاستخدام",
   "footer.postJob": "وظّف الكفاءات",
 
   // Generic
@@ -868,6 +869,7 @@ const en: TranslationDictionary = {
   "footer.account": "Account",
   "footer.platform": "About Fursa",
   "footer.findJob": "Find a Job",
+  "footer.docs": "User Guide",
   "footer.postJob": "Hire Talent",
 
   // Generic

@@ -199,6 +199,13 @@ To run locally:
 6. On profile submit → `PATCH /api/me` auto-sets `onboarded: true` (backend auto-completes onboarding when a user with a role updates their profile)
 7. Redirect to `/{role}` dashboard
 
+## Recent Changes (May 2026 — Session 2)
+
+- **RoleNav**: New `RoleNav.tsx` component — horizontal sub-nav bar below header, visible only on desktop (`md+`) for logged-in/onboarded users. Shows all role-specific links + Messages + Notifications as pill tabs with active state. Mounted in `AppLayout.tsx`.
+- **Messages on desktop**: Added `/messages` to `renderRoleLinks()` dropdown in Header.tsx so it appears in the avatar dropdown too.
+- **Docs page**: `/docs` — full bilingual user guide with 3 role tabs (Seeker 8 steps / Employer 7 steps / Admin 6 steps), platform features grid, quick links. Linked from footer as "دليل الاستخدام / User Guide".
+- **Footer.docs**: Added `footer.docs` translation key (AR + EN) and link in `Footer.tsx`.
+
 ## Recent Changes (May 2026)
 
 - **Bug fix**: Employer profile — `-mt-12` moved to avatar div only (website URL no longer pushes layout on large screens)
