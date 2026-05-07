@@ -231,30 +231,32 @@ export default function SeekerDashboard() {
                   key={job.id}
                   className="border-border/50 hover:shadow-sm transition-shadow"
                 >
-                  <CardContent className="p-4 flex justify-between items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                      <Link
-                        href={`/jobs/${job.id}`}
-                        className="font-semibold hover:text-primary transition-colors truncate block"
-                      >
-                        {job.title}
-                      </Link>
-                      <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                        <span className="truncate">{job.employerName}</span>
-                        <span>•</span>
-                        <span className="text-xs px-2 py-0.5 bg-muted rounded-full">
-                          {t(`jobs.type.${job.type}`)}
-                        </span>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <Link
+                          href={`/jobs/${job.id}`}
+                          className="font-semibold hover:text-primary transition-colors truncate block"
+                        >
+                          {job.title}
+                        </Link>
+                        <div className="flex items-center gap-1.5 flex-wrap mt-1 text-sm text-muted-foreground min-w-0">
+                          <span className="truncate max-w-[140px]">{job.employerName}</span>
+                          <span className="shrink-0">•</span>
+                          <span className="text-xs px-2 py-0.5 bg-muted rounded-full shrink-0">
+                            {t(`jobs.type.${job.type}`)}
+                          </span>
+                        </div>
                       </div>
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="ghost"
+                        className="shrink-0 bg-primary/5 text-primary hover:bg-primary/10 mt-0.5"
+                      >
+                        <Link href={`/jobs/${job.id}`}>{t("jobs.details")}</Link>
+                      </Button>
                     </div>
-                    <Button
-                      asChild
-                      size="sm"
-                      variant="ghost"
-                      className="shrink-0 bg-primary/5 text-primary hover:bg-primary/10"
-                    >
-                      <Link href={`/jobs/${job.id}`}>{t("jobs.details")}</Link>
-                    </Button>
                   </CardContent>
                 </Card>
               ))}

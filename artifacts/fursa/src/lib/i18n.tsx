@@ -795,7 +795,8 @@ const ar: TranslationDictionary = {
 
   // CV Builder
   "cvBuilder.title": "منشئ السيرة الذاتية",
-  "cvBuilder.subtitle": "أنشئ سيرتك الذاتية وقم بطباعتها",
+  "cvBuilder.subtitle": "أنشئ سيرة ذاتية احترافية ATS وقم بطباعتها أو تنزيلها PDF",
+  "cvBuilder.headline": "العنوان الوظيفي",
   "cvBuilder.print": "طباعة / تنزيل PDF",
   "cvBuilder.personal": "المعلومات الشخصية",
   "cvBuilder.fullName": "الاسم الكامل",
@@ -1656,7 +1657,8 @@ const en: TranslationDictionary = {
 
   // CV Builder
   "cvBuilder.title": "CV Builder",
-  "cvBuilder.subtitle": "Build and print your professional CV",
+  "cvBuilder.subtitle": "Build a professional ATS-ready CV and print or download as PDF",
+  "cvBuilder.headline": "Professional Headline",
   "cvBuilder.print": "Print / Download PDF",
   "cvBuilder.personal": "Personal Information",
   "cvBuilder.fullName": "Full Name",

@@ -58,6 +58,9 @@ import MessagesPage from "@/pages/messages/index";
 import MessageThread from "@/pages/messages/thread";
 import PublicSeekerProfile from "@/pages/seekers/profile";
 import DocsPage from "@/pages/docs";
+import HowItWorksPage from "@/pages/how-it-works";
+import SuccessStoriesPage from "@/pages/success-stories";
+import ForEmployersPage from "@/pages/for-employers";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -274,6 +277,11 @@ function Router() {
 
             {/* Docs / User Guide */}
             <Route path="/docs" component={DocsPage} />
+
+            {/* Platform Info Pages */}
+            <Route path="/how-it-works" component={HowItWorksPage} />
+            <Route path="/success-stories" component={SuccessStoriesPage} />
+            <Route path="/for-employers" component={ForEmployersPage} />
 
             {/* Admin Routes */}
             <Route path="/admin">

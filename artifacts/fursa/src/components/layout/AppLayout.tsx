@@ -6,12 +6,12 @@ import { RoleNav } from "./RoleNav";
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
-      <Header />
-      <RoleNav />
+      <div className="print:hidden"><Header /></div>
+      <div className="print:hidden"><RoleNav /></div>
       <main className="flex-1 w-full flex flex-col">
         {children}
       </main>
-      <Footer />
+      <div className="print:hidden"><Footer /></div>
     </div>
   );
 }
