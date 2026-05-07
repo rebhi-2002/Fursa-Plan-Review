@@ -167,19 +167,26 @@ export default function DocsPage() {
         <meta name="description" content={isAr ? "دليل شامل لاستخدام منصة فُرصة" : "Complete guide to using the Fursa platform"} />
       </Helmet>
 
-      {/* Header */}
-      <div className="text-center mb-10">
-        <Badge variant="secondary" className="mb-3 px-4 py-1.5 rounded-full">
-          {isAr ? "دليل المستخدم" : "User Guide"}
-        </Badge>
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground mb-3">
-          {isAr ? "كيف تستخدم منصة فُرصة؟" : "How to use Fursa?"}
-        </h1>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          {isAr
-            ? "دليل خطوة بخطوة للباحثين عن عمل وأصحاب العمل والمسؤولين"
-            : "A step-by-step guide for job seekers, employers, and admins"}
-        </p>
+      {/* Hero Banner */}
+      <div className="relative rounded-2xl overflow-hidden mb-10 h-48 md:h-60">
+        <img
+          src="/img/docs-hero.png"
+          alt={isAr ? "دليل الاستخدام" : "User Guide"}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-12">
+          <Badge className="mb-3 bg-white/20 text-white border-white/30 text-xs px-3 py-1 w-fit">
+            {isAr ? "دليل المستخدم" : "User Guide"}
+          </Badge>
+          <h1 className="text-2xl md:text-4xl font-extrabold text-white mb-2">
+            {isAr ? "كيف تستخدم منصة فُرصة؟" : "How to use Fursa?"}
+          </h1>
+          <p className="text-white/80 text-sm md:text-base max-w-md">
+            {isAr
+              ? "دليل خطوة بخطوة للباحثين عن عمل وأصحاب العمل والمسؤولين"
+              : "A step-by-step guide for job seekers, employers, and admins"}
+          </p>
+        </div>
       </div>
 
       {/* Platform Features */}

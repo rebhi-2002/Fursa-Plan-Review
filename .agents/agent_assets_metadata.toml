@@ -18,6 +18,30 @@ uri = "file://attached_assets/fursa-favicon.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "IvG88QohbezlH3--4qm8j"
+uri = "file://artifacts/fursa/public/img/success-stories-hero.png"
+type = "image"
+title = "success stories hero Gaza workers"
+
+[[generated]]
+id = "uj84Io_Nk9-bNj0nrOsTN"
+uri = "file://artifacts/fursa/public/img/for-employers-hero.png"
+type = "image"
+title = "for employers hero hiring Gaza"
+
+[[generated]]
+id = "P63l5nqO8EHFa1fiSGUyG"
+uri = "file://artifacts/fursa/public/img/home-hero-person.png"
+type = "image"
+title = "home hero professional Gaza"
+
+[[generated]]
+id = "v52OBxTr_v1TtfVqWJlyW"
+uri = "file://artifacts/fursa/public/img/docs-hero.png"
+type = "image"
+title = "docs guide illustration"
+
 [[outputs]]
 id = "RRJFZVPUnZZAGEvwPT6pJ"
 uri = "file://DEPLOYMENT.md"

@@ -131,9 +131,11 @@ export default function ForEmployersPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-primary/90 to-slate-800 py-20 md:py-28">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-0 w-full h-full" style={{ background: "radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.4) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(59,130,246,0.3) 0%, transparent 60%)" }} />
-        </div>
+        <img
+          src="/img/for-employers-hero.png"
+          alt={lang === "ar" ? "توظيف محترف" : "Professional hiring"}
+          className="absolute inset-0 w-full h-full object-cover opacity-25"
+        />
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <Badge className="mb-4 bg-white/15 text-white border-white/20 text-sm px-4 py-1">

@@ -123,18 +123,18 @@ export default function SuccessStoriesPage() {
       </Helmet>
 
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/70 py-20 md:py-28">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-8 left-12 h-40 w-40 rounded-full bg-white/30 blur-3xl" />
-          <div className="absolute bottom-8 right-12 h-56 w-56 rounded-full bg-white/20 blur-3xl" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-        </div>
-        <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <Badge className="mb-4 bg-white/15 text-white border-white/20 text-sm px-4 py-1">
+      <section className="relative h-72 md:h-96 overflow-hidden">
+        <img
+          src="/img/success-stories-hero.png"
+          alt={lang === "ar" ? "قصص نجاح من غزة" : "Success stories from Gaza"}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/50 to-transparent flex flex-col items-center justify-end text-center pb-10 px-4">
+          <Badge className="mb-3 bg-white/20 text-white border-white/30 text-sm px-4 py-1">
             {lang === "ar" ? "قصص حقيقية من غزة" : "Real Stories from Gaza"}
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">{title}</h1>
-          <p className="text-lg text-white/80 max-w-xl mx-auto">{desc}</p>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2">{title}</h1>
+          <p className="text-lg text-white/80 max-w-xl">{desc}</p>
         </div>
       </section>
 
