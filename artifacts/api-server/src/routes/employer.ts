@@ -443,4 +443,71 @@ router.get(
   },
 );
 
+router.get(
+  "/employer/jobs/:id/suggested-candidates",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+    const job = await loadEmployerJob(id, req.currentUser.id);
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
+
+    const category = (job.category || "").toLowerCase();
+    const titleWords = job.title
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length > 2);
+
+    const seekers = await db
+      .select({
+        id: usersTable.id,
+        name: usersTable.name,
+        bio: usersTable.bio,
+        location: usersTable.location,
+      })
+      .from(usersTable)
+      .where(
+        and(
+          eq(usersTable.role, "seeker"),
+          eq(usersTable.isActive, true),
+          eq(usersTable.onboarded, true),
+        ),
+      )
+      .limit(200);
+
+    type SeekerWithScore = {
+      id: string;
+      name: string;
+      bio: string | null;
+      location: string | null;
+      score: number;
+    };
+
+    const scored: SeekerWithScore[] = seekers
+      .map((seeker) => {
+        let score = 0;
+        const bio = (seeker.bio ?? "").toLowerCase();
+        if (category && bio.includes(category)) score += 3;
+        for (const word of titleWords) {
+          if (bio.includes(word)) {
+            score += 2;
+            break;
+          }
+        }
+        return { ...seeker, score };
+      })
+      .filter((s) => s.score > 0);
+
+    scored.sort((a, b) => b.score - a.score);
+
+    res.json(
+      scored.slice(0, 8).map(({ score: _s, ...s }) => s),
+    );
+  },
+);
+
 export default router;

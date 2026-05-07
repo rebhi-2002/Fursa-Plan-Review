@@ -43,7 +43,7 @@ const FONT_OPTIONS = [
   { id: "montserrat", label: "Montserrat",            css: "'Montserrat', 'Segoe UI', sans-serif" },
 ];
 
-const LANG_LEVELS = ["مبتدئ", "متوسط", "متقدم", "متمكن", "أصلي / Beginner / Intermediate / Advanced / Fluent / Native"];
+const LANG_LEVELS = ["Beginner / مبتدئ", "Intermediate / متوسط", "Advanced / متقدم", "Fluent / متمكن", "Native / أصلي"];
 
 function FormSection({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -135,7 +135,7 @@ export default function CvBuilderPage() {
       {/* CV Header */}
       <div className="px-9 py-7" style={{ background: theme.header }}>
         <h1 style={{ fontSize: "22px", fontWeight: 700, color: "#fff", letterSpacing: "-0.3px", marginBottom: "4px" }}>
-          {name || (isRTL ? "الاسم الكامل" : "Full Name")}
+          {name || "Full Name"}
         </h1>
         {headline && (
           <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.85)", marginBottom: "8px", fontWeight: 500 }}>
@@ -161,7 +161,7 @@ export default function CvBuilderPage() {
         {summary && (
           <div>
             <h2 style={{ fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: theme.accent, marginBottom: "6px" }}>
-              {isRTL ? "الملخص المهني" : "PROFESSIONAL SUMMARY"}
+              {"PROFESSIONAL SUMMARY"}
             </h2>
             <div style={{ height: "2px", background: theme.light, marginBottom: "8px" }} />
             <p style={{ fontSize: "12.5px", color: "#374151", lineHeight: "1.65" }}>{summary}</p>
@@ -172,7 +172,7 @@ export default function CvBuilderPage() {
         {experiences.some(e => e.title || e.company) && (
           <div>
             <h2 style={{ fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: theme.accent, marginBottom: "6px" }}>
-              {isRTL ? "الخبرات العملية" : "WORK EXPERIENCE"}
+              {"WORK EXPERIENCE"}
             </h2>
             <div style={{ height: "2px", background: theme.light, marginBottom: "10px" }} />
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -204,7 +204,7 @@ export default function CvBuilderPage() {
         {educations.some(e => e.degree || e.institution) && (
           <div>
             <h2 style={{ fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: theme.accent, marginBottom: "6px" }}>
-              {isRTL ? "التعليم" : "EDUCATION"}
+              {"EDUCATION"}
             </h2>
             <div style={{ height: "2px", background: theme.light, marginBottom: "10px" }} />
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
@@ -229,7 +229,7 @@ export default function CvBuilderPage() {
             {skillList.length > 0 && (
               <div>
                 <h2 style={{ fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: theme.accent, marginBottom: "6px" }}>
-                  {isRTL ? "المهارات" : "SKILLS"}
+                  {"SKILLS"}
                 </h2>
                 <div style={{ height: "2px", background: theme.light, marginBottom: "8px" }} />
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "5px" }}>
@@ -244,7 +244,7 @@ export default function CvBuilderPage() {
             {languages.some(l => l.name) && (
               <div>
                 <h2 style={{ fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: theme.accent, marginBottom: "6px" }}>
-                  {isRTL ? "اللغات" : "LANGUAGES"}
+                  {"LANGUAGES"}
                 </h2>
                 <div style={{ height: "2px", background: theme.light, marginBottom: "8px" }} />
                 <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
@@ -264,7 +264,7 @@ export default function CvBuilderPage() {
         {certificates.some(c => c.name) && (
           <div>
             <h2 style={{ fontSize: "9px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "2px", color: theme.accent, marginBottom: "6px" }}>
-              {isRTL ? "الشهادات والدورات" : "CERTIFICATIONS"}
+              {"CERTIFICATIONS"}
             </h2>
             <div style={{ height: "2px", background: theme.light, marginBottom: "10px" }} />
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>

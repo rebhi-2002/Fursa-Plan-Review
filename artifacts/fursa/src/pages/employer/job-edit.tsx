@@ -63,6 +63,7 @@ import {
   Users,
   Pencil,
 } from "lucide-react";
+import SuggestedCandidates from "@/components/employer/SuggestedCandidates";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
@@ -854,6 +855,8 @@ export default function EmployerJobDetail() {
           </CardContent>
         </Card>
       )}
+
+      <SuggestedCandidates jobId={jobId} />
     </div>
   );
 }

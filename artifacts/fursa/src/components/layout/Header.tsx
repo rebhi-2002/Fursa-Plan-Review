@@ -44,6 +44,7 @@ import {
   MessageSquare,
   BellRing,
   ScrollText,
+  BarChart2,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -211,6 +212,9 @@ export function Header() {
               </Link>
               <Link href="/admin/users" onClick={closeMobile} className={mobileLinkClass("/admin/users")}>
                 <Users className="h-5 w-5" /> {t("dashboard.admin.users")}
+              </Link>
+              <Link href="/admin/analytics" onClick={closeMobile} className={mobileLinkClass("/admin/analytics")}>
+                <BarChart2 className="h-5 w-5" /> {t("dashboard.admin.analytics")}
               </Link>
               <Link href="/admin/profile" onClick={closeMobile} className={mobileLinkClass("/admin/profile")}>
                 <UserIcon className="h-5 w-5" /> {t("dashboard.admin.profile")}

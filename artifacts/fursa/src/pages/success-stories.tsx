@@ -6,6 +6,31 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Quote, Star, Users, Briefcase, TrendingUp } from "lucide-react";
 
+function getInitials(name: string) {
+  return name.split(" ").map(w => w[0] ?? "").slice(0, 2).join("").toUpperCase();
+}
+
+const AVATAR_COLORS = [
+  ["#3730a3", "#eef2ff"],
+  ["#0f766e", "#f0fdfa"],
+  ["#be123c", "#fff1f2"],
+  ["#15803d", "#f0fdf4"],
+  ["#1d4ed8", "#eff6ff"],
+  ["#92400e", "#fffbeb"],
+];
+
+function InitialsAvatar({ name, idx }: { name: string; idx: number }) {
+  const [bg, fg] = AVATAR_COLORS[idx % AVATAR_COLORS.length]!;
+  return (
+    <div
+      className="h-11 w-11 rounded-full border-2 border-primary/20 shrink-0 flex items-center justify-center text-sm font-bold"
+      style={{ background: bg, color: fg }}
+    >
+      {getInitials(name)}
+    </div>
+  );
+}
+
 export default function SuccessStoriesPage() {
   const { lang } = useLanguageStore();
 
@@ -97,19 +122,19 @@ export default function SuccessStoriesPage() {
         <meta name="description" content={desc} />
       </Helmet>
 
-      {/* Hero with image */}
-      <section className="relative h-72 md:h-96 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1400&q=80"
-          alt="Success team"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/50 to-transparent flex flex-col items-center justify-end text-center pb-10 px-4">
-          <Badge className="mb-3 bg-white/20 text-white border-white/30 text-sm px-4 py-1">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/90 to-primary/70 py-20 md:py-28">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-8 left-12 h-40 w-40 rounded-full bg-white/30 blur-3xl" />
+          <div className="absolute bottom-8 right-12 h-56 w-56 rounded-full bg-white/20 blur-3xl" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+        </div>
+        <div className="relative mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <Badge className="mb-4 bg-white/15 text-white border-white/20 text-sm px-4 py-1">
             {lang === "ar" ? "قصص حقيقية من غزة" : "Real Stories from Gaza"}
           </Badge>
-          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2">{title}</h1>
-          <p className="text-lg text-white/80 max-w-xl">{desc}</p>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4">{title}</h1>
+          <p className="text-lg text-white/80 max-w-xl mx-auto">{desc}</p>
         </div>
       </section>
 
@@ -142,11 +167,7 @@ export default function SuccessStoriesPage() {
                     &ldquo;{story.quote}&rdquo;
                   </p>
                   <div className="flex items-center gap-3 mt-auto pt-4 border-t">
-                    <img
-                      src={story.avatar}
-                      alt={story.name}
-                      className="h-11 w-11 rounded-full object-cover border-2 border-primary/20 shrink-0"
-                    />
+                    <InitialsAvatar name={story.name} idx={i} />
                     <div className="min-w-0">
                       <p className="font-bold text-sm truncate">{story.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{story.role}</p>

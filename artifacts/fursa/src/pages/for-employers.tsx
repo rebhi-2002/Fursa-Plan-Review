@@ -131,11 +131,9 @@ export default function ForEmployersPage() {
 
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-primary/90 to-slate-800 py-20 md:py-28">
-        <img
-          src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&q=80"
-          alt="Modern office"
-          className="absolute inset-0 w-full h-full object-cover opacity-20"
-        />
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-0 left-0 w-full h-full" style={{ background: "radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.4) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(59,130,246,0.3) 0%, transparent 60%)" }} />
+        </div>
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <Badge className="mb-4 bg-white/15 text-white border-white/20 text-sm px-4 py-1">
@@ -158,8 +156,8 @@ export default function ForEmployersPage() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white/40 text-white bg-transparent hover:bg-white/10 h-12 px-8">
-                <Link href="/how-it-works">
-                  {lang === "ar" ? "كيف يعمل الموقع؟" : "How Does It Work?"}
+                <Link href="/docs">
+                  {lang === "ar" ? "دليل الاستخدام" : "User Guide"}
                 </Link>
               </Button>
             </div>
@@ -255,7 +253,7 @@ export default function ForEmployersPage() {
                     &ldquo;{t.text}&rdquo;
                   </p>
                   <div className="flex items-center gap-3">
-                    <img src={t.avatar} alt={t.name} className="h-10 w-10 rounded-full object-cover border" />
+                    <div className="h-10 w-10 rounded-full border bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">{t.name.split(" ").map((w: string) => w[0] ?? "").slice(0, 2).join("").toUpperCase()}</div>
                     <div>
                       <p className="font-bold text-sm">{t.name}</p>
                       <p className="text-xs text-muted-foreground">{t.person}</p>

@@ -585,6 +585,14 @@ const ar: TranslationDictionary = {
   "employer.applications.new": "جديد",
   "employer.applications.statusUpdated": "تم تحديث حالة الطلب",
 
+  // Suggested candidates
+  "employer.suggested.title": "مرشحون مقترحون",
+  "employer.suggested.subtitle": "باحثون عن عمل قد يتناسبون مع هذه الوظيفة",
+  "employer.suggested.empty": "لا يوجد مرشحون مقترحون حالياً",
+  "employer.suggested.emptyDesc": "سيظهر هنا الباحثون الذين تتطابق مؤهلاتهم مع متطلبات الوظيفة.",
+  "employer.suggested.viewProfile": "عرض الملف",
+  "employer.suggested.location": "الموقع",
+
   // Footer (new links)
   "footer.faq": "الأسئلة الشائعة",
   "footer.contact": "تواصل معنا",
@@ -1448,6 +1456,14 @@ const en: TranslationDictionary = {
   "employer.applications.emptyDesc": "People who apply to this job will appear here.",
   "employer.applications.new": "New",
   "employer.applications.statusUpdated": "Application status updated",
+
+  // Suggested candidates
+  "employer.suggested.title": "Suggested Candidates",
+  "employer.suggested.subtitle": "Job seekers who may be a good fit for this position",
+  "employer.suggested.empty": "No suggested candidates yet",
+  "employer.suggested.emptyDesc": "Seekers whose profiles match this job's requirements will appear here.",
+  "employer.suggested.viewProfile": "View Profile",
+  "employer.suggested.location": "Location",
 
   // Footer (new links)
   "footer.faq": "FAQ",
