@@ -40,7 +40,19 @@ title = "home hero professional Gaza"
 id = "v52OBxTr_v1TtfVqWJlyW"
 uri = "file://artifacts/fursa/public/img/docs-hero.png"
 type = "image"
-title = "docs guide illustration"
+title = "docs guide illustration no text"
+
+[[generated]]
+id = "ITCgzJDnDmbGRxNEHDjRA"
+uri = "file://artifacts/fursa/public/img/about-hero.png"
+type = "image"
+title = "about page team illustration"
+
+[[generated]]
+id = "QPtvx2dmAYsKhr6o5XMNq"
+uri = "file://artifacts/fursa/public/img/contact-hero.png"
+type = "image"
+title = "contact page communication illustration"
 
 [[outputs]]
 id = "RRJFZVPUnZZAGEvwPT6pJ"

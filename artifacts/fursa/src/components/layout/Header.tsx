@@ -45,6 +45,7 @@ import {
   BellRing,
   ScrollText,
   BarChart2,
+  Activity,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -112,6 +113,7 @@ export function Header() {
       links.push(
         { href: "/admin/jobs", label: t("dashboard.admin.jobs"), icon: Briefcase },
         { href: "/admin/users", label: t("dashboard.admin.users"), icon: Users },
+        { href: "/admin/analytics", label: t("dashboard.admin.analytics"), icon: BarChart2 },
         { href: "/admin/profile", label: t("dashboard.admin.profile"), icon: UserIcon },
       );
     }
@@ -186,6 +188,9 @@ export function Header() {
               </Link>
               <Link href="/seeker/cv-builder" onClick={closeMobile} className={mobileLinkClass("/seeker/cv-builder")}>
                 <ScrollText className="h-5 w-5" /> {t("dashboard.seeker.cvBuilder")}
+              </Link>
+              <Link href="/seeker/activity" onClick={closeMobile} className={mobileLinkClass("/seeker/activity")}>
+                <Activity className="h-5 w-5" /> {t("dashboard.seeker.activity")}
               </Link>
               <Link href="/seeker/profile" onClick={closeMobile} className={mobileLinkClass("/seeker/profile")}>
                 <UserIcon className="h-5 w-5" /> {t("dashboard.seeker.profile")}

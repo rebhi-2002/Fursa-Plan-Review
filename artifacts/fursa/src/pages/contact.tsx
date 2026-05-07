@@ -62,9 +62,16 @@ export default function ContactPage() {
 
   return (
     <div className="container py-12 max-w-5xl">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-bold tracking-tight mb-3">{t("contact.title")}</h1>
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto">{t("contact.subtitle")}</p>
+      <div className="relative rounded-2xl overflow-hidden mb-10 h-44 md:h-52">
+        <img
+          src="/img/contact-hero.png"
+          alt={t("contact.title")}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-12">
+          <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("contact.title")}</h1>
+          <p className="text-white/80 text-sm md:text-base max-w-md">{t("contact.subtitle")}</p>
+        </div>
       </div>
 
       <div className="grid gap-8 md:grid-cols-5">

@@ -48,16 +48,21 @@ export default function AboutPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="bg-primary text-primary-foreground py-20 px-4">
-        <div className="container max-w-4xl text-center">
-          <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-6">
+      <div className="relative overflow-hidden h-64 md:h-80">
+        <img
+          src="/img/about-hero.png"
+          alt={t("about.heroTitle")}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/70 to-primary/40 flex flex-col justify-center px-8 md:px-16">
+          <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-4 w-fit text-white">
             <Briefcase className="h-4 w-4" />
             {t("app.name")}
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl font-bold leading-tight mb-4 text-white">
             {t("about.heroTitle")}
           </h1>
-          <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-white/80 max-w-xl leading-relaxed">
             {t("about.heroSubtitle")}
           </p>
         </div>

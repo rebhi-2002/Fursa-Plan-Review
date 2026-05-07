@@ -28,7 +28,7 @@ export default function SeekerDashboard() {
 
   if (isLoading) {
     return (
-      <div className="container py-8 max-w-5xl px-4 sm:px-6 space-y-6">
+      <div className="mx-auto w-full py-8 max-w-5xl px-4 sm:px-6 space-y-6">
         <h1 className="text-3xl font-bold mb-6">
           {t("seeker.dashboard.title")}
         </h1>
@@ -106,7 +106,7 @@ export default function SeekerDashboard() {
   };
 
   return (
-    <div className="container py-8 max-w-5xl px-4 sm:px-6 overflow-x-hidden">
+    <div className="mx-auto w-full py-8 max-w-5xl px-4 sm:px-6">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">

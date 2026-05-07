@@ -28,7 +28,7 @@ export default function EmployerDashboard() {
 
   if (isLoading) {
     return (
-      <div className="container py-8 max-w-6xl px-4 sm:px-6 space-y-6">
+      <div className="mx-auto w-full py-8 max-w-6xl px-4 sm:px-6 space-y-6">
         <div className="flex justify-between items-center mb-6">
           <Skeleton className="h-10 w-48" />
           <Skeleton className="h-10 w-32" />
@@ -78,7 +78,7 @@ export default function EmployerDashboard() {
   ];
 
   return (
-    <div className="container py-8 max-w-6xl px-4 sm:px-6">
+    <div className="mx-auto w-full py-8 max-w-6xl px-4 sm:px-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
