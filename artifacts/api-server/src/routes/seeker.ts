@@ -498,4 +498,56 @@ router.get(
   },
 );
 
+router.get(
+  "/me/application-stats",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("seeker"),
+  async (req: Request, res: Response) => {
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const userId = req.currentUser.id;
+
+    const rows = await db
+      .select({
+        month: sql<string>`to_char(${applicationsTable.createdAt}, 'YYYY-MM')`,
+        status: applicationsTable.status,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(applicationsTable)
+      .where(
+        and(
+          eq(applicationsTable.applicantId, userId),
+          sql`${applicationsTable.createdAt} >= now() - interval '6 months'`,
+        ),
+      )
+      .groupBy(
+        sql`to_char(${applicationsTable.createdAt}, 'YYYY-MM')`,
+        applicationsTable.status,
+      )
+      .orderBy(sql`to_char(${applicationsTable.createdAt}, 'YYYY-MM')`);
+
+    const AR_MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+    const EN_MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+    const months: { month: string; labelAr: string; labelEn: string; submitted: number; accepted: number; rejected: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(1);
+      d.setMonth(d.getMonth() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      months.push({ month: key, labelAr: AR_MONTHS[d.getMonth()]!, labelEn: EN_MONTHS[d.getMonth()]!, submitted: 0, accepted: 0, rejected: 0 });
+    }
+
+    for (const row of rows) {
+      const m = months.find((x) => x.month === row.month);
+      if (!m) continue;
+      m.submitted += row.count;
+      if (row.status === "accepted") m.accepted = row.count;
+      else if (row.status === "rejected") m.rejected = row.count;
+    }
+
+    res.json(months);
+  },
+);
+
 export default router;

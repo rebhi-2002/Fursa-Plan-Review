@@ -1,10 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useT, useLanguageStore } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Sparkles, UserSearch } from "lucide-react";
+import { MapPin, Sparkles, UserSearch, Send, Check } from "lucide-react";
 import { Link } from "wouter";
+import { toast } from "sonner";
 
 type SuggestedCandidate = {
   id: string;
@@ -36,6 +38,7 @@ function getInitials(name: string) {
 export default function SuggestedCandidates({ jobId }: { jobId: number }) {
   const t = useT();
   const { lang } = useLanguageStore();
+  const [invited, setInvited] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useQuery<SuggestedCandidate[]>({
     queryKey: ["suggested-candidates", jobId],
@@ -47,6 +50,24 @@ export default function SuggestedCandidates({ jobId }: { jobId: number }) {
       return res.json() as Promise<SuggestedCandidate[]>;
     },
     enabled: !!jobId,
+  });
+
+  const inviteMutation = useMutation({
+    mutationFn: async (seekerId: string) => {
+      const res = await fetch(`/api/employer/jobs/${jobId}/invite/${seekerId}`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to invite");
+      return seekerId;
+    },
+    onSuccess: (seekerId) => {
+      setInvited((prev) => new Set([...prev, seekerId]));
+      toast.success(t("employer.suggested.inviteSuccess"));
+    },
+    onError: () => {
+      toast.error(lang === "ar" ? "فشل إرسال الدعوة" : "Failed to send invitation");
+    },
   });
 
   return (
@@ -64,13 +85,15 @@ export default function SuggestedCandidates({ jobId }: { jobId: number }) {
         {isLoading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-32 w-full rounded-xl" />
+              <Skeleton key={i} className="h-40 w-full rounded-xl" />
             ))}
           </div>
         ) : data && data.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {data.map((candidate, idx) => {
               const colors = AVATAR_COLORS[idx % AVATAR_COLORS.length]!;
+              const isInvited = invited.has(candidate.id);
+              const isInviting = inviteMutation.isPending && inviteMutation.variables === candidate.id;
               return (
                 <div
                   key={candidate.id}
@@ -98,19 +121,42 @@ export default function SuggestedCandidates({ jobId }: { jobId: number }) {
                       {candidate.bio}
                     </p>
                   )}
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="sm"
-                    className="w-full mt-auto text-xs"
-                  >
-                    <Link
-                      href={`/seekers/${candidate.id}`}
-                      dir={lang === "ar" ? "rtl" : "ltr"}
+                  <div className="flex flex-col gap-2 mt-auto">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs"
                     >
-                      {t("employer.suggested.viewProfile")}
-                    </Link>
-                  </Button>
+                      <Link
+                        href={`/seekers/${candidate.id}`}
+                        dir={lang === "ar" ? "rtl" : "ltr"}
+                      >
+                        {t("employer.suggested.viewProfile")}
+                      </Link>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={isInvited ? "secondary" : "default"}
+                      className="w-full text-xs gap-1"
+                      disabled={isInvited || isInviting}
+                      onClick={() => inviteMutation.mutate(candidate.id)}
+                    >
+                      {isInvited ? (
+                        <>
+                          <Check className="h-3 w-3" />
+                          {t("employer.suggested.invited")}
+                        </>
+                      ) : isInviting ? (
+                        <>{lang === "ar" ? "جاري الإرسال..." : "Sending..."}</>
+                      ) : (
+                        <>
+                          <Send className="h-3 w-3" />
+                          {t("employer.suggested.invite")}
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               );
             })}

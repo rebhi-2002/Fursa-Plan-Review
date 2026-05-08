@@ -4,6 +4,7 @@ import {
   jobsTable,
   usersTable,
   applicationsTable,
+  messagesTable,
 } from "@workspace/db";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -507,6 +508,60 @@ router.get(
     res.json(
       scored.slice(0, 8).map(({ score: _s, ...s }) => s),
     );
+  },
+);
+
+router.post(
+  "/employer/jobs/:jobId/invite/:seekerId",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const jobId = parseInt(String(req.params["jobId"] ?? ""), 10);
+    const seekerId = String(req.params["seekerId"] ?? "");
+    if (!Number.isFinite(jobId) || !seekerId) { res.status(400).json({ error: "Invalid params" }); return; }
+
+    const job = await loadEmployerJob(jobId, req.currentUser.id);
+    if (!job) { res.status(404).json({ error: "Job not found" }); return; }
+
+    const seekerRows = await db
+      .select({ id: usersTable.id, name: usersTable.name })
+      .from(usersTable)
+      .where(and(eq(usersTable.id, seekerId), eq(usersTable.role, "seeker"), eq(usersTable.isActive, true)))
+      .limit(1);
+    if (!seekerRows[0]) { res.status(404).json({ error: "Seeker not found" }); return; }
+
+    const employer = req.currentUser;
+    const jobPath = `/jobs/${job.id}`;
+    const messageBody = [
+      `🎯 دعوة للتقديم على وظيفة`,
+      ``,
+      `الوظيفة: ${job.title}`,
+      `الفئة: ${job.category}`,
+      `النوع: ${job.type}`,
+      ``,
+      `رابط التقديم: ${jobPath}`,
+    ].join("\n");
+
+    await db.insert(messagesTable).values({
+      senderId: req.currentUser.id,
+      recipientId: seekerId,
+      body: messageBody,
+    });
+
+    await createNotification({
+      userId: seekerId,
+      type: "new_job_alert",
+      title: { ar: `دعوة للتقديم: ${job.title}`, en: `Job Invitation: ${job.title}` },
+      body: {
+        ar: `دعاك ${employer.name || "صاحب عمل"} للتقديم على وظيفة "${job.title}"`,
+        en: `${employer.name || "An employer"} invited you to apply for "${job.title}"`,
+      },
+      link: jobPath,
+    });
+
+    res.json({ ok: true });
   },
 );
 

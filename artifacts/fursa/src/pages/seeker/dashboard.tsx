@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useGetSeekerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
 import { ProfileCompletion } from "@/components/ui/ProfileCompletion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,10 +12,22 @@ import {
   Bookmark,
   CheckCircle2,
   Clock,
+  TrendingUp,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
+import { useQuery } from "@tanstack/react-query";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 export default function SeekerDashboard() {
   const t = useT();
@@ -25,6 +37,16 @@ export default function SeekerDashboard() {
   const { data: dashboard, isLoading } = useGetSeekerDashboard();
   const { data: currentUser } = useGetCurrentUser();
   const firstName = currentUser?.name?.split(" ")[0] || "";
+
+  type StatMonth = { month: string; labelAr: string; labelEn: string; submitted: number; accepted: number; rejected: number };
+  const { data: appStats } = useQuery<StatMonth[]>({
+    queryKey: ["application-stats"],
+    queryFn: async () => {
+      const res = await fetch("/api/me/application-stats", { credentials: "include" });
+      if (!res.ok) return [];
+      return res.json() as Promise<StatMonth[]>;
+    },
+  });
 
   if (isLoading) {
     return (
@@ -153,6 +175,68 @@ export default function SeekerDashboard() {
           </Card>
         ))}
       </div>
+
+      {appStats && appStats.some((m) => m.submitted > 0) && (
+        <Card className="mb-8 border-border/50 shadow-sm">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <CardTitle className="text-lg">{t("seeker.dashboard.chartTitle")}</CardTitle>
+            </div>
+            <p className="text-sm text-muted-foreground">{t("seeker.dashboard.chartSubtitle")}</p>
+          </CardHeader>
+          <CardContent className="pt-2 pb-4">
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart
+                data={appStats.map((m) => ({
+                  ...m,
+                  label: lang === "ar" ? m.labelAr : m.labelEn,
+                }))}
+                margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+                barSize={16}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                  axisLine={false}
+                  tickLine={false}
+                  reversed={lang === "ar"}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "hsl(var(--popover))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px",
+                    fontSize: 12,
+                  }}
+                  labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
+                />
+                <Legend
+                  iconType="circle"
+                  iconSize={8}
+                  wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
+                  formatter={(value) => {
+                    if (value === "submitted") return t("seeker.dashboard.chartSubmitted");
+                    if (value === "accepted") return t("seeker.dashboard.chartAccepted");
+                    if (value === "rejected") return t("seeker.dashboard.chartRejected");
+                    return value;
+                  }}
+                />
+                <Bar dataKey="submitted" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="accepted" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="rejected" fill="#ef4444" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-4">

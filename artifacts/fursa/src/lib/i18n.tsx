@@ -592,6 +592,14 @@ const ar: TranslationDictionary = {
   "employer.suggested.emptyDesc": "سيظهر هنا الباحثون الذين تتطابق مؤهلاتهم مع متطلبات الوظيفة.",
   "employer.suggested.viewProfile": "عرض الملف",
   "employer.suggested.location": "الموقع",
+  "employer.suggested.invite": "دعوة للتقديم",
+  "employer.suggested.invited": "تم الدعوة ✓",
+  "employer.suggested.inviteSuccess": "تم إرسال الدعوة بنجاح",
+  "seeker.dashboard.chartTitle": "تحليل طلباتي الشهري",
+  "seeker.dashboard.chartSubtitle": "إجمالي الطلبات خلال آخر 6 أشهر",
+  "seeker.dashboard.chartSubmitted": "مُرسل",
+  "seeker.dashboard.chartAccepted": "مقبول",
+  "seeker.dashboard.chartRejected": "مرفوض",
 
   // Footer (new links)
   "footer.faq": "الأسئلة الشائعة",
@@ -1464,6 +1472,14 @@ const en: TranslationDictionary = {
   "employer.suggested.emptyDesc": "Seekers whose profiles match this job's requirements will appear here.",
   "employer.suggested.viewProfile": "View Profile",
   "employer.suggested.location": "Location",
+  "employer.suggested.invite": "Invite to Apply",
+  "employer.suggested.invited": "Invited ✓",
+  "employer.suggested.inviteSuccess": "Invitation sent successfully",
+  "seeker.dashboard.chartTitle": "My Monthly Applications",
+  "seeker.dashboard.chartSubtitle": "Total applications over the last 6 months",
+  "seeker.dashboard.chartSubmitted": "Submitted",
+  "seeker.dashboard.chartAccepted": "Accepted",
+  "seeker.dashboard.chartRejected": "Rejected",
 
   // Footer (new links)
   "footer.faq": "FAQ",

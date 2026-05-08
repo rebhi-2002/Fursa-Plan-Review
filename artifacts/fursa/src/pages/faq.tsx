@@ -25,16 +25,19 @@ export default function FaqPage() {
 
   return (
     <div className="container py-12 max-w-3xl">
-      <div className="text-center mb-10">
-        <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-primary/10 mb-4">
-          <HelpCircle className="h-7 w-7 text-primary" />
+      <div className="relative rounded-2xl overflow-hidden mb-10 h-44 md:h-52">
+        <img
+          src="/img/faq-hero.png"
+          alt={t("faq.title")}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-12">
+          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-white/20 mb-3">
+            <HelpCircle className="h-6 w-6 text-white" />
+          </div>
+          <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("faq.title")}</h1>
+          <p className="text-white/80 text-sm md:text-base max-w-md">{t("faq.subtitle")}</p>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight mb-3">
-          {t("faq.title")}
-        </h1>
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          {t("faq.subtitle")}
-        </p>
       </div>
 
       <Accordion type="single" collapsible className="space-y-2">

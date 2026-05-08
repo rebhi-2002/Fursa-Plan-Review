@@ -44,9 +44,16 @@ export default function EmployersListPage() {
 
   return (
     <div className="container py-6 sm:py-8 px-4 sm:px-6 max-w-5xl">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-2">{t("employers.title")}</h1>
-        <p className="text-muted-foreground text-sm sm:text-base">{t("employers.subtitle")}</p>
+      <div className="relative rounded-2xl overflow-hidden mb-6 sm:mb-8 h-40 md:h-48">
+        <img
+          src="/img/seekers-hero.png"
+          alt={t("employers.title")}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-12">
+          <h1 className="text-2xl md:text-4xl font-bold text-white mb-1">{t("employers.title")}</h1>
+          <p className="text-white/80 text-sm md:text-base max-w-md">{t("employers.subtitle")}</p>
+        </div>
       </div>
 
       <div className="mb-5 relative">

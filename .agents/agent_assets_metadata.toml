@@ -54,6 +54,18 @@ uri = "file://artifacts/fursa/public/img/contact-hero.png"
 type = "image"
 title = "contact page communication illustration"
 
+[[generated]]
+id = "NI5NuDD9kDuRI7449HZvL"
+uri = "file://artifacts/fursa/public/img/faq-hero.png"
+type = "image"
+title = "FAQ page hero illustration"
+
+[[generated]]
+id = "Y-HsxVIUAraeyMFRim7K_"
+uri = "file://artifacts/fursa/public/img/seekers-hero.png"
+type = "image"
+title = "Seekers/talent listing hero illustration"
+
 [[outputs]]
 id = "RRJFZVPUnZZAGEvwPT6pJ"
 uri = "file://DEPLOYMENT.md"
