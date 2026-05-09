@@ -55,6 +55,7 @@ export default function EmployerNewJob() {
       .string()
       .min(5, t("employer.newJob.validation.contact")),
     deadline: z.string().optional(),
+    tags: z.string().optional(),
   });
 
   type JobFormValues = z.infer<typeof jobSchema>;
@@ -69,6 +70,7 @@ export default function EmployerNewJob() {
       category: "",
       contactInfo: "",
       deadline: "",
+      tags: "",
     },
   });
 
@@ -295,6 +297,27 @@ export default function EmployerNewJob() {
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{lang === "ar" ? "الوسوم / المهارات المطلوبة" : "Tags / Required Skills"}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={lang === "ar" ? "مثال: React، TypeScript، إدارة المشاريع" : "e.g. React, TypeScript, Project Management"}
+                        className="bg-background"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {lang === "ar" ? "افصل الوسوم بفاصلة (،) — تظهر كعلامات على بطاقة الوظيفة" : "Separate tags with commas — they appear as labels on the job card"}
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="flex justify-end gap-4 pt-6 border-t border-border/50">
                 <Button type="button" variant="outline" asChild>

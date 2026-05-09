@@ -34,6 +34,7 @@ export const jobsTable = pgTable(
     rejectionReason: text("rejection_reason"),
     isOpen: boolean("is_open").notNull().default(true),
     deadline: timestamp("deadline"),
+    tags: text("tags"),
     viewsCount: integer("views_count").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },

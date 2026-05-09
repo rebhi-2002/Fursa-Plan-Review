@@ -22,6 +22,7 @@ const jobBodySchema = z.object({
   category: z.string().min(1),
   contactInfo: z.string().min(1),
   deadline: z.string().datetime({ offset: true }).nullable().optional(),
+  tags: z.string().nullable().optional(),
 });
 
 const updateJobBodySchema = jobBodySchema.partial();
@@ -64,6 +65,7 @@ async function serializeEmployerJob(j: typeof jobsTable.$inferSelect) {
     rejectionReason: j.rejectionReason,
     isOpen: j.isOpen,
     deadline: isoOrNull(j.deadline),
+    tags: j.tags ?? null,
     applicationsCount: counts[0]?.total ?? 0,
     unseenApplicationsCount: counts[0]?.unseen ?? 0,
     createdAt: j.createdAt.toISOString(),
@@ -110,6 +112,7 @@ router.post(
         category: data.category,
         contactInfo: data.contactInfo,
         deadline: data.deadline ? new Date(data.deadline) : null,
+        tags: data.tags ?? null,
         status: "pending",
         isOpen: true,
       })

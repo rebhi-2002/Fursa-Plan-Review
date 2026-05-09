@@ -23,13 +23,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Clock, Briefcase, Building2, Search, ArrowUpDown, Filter, X, DollarSign } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Search, ArrowUpDown, Filter, X, Bell, Tag } from "lucide-react";
 import { formatDistanceToNow, subDays } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@clerk/react";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+function apiUrl(path: string) {
+  const base = import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "";
+  return `${base}/api/${path}`;
+}
 
 const ALL = "all";
 type SortOption = "newest" | "oldest" | "deadline";
@@ -38,6 +46,7 @@ type DateFilter = "all" | "today" | "week" | "month";
 export default function JobsPage() {
   const t = useT();
   const { lang } = useLanguageStore();
+  const { getToken, isSignedIn } = useAuth();
 
   const searchParams = new URLSearchParams(window.location.search);
   const initialSearch = searchParams.get("search") || "";
@@ -49,7 +58,30 @@ export default function JobsPage() {
   const [sort, setSort] = useState<SortOption>("newest");
   const [location, setLocation] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
+  const [tagFilter, setTagFilter] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const saveSearchMutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const categories = category !== ALL ? [category] : [];
+      const types = type !== ALL ? [type] : [];
+      const res = await fetch(apiUrl("me/alerts"), {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ categories, types }),
+      });
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}));
+        throw new Error((e as any).error || "Failed");
+      }
+      return res.json();
+    },
+    onSuccess: () => toast.success(lang === "ar" ? "تم حفظ البحث — ستتلقى تنبيهات بالوظائف الجديدة" : "Search saved — you'll get alerts for new matching jobs"),
+    onError: () => toast.error(lang === "ar" ? "تعذر حفظ البحث" : "Could not save search"),
+  });
 
   const { data: categories } = useListJobCategories();
 
@@ -86,6 +118,14 @@ export default function JobsPage() {
       items = items.filter((j) => new Date(j.createdAt) >= cutoff);
     }
 
+    // Tag filter
+    if (tagFilter.trim()) {
+      const q = tagFilter.toLowerCase();
+      items = items.filter((j) =>
+        ((j as any).tags ?? "").toLowerCase().includes(q)
+      );
+    }
+
     // Sort
     if (sort === "oldest")
       return items.sort(
@@ -106,13 +146,14 @@ export default function JobsPage() {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-  }, [jobsResponse?.items, sort, location, dateFilter]);
+  }, [jobsResponse?.items, sort, location, dateFilter, tagFilter]);
 
   const activeFilterCount = [
     category !== ALL,
     type !== ALL,
     location.trim() !== "",
     dateFilter !== "all",
+    tagFilter.trim() !== "",
   ].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -122,6 +163,7 @@ export default function JobsPage() {
     setSort("newest");
     setLocation("");
     setDateFilter("all");
+    setTagFilter("");
   };
 
   return (
@@ -270,18 +312,57 @@ export default function JobsPage() {
                         </div>
                       </div>
 
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => {
-                          setLocation("");
-                          setDateFilter("all");
-                          setShowAdvanced(false);
-                        }}
-                      >
-                        {lang === "ar" ? "مسح الفلاتر" : "Clear Filters"}
-                      </Button>
+                      {/* Tag filter */}
+                      <div>
+                        <Label className="text-xs mb-1.5 block">
+                          {lang === "ar" ? "الوسوم / المهارات" : "Tags / Skills"}
+                        </Label>
+                        <div className="relative">
+                          <Tag className="absolute top-2.5 h-4 w-4 text-muted-foreground ltr:left-2.5 rtl:right-2.5" />
+                          <Input
+                            placeholder={lang === "ar" ? "مثال: React، تصميم..." : "e.g. React, Design..."}
+                            className="ltr:pl-8 rtl:pr-8 h-9 text-sm"
+                            value={tagFilter}
+                            onChange={(e) => setTagFilter(e.target.value)}
+                          />
+                          {tagFilter && (
+                            <button
+                              onClick={() => setTagFilter("")}
+                              className="absolute top-2.5 ltr:right-2.5 rtl:left-2.5 text-muted-foreground hover:text-foreground"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        {isSignedIn && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 gap-1.5"
+                            disabled={saveSearchMutation.isPending || (category === ALL && type === ALL)}
+                            onClick={() => { saveSearchMutation.mutate(); setShowAdvanced(false); }}
+                          >
+                            <Bell className="h-3.5 w-3.5" />
+                            {lang === "ar" ? "حفظ البحث" : "Save Search"}
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => {
+                            setLocation("");
+                            setDateFilter("all");
+                            setTagFilter("");
+                            setShowAdvanced(false);
+                          }}
+                        >
+                          {lang === "ar" ? "مسح الفلاتر" : "Clear Filters"}
+                        </Button>
+                      </div>
                     </div>
                   </PopoverContent>
                 </Popover>
@@ -289,7 +370,7 @@ export default function JobsPage() {
             </div>
 
             {/* Active filter badges */}
-            {(location || dateFilter !== "all") && (
+            {(location || dateFilter !== "all" || tagFilter) && (
               <div className="flex flex-wrap gap-2">
                 {location && (
                   <Badge variant="secondary" className="gap-1 pr-1">
@@ -307,6 +388,15 @@ export default function JobsPage() {
                       ? dateFilter === "today" ? "اليوم" : dateFilter === "week" ? "هذا الأسبوع" : "هذا الشهر"
                       : dateFilter === "today" ? "Last 24h" : dateFilter === "week" ? "Past Week" : "Past Month"}
                     <button onClick={() => setDateFilter("all")} className="ml-1 hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {tagFilter && (
+                  <Badge variant="secondary" className="gap-1 pr-1">
+                    <Tag className="h-3 w-3" />
+                    {tagFilter}
+                    <button onClick={() => setTagFilter("")} className="ml-1 hover:text-destructive">
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
@@ -386,6 +476,25 @@ export default function JobsPage() {
                           })}
                         </span>
                       </div>
+                      {(job as any).tags && (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {((job as any).tags as string)
+                            .split(/[,،]/)
+                            .map((tag: string) => tag.trim())
+                            .filter(Boolean)
+                            .slice(0, 4)
+                            .map((tag: string) => (
+                              <button
+                                key={tag}
+                                onClick={(e) => { e.preventDefault(); setTagFilter(tag); }}
+                                className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[11px] rounded bg-muted hover:bg-primary/10 hover:text-primary border border-border/50 transition-colors"
+                              >
+                                <Tag className="h-2.5 w-2.5 opacity-60" />
+                                {tag}
+                              </button>
+                            ))}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                   <CardFooter className="pt-0">

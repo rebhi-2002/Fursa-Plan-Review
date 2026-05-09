@@ -167,6 +167,7 @@ export default function EmployerJobDetail() {
     category: z.string().min(2, t("employer.newJob.validation.cat")),
     contactInfo: z.string().min(5, t("employer.newJob.validation.contact")),
     deadline: z.string().optional(),
+    tags: z.string().optional(),
   });
 
   type EditFormValues = z.infer<typeof editSchema>;
@@ -183,6 +184,7 @@ export default function EmployerJobDetail() {
       deadline: job?.deadline
         ? job.deadline.split("T")[0]
         : "",
+      tags: (job as any)?.tags || "",
     },
   });
 
@@ -196,6 +198,7 @@ export default function EmployerJobDetail() {
         category: job.category,
         contactInfo: job.contactInfo,
         deadline: job.deadline ? job.deadline.split("T")[0] : "",
+        tags: (job as any)?.tags || "",
       });
     }
     setIsEditOpen(true);
@@ -598,6 +601,27 @@ export default function EmployerJobDetail() {
                             )}
                           />
                         </div>
+
+                        <FormField
+                          control={editForm.control}
+                          name="tags"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{lang === "ar" ? "الوسوم / المهارات المطلوبة" : "Tags / Required Skills"}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  className="bg-background"
+                                  placeholder={lang === "ar" ? "مثال: React، TypeScript، تصميم" : "e.g. React, TypeScript, Design"}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription className="text-xs">
+                                {lang === "ar" ? "افصل بفاصلة (،)" : "Separate with commas"}
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
                         <DialogFooter className="pt-2">
                           <Button

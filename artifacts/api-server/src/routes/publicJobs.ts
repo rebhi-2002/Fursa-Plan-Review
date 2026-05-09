@@ -80,6 +80,7 @@ router.get("/jobs", async (req: Request, res: Response) => {
           employerName: usersTable.name,
           employerLocation: usersTable.location,
           deadline: jobsTable.deadline,
+          tags: jobsTable.tags,
           createdAt: jobsTable.createdAt,
         })
         .from(jobsTable)
@@ -131,6 +132,7 @@ router.get("/jobs/:id", async (req: Request, res: Response) => {
         type: jobsTable.type,
         category: jobsTable.category,
         contactInfo: jobsTable.contactInfo,
+        tags: jobsTable.tags,
         employerName: usersTable.name,
         employerId: usersTable.id,
         employerLocation: usersTable.location,

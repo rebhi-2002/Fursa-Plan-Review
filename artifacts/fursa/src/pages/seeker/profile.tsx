@@ -31,6 +31,7 @@ import {
   Trash2,
   Eye,
   Edit3,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -172,6 +173,40 @@ export default function SeekerProfile() {
     ? new Date(clerkUser.createdAt).toLocaleDateString()
     : null;
 
+  const handlePrintProfile = () => {
+    const printContent = `
+      <!DOCTYPE html><html dir="${lang === "ar" ? "rtl" : "ltr"}">
+      <head><meta charset="UTF-8"><title>${user?.name || "Profile"}</title>
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; color: #111; direction: ${lang === "ar" ? "rtl" : "ltr"}; }
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+        .subtitle { font-size: 14px; color: #555; margin-bottom: 16px; }
+        .section { margin-top: 20px; }
+        .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 600; margin-bottom: 6px; }
+        .value { font-size: 14px; color: #222; }
+        hr { border: none; border-top: 1px solid #ddd; margin: 16px 0; }
+        .badge { display: inline-block; background: #f0f0f0; border-radius: 4px; padding: 2px 8px; font-size: 12px; margin: 2px; }
+      </style>
+      </head><body>
+        <h1>${user?.name || "—"}</h1>
+        <div class="subtitle">${user?.email || primaryEmail || ""}</div>
+        <hr/>
+        ${user?.location ? `<div class="section"><div class="label">${lang === "ar" ? "الموقع" : "Location"}</div><div class="value">${user.location}</div></div>` : ""}
+        ${user?.phone ? `<div class="section"><div class="label">${lang === "ar" ? "الهاتف" : "Phone"}</div><div class="value" dir="ltr">${user.phone}</div></div>` : ""}
+        ${user?.bio ? `<div class="section"><div class="label">${lang === "ar" ? "نبذة" : "Bio"}</div><div class="value">${user.bio}</div></div>` : ""}
+        <hr/>
+        <div class="section"><div class="label">${lang === "ar" ? "تاريخ الانضمام" : "Member Since"}</div><div class="value">${memberSince || "—"}</div></div>
+        ${user?.cvObjectPath ? `<div class="section"><div class="label">${lang === "ar" ? "السيرة الذاتية" : "CV"}</div><div class="value">✓ ${lang === "ar" ? "مرفقة" : "Attached"}</div></div>` : ""}
+      </body></html>
+    `;
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(printContent);
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); w.close(); }, 300);
+  };
+
   return (
     <div className="container py-8 max-w-3xl">
       <div className="mb-6 flex items-center gap-4 flex-wrap">
@@ -184,6 +219,17 @@ export default function SeekerProfile() {
           <h1 className="text-3xl font-bold tracking-tight">{t("seeker.profile.title")}</h1>
           <p className="text-muted-foreground mt-1">{t("seeker.profile.subtitle")}</p>
         </div>
+        {/* PDF Export button */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5 text-xs"
+          onClick={handlePrintProfile}
+        >
+          <Download className="h-3.5 w-3.5" />
+          {lang === "ar" ? "تصدير PDF" : "Export PDF"}
+        </Button>
+
         {/* Preview / Edit toggle */}
         <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-1">
           <button
