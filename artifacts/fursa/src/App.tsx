@@ -47,6 +47,7 @@ import EmployerNewJob from "@/pages/employer/job-new";
 import EmployerJobDetail from "@/pages/employer/job-edit";
 import EmployerProfile from "@/pages/employer/profile";
 import EmployerApplications from "@/pages/employer/applications";
+import EmployerAnalytics from "@/pages/employer/analytics";
 
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminJobs from "@/pages/admin/jobs";
@@ -247,6 +248,9 @@ function Router() {
             </Route>
             <Route path="/employer/jobs/:id">
               <RoleGuard role="employer"><EmployerJobDetail /></RoleGuard>
+            </Route>
+            <Route path="/employer/analytics">
+              <RoleGuard role="employer"><EmployerAnalytics /></RoleGuard>
             </Route>
             <Route path="/employer/profile">
               <RoleGuard role="employer"><EmployerProfile /></RoleGuard>

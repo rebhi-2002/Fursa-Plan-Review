@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   useGetCurrentUser,
   useUpdateCurrentUser,
@@ -29,6 +29,8 @@ import {
   Phone,
   ShieldCheck,
   Trash2,
+  Eye,
+  Edit3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -55,12 +57,14 @@ import {
 import { ObjectUploader } from "@workspace/object-storage-web";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLanguageStore } from "@/lib/i18n";
 
 export default function SeekerProfile() {
   const t = useT();
+  const { lang } = useLanguageStore();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+  const [mode, setMode] = useState<"edit" | "preview">("edit");
   const { data: user, isLoading } = useGetCurrentUser();
   const { user: clerkUser } = useUser();
   const { openUserProfile, signOut } = useClerk();
@@ -170,17 +174,97 @@ export default function SeekerProfile() {
 
   return (
     <div className="container py-8 max-w-3xl">
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-6 flex items-center gap-4 flex-wrap">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/seeker">
             <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">{t("seeker.profile.title")}</h1>
           <p className="text-muted-foreground mt-1">{t("seeker.profile.subtitle")}</p>
         </div>
+        {/* Preview / Edit toggle */}
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 p-1">
+          <button
+            onClick={() => setMode("edit")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
+              mode === "edit"
+                ? "bg-background shadow text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Edit3 className="h-3.5 w-3.5" />
+            {lang === "ar" ? "تعديل" : "Edit"}
+          </button>
+          <button
+            onClick={() => setMode("preview")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all ${
+              mode === "preview"
+                ? "bg-background shadow text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            {lang === "ar" ? "كما يراك أصحاب العمل" : "Employer View"}
+          </button>
+        </div>
       </div>
+
+      {mode === "preview" && (
+        <div className="mb-6">
+          <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-700 p-3 text-sm text-amber-700 dark:text-amber-300 flex items-center gap-2 mb-4">
+            <Eye className="h-4 w-4 shrink-0" />
+            {lang === "ar"
+              ? "هذا هو شكل ملفك الشخصي كما يظهر لأصحاب العمل. تحقق من اكتمال بياناتك."
+              : "This is how your profile appears to employers. Make sure your information is complete."}
+          </div>
+          <Card>
+            <CardContent className="p-6 space-y-5">
+              <div className="flex items-start gap-4">
+                {clerkUser?.imageUrl ? (
+                  <img src={clerkUser.imageUrl} alt={user?.name || ""} className="h-20 w-20 rounded-xl object-cover border border-border shadow" />
+                ) : (
+                  <div className="h-20 w-20 rounded-xl bg-primary/15 flex items-center justify-center text-2xl font-bold text-primary border border-border">
+                    {(user?.name || "?")[0].toUpperCase()}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold">{user?.name || "—"}</h2>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1.5">
+                    {user?.location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{user.location}</span>}
+                    {user?.phone && <span className="flex items-center gap-1 dir-ltr"><Phone className="h-3.5 w-3.5" />{user.phone}</span>}
+                  </div>
+                  {user?.bio && <p className="text-sm mt-2 text-foreground/80 leading-relaxed">{user.bio}</p>}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3 pt-2 border-t">
+                {user?.cvObjectPath ? (
+                  <div className="flex items-center gap-2 text-sm text-emerald-600 font-medium">
+                    <CheckCircle2 className="h-4 w-4" />
+                    {lang === "ar" ? "السيرة الذاتية مرفقة" : "CV Attached"}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FileText className="h-4 w-4" />
+                    {lang === "ar" ? "لا توجد سيرة ذاتية" : "No CV uploaded"}
+                  </div>
+                )}
+              </div>
+              {(!user?.bio || !user?.location || !user?.cvObjectPath) && (
+                <div className="rounded-lg border border-dashed border-amber-400 bg-amber-50/50 dark:bg-amber-950/10 p-3 text-xs text-amber-700 dark:text-amber-400">
+                  <strong>{lang === "ar" ? "نصيحة:" : "Tip:"}</strong>{" "}
+                  {lang === "ar"
+                    ? "أضف " + [!user?.bio && "نبذة عنك", !user?.location && "موقعك", !user?.cvObjectPath && "سيرتك الذاتية"].filter(Boolean).join(" و") + " لتقوية ملفك الشخصي."
+                    : "Add " + [!user?.bio && "a bio", !user?.location && "your location", !user?.cvObjectPath && "your CV"].filter(Boolean).join(", ") + " to strengthen your profile."}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {mode === "edit" && (
 
       <div className="grid gap-6">
         <Card className="overflow-hidden">
@@ -373,6 +457,7 @@ export default function SeekerProfile() {
           </CardContent>
         </Card>
       </div>
+      )}
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>

@@ -565,4 +565,39 @@ router.post(
   },
 );
 
+router.get(
+  "/employer/analytics",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    const employerId = req.currentUser!.id;
+
+    const jobs = await db
+      .select({
+        id: jobsTable.id,
+        title: jobsTable.title,
+        status: jobsTable.status,
+        isOpen: jobsTable.isOpen,
+        viewsCount: jobsTable.viewsCount,
+        applicationsCount: sql<number>`(
+          select count(*) from ${applicationsTable} where ${applicationsTable.jobId} = ${jobsTable.id}
+        )::int`,
+        unseenApplicationsCount: sql<number>`(
+          select count(*) from ${applicationsTable} where ${applicationsTable.jobId} = ${jobsTable.id} and ${applicationsTable.seenByEmployer} = false
+        )::int`,
+      })
+      .from(jobsTable)
+      .where(eq(jobsTable.employerId, employerId))
+      .orderBy(desc(jobsTable.createdAt));
+
+    const totalJobs = jobs.length;
+    const totalApplications = jobs.reduce((sum, j) => sum + (j.applicationsCount ?? 0), 0);
+    const totalViews = jobs.reduce((sum, j) => sum + (j.viewsCount ?? 0), 0);
+    const unseenApplications = jobs.reduce((sum, j) => sum + (j.unseenApplicationsCount ?? 0), 0);
+
+    res.json({ totalJobs, totalApplications, totalViews, unseenApplications, jobs });
+  },
+);
+
 export default router;

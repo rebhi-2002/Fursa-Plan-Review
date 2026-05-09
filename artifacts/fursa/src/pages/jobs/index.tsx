@@ -23,14 +23,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Clock, Briefcase, Building2, Search, ArrowUpDown } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { MapPin, Clock, Briefcase, Building2, Search, ArrowUpDown, Filter, X, DollarSign } from "lucide-react";
+import { formatDistanceToNow, subDays } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 
 const ALL = "all";
 type SortOption = "newest" | "oldest" | "deadline";
+type DateFilter = "all" | "today" | "week" | "month";
 
 export default function JobsPage() {
   const t = useT();
@@ -44,6 +47,9 @@ export default function JobsPage() {
   const [category, setCategory] = useState<string>(initialCategory);
   const [type, setType] = useState<ListJobsType | typeof ALL>(ALL);
   const [sort, setSort] = useState<SortOption>("newest");
+  const [location, setLocation] = useState("");
+  const [dateFilter, setDateFilter] = useState<DateFilter>("all");
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const { data: categories } = useListJobCategories();
 
@@ -58,24 +64,64 @@ export default function JobsPage() {
 
   const sortedJobs = useMemo(() => {
     if (!jobsResponse?.items) return [];
-    const items = [...jobsResponse.items];
-    if (sort === "oldest") return items.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    let items = [...jobsResponse.items];
+
+    // Location filter
+    if (location.trim()) {
+      const q = location.toLowerCase();
+      items = items.filter((j) =>
+        (j.employerLocation ?? "").toLowerCase().includes(q)
+      );
+    }
+
+    // Date posted filter
+    if (dateFilter !== "all") {
+      const now = new Date();
+      const cutoff =
+        dateFilter === "today"
+          ? subDays(now, 1)
+          : dateFilter === "week"
+          ? subDays(now, 7)
+          : subDays(now, 30);
+      items = items.filter((j) => new Date(j.createdAt) >= cutoff);
+    }
+
+    // Sort
+    if (sort === "oldest")
+      return items.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
     if (sort === "deadline") {
       return items.sort((a, b) => {
         if (!a.deadline && !b.deadline) return 0;
         if (!a.deadline) return 1;
         if (!b.deadline) return -1;
-        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+        return (
+          new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+        );
       });
     }
-    return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [jobsResponse?.items, sort]);
+    return items.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [jobsResponse?.items, sort, location, dateFilter]);
+
+  const activeFilterCount = [
+    category !== ALL,
+    type !== ALL,
+    location.trim() !== "",
+    dateFilter !== "all",
+  ].filter(Boolean).length;
 
   const clearFilters = () => {
     setSearch("");
     setCategory(ALL);
     setType(ALL);
     setSort("newest");
+    setLocation("");
+    setDateFilter("all");
   };
 
   return (
@@ -89,69 +135,200 @@ export default function JobsPage() {
         </div>
 
         <Card className="bg-muted/30 border-dashed">
-          <CardContent className="p-4 flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute top-3 h-4 w-4 text-muted-foreground rtl:right-3 ltr:left-3" />
-              <Input
-                placeholder={t("jobs.search")}
-                className="rtl:pr-9 ltr:pl-9 bg-background"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
+          <CardContent className="p-4 flex flex-col gap-3">
+            {/* Main search row */}
+            <div className="flex flex-col md:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute top-3 h-4 w-4 text-muted-foreground rtl:right-3 ltr:left-3" />
+                <Input
+                  placeholder={t("jobs.search")}
+                  className="rtl:pr-9 ltr:pl-9 bg-background"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+
+              <div className="flex gap-2 flex-wrap">
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="w-full sm:w-[180px] bg-background">
+                    <SelectValue placeholder={t("jobs.category.all")} />
+                  </SelectTrigger>
+                  <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
+                    <SelectItem value={ALL}>{t("jobs.category.all")}</SelectItem>
+                    {Array.isArray(categories) &&
+                      categories.map((cat) => (
+                        <SelectItem key={cat.category} value={cat.category}>
+                          {cat.category} ({cat.count})
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={type}
+                  onValueChange={(val) =>
+                    setType(val as ListJobsType | typeof ALL)
+                  }
+                >
+                  <SelectTrigger className="w-full sm:w-[130px] bg-background">
+                    <SelectValue placeholder={t("jobs.type.all")} />
+                  </SelectTrigger>
+                  <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
+                    <SelectItem value={ALL}>{t("jobs.type.all")}</SelectItem>
+                    <SelectItem value="online">{t("jobs.type.online")}</SelectItem>
+                    <SelectItem value="field">{t("jobs.type.field")}</SelectItem>
+                    <SelectItem value="hybrid">{t("jobs.type.hybrid")}</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={sort}
+                  onValueChange={(v) => setSort(v as SortOption)}
+                >
+                  <SelectTrigger className="w-full sm:w-[150px] bg-background gap-1.5">
+                    <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
+                    <SelectValue placeholder={t("jobs.sort.newest")} />
+                  </SelectTrigger>
+                  <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
+                    <SelectItem value="newest">{t("jobs.sort.newest")}</SelectItem>
+                    <SelectItem value="oldest">{t("jobs.sort.oldest")}</SelectItem>
+                    <SelectItem value="deadline">{t("jobs.sort.deadline")}</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Advanced filters toggle */}
+                <Popover open={showAdvanced} onOpenChange={setShowAdvanced}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="bg-background gap-1.5 relative">
+                      <Filter className="h-4 w-4" />
+                      <span className="hidden sm:inline">
+                        {lang === "ar" ? "فلاتر متقدمة" : "Advanced"}
+                      </span>
+                      {activeFilterCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-bold">
+                          {activeFilterCount}
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-4" align="end">
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-sm">
+                        {lang === "ar" ? "فلاتر متقدمة" : "Advanced Filters"}
+                      </h4>
+
+                      {/* Location filter */}
+                      <div>
+                        <Label className="text-xs mb-1.5 block">
+                          {lang === "ar" ? "الموقع الجغرافي" : "Location"}
+                        </Label>
+                        <div className="relative">
+                          <MapPin className="absolute top-2.5 h-4 w-4 text-muted-foreground ltr:left-2.5 rtl:right-2.5" />
+                          <Input
+                            placeholder={lang === "ar" ? "ابحث بالموقع..." : "Search by location..."}
+                            className="ltr:pl-8 rtl:pr-8 h-9 text-sm"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                          />
+                          {location && (
+                            <button
+                              onClick={() => setLocation("")}
+                              className="absolute top-2.5 ltr:right-2.5 rtl:left-2.5 text-muted-foreground hover:text-foreground"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Date posted filter */}
+                      <div>
+                        <Label className="text-xs mb-1.5 block">
+                          {lang === "ar" ? "تاريخ النشر" : "Date Posted"}
+                        </Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {(
+                            [
+                              { value: "all", ar: "الكل", en: "Any Time" },
+                              { value: "today", ar: "اليوم", en: "Last 24h" },
+                              { value: "week", ar: "هذا الأسبوع", en: "Past Week" },
+                              { value: "month", ar: "هذا الشهر", en: "Past Month" },
+                            ] as { value: DateFilter; ar: string; en: string }[]
+                          ).map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => setDateFilter(opt.value)}
+                              className={`px-2 py-1.5 text-xs rounded-md border transition-colors ${
+                                dateFilter === opt.value
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "border-border hover:bg-accent"
+                              }`}
+                            >
+                              {lang === "ar" ? opt.ar : opt.en}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          setLocation("");
+                          setDateFilter("all");
+                          setShowAdvanced(false);
+                        }}
+                      >
+                        {lang === "ar" ? "مسح الفلاتر" : "Clear Filters"}
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 md:w-auto flex-wrap">
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-full sm:w-[200px] bg-background">
-                  <SelectValue placeholder={t("jobs.category.all")} />
-                </SelectTrigger>
-                <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
-                  <SelectItem value={ALL}>{t("jobs.category.all")}</SelectItem>
-                  {Array.isArray(categories) && categories.map((cat) => (
-                    <SelectItem key={cat.category} value={cat.category}>
-                      {cat.category} ({cat.count})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={type}
-                onValueChange={(val) =>
-                  setType(val as ListJobsType | typeof ALL)
-                }
-              >
-                <SelectTrigger className="w-full sm:w-[150px] bg-background">
-                  <SelectValue placeholder={t("jobs.type.all")} />
-                </SelectTrigger>
-                <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
-                  <SelectItem value={ALL}>{t("jobs.type.all")}</SelectItem>
-                  <SelectItem value="online">{t("jobs.type.online")}</SelectItem>
-                  <SelectItem value="field">{t("jobs.type.field")}</SelectItem>
-                  <SelectItem value="hybrid">{t("jobs.type.hybrid")}</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={sort} onValueChange={(v) => setSort(v as SortOption)}>
-                <SelectTrigger className="w-full sm:w-[160px] bg-background gap-1.5">
-                  <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground" />
-                  <SelectValue placeholder={t("jobs.sort.newest")} />
-                </SelectTrigger>
-                <SelectContent dir={lang === "ar" ? "rtl" : "ltr"}>
-                  <SelectItem value="newest">{t("jobs.sort.newest")}</SelectItem>
-                  <SelectItem value="oldest">{t("jobs.sort.oldest")}</SelectItem>
-                  <SelectItem value="deadline">{t("jobs.sort.deadline")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Active filter badges */}
+            {(location || dateFilter !== "all") && (
+              <div className="flex flex-wrap gap-2">
+                {location && (
+                  <Badge variant="secondary" className="gap-1 pr-1">
+                    <MapPin className="h-3 w-3" />
+                    {location}
+                    <button onClick={() => setLocation("")} className="ml-1 hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {dateFilter !== "all" && (
+                  <Badge variant="secondary" className="gap-1 pr-1">
+                    <Clock className="h-3 w-3" />
+                    {lang === "ar"
+                      ? dateFilter === "today" ? "اليوم" : dateFilter === "week" ? "هذا الأسبوع" : "هذا الشهر"
+                      : dateFilter === "today" ? "Last 24h" : dateFilter === "week" ? "Past Week" : "Past Month"}
+                    <button onClick={() => setDateFilter("all")} className="ml-1 hover:text-destructive">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <div className="flex flex-col gap-4">
-          <div className="text-sm text-muted-foreground">
-            {isLoading
-              ? t("jobs.searching")
-              : t("jobs.found", { count: sortedJobs.length })}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              {isLoading
+                ? t("jobs.searching")
+                : t("jobs.found", { count: sortedJobs.length })}
+            </div>
+            {activeFilterCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs text-muted-foreground gap-1">
+                <X className="h-3 w-3" />
+                {lang === "ar" ? "مسح الكل" : "Clear All"}
+              </Button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

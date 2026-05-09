@@ -50,6 +50,7 @@ import {
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
 import { cn } from "@/lib/utils";
+import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
 
 export function Header() {
   const t = useT();
@@ -60,6 +61,7 @@ export function Header() {
   const { data: dbUser } = useGetCurrentUser();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location] = useLocation();
+  const unreadMessages = useUnreadMessageCount();
 
   const toggleLang = () => setLang(lang === "ar" ? "en" : "ar");
   const closeMobile = () => setMobileOpen(false);
@@ -107,6 +109,7 @@ export function Header() {
       links.push(
         { href: "/employer/jobs", label: t("dashboard.employer.jobs"), icon: Briefcase },
         { href: "/employer/jobs/new", label: t("dashboard.employer.newJob"), icon: Plus },
+        { href: "/employer/analytics", label: lang === "ar" ? "التحليلات" : "Analytics", icon: BarChart2 },
         { href: "/employer/profile", label: t("dashboard.employer.profile"), icon: Building2 },
       );
     } else if (role === "admin") {
@@ -227,9 +230,20 @@ export function Header() {
             </>
           )}
 
+          {dbUser.role === "employer" && (
+            <Link href="/employer/analytics" onClick={closeMobile} className={mobileLinkClass("/employer/analytics")}>
+              <BarChart2 className="h-5 w-5" /> {lang === "ar" ? "التحليلات" : "Analytics"}
+            </Link>
+          )}
           <div className="my-1 h-px bg-border/60" />
-          <Link href="/messages" onClick={closeMobile} className={mobileLinkClass("/messages")}>
-            <MessageSquare className="h-5 w-5" /> {t("messages.title") || (lang === "ar" ? "الرسائل" : "Messages")}
+          <Link href="/messages" onClick={closeMobile} className={cn(mobileLinkClass("/messages"), "relative")}>
+            <MessageSquare className="h-5 w-5" />
+            {t("messages.title") || (lang === "ar" ? "الرسائل" : "Messages")}
+            {unreadMessages > 0 && (
+              <span className="ml-auto rtl:mr-auto rtl:ml-0 inline-flex items-center justify-center h-5 min-w-[20px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                {unreadMessages > 99 ? "99+" : unreadMessages}
+              </span>
+            )}
           </Link>
         </>
       )}

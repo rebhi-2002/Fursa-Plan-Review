@@ -1,11 +1,13 @@
 import { Link } from "wouter";
 import { useT, useLanguageStore } from "@/lib/i18n";
-import { Briefcase } from "lucide-react";
+import { Briefcase, Users, FileText } from "lucide-react";
+import { useGetPlatformStats } from "@workspace/api-client-react";
 
 export function Footer() {
   const t = useT();
   const { lang } = useLanguageStore();
   const year = new Date().getFullYear();
+  const { data: stats } = useGetPlatformStats();
 
   return (
     <footer className="border-t bg-muted/40 mt-auto">
@@ -22,6 +24,31 @@ export function Footer() {
             <p className="text-sm text-muted-foreground max-w-md leading-relaxed">
               {t("app.description")}
             </p>
+
+            {/* Live Platform Stats */}
+            <div className="mt-4 flex flex-wrap gap-3">
+              {stats?.totalJobs !== undefined && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background border border-border/60 rounded-lg px-2.5 py-1.5">
+                  <Briefcase className="h-3 w-3 text-primary" />
+                  <span className="font-semibold text-foreground">{stats.totalJobs.toLocaleString()}</span>
+                  <span>{lang === "ar" ? "وظيفة" : "Jobs"}</span>
+                </div>
+              )}
+              {stats?.totalSeekers !== undefined && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background border border-border/60 rounded-lg px-2.5 py-1.5">
+                  <Users className="h-3 w-3 text-emerald-500" />
+                  <span className="font-semibold text-foreground">{stats.totalSeekers.toLocaleString()}</span>
+                  <span>{lang === "ar" ? "باحث" : "Seekers"}</span>
+                </div>
+              )}
+              {stats?.totalApplications !== undefined && (
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-background border border-border/60 rounded-lg px-2.5 py-1.5">
+                  <FileText className="h-3 w-3 text-violet-500" />
+                  <span className="font-semibold text-foreground">{stats.totalApplications.toLocaleString()}</span>
+                  <span>{lang === "ar" ? "طلب" : "Applications"}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Platform */}

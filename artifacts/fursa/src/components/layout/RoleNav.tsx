@@ -19,12 +19,14 @@ import {
   Activity,
   BarChart2,
 } from "lucide-react";
+import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
 
 type NavItem = {
   href: string;
   label: string;
   icon: React.ElementType;
   exact?: boolean;
+  badge?: number;
 };
 
 export function RoleNav() {
@@ -32,6 +34,7 @@ export function RoleNav() {
   const { lang } = useLanguageStore();
   const { data: dbUser } = useGetCurrentUser();
   const [location] = useLocation();
+  const unreadMessages = useUnreadMessageCount();
 
   if (!dbUser?.role || !dbUser.onboarded) return null;
 
@@ -60,6 +63,7 @@ export function RoleNav() {
       ? [
           { href: "/employer/jobs", label: t("dashboard.employer.jobs"), icon: Briefcase },
           { href: "/employer/jobs/new", label: t("dashboard.employer.newJob"), icon: Plus },
+          { href: "/employer/analytics", label: lang === "ar" ? "التحليلات" : "Analytics", icon: BarChart2 },
           { href: "/employer/profile", label: t("dashboard.employer.profile"), icon: Building2 },
         ]
       : role === "admin"
@@ -72,7 +76,12 @@ export function RoleNav() {
       : [];
 
   const sharedItems: NavItem[] = [
-    { href: "/messages", label: lang === "ar" ? "الرسائل" : "Messages", icon: MessageSquare },
+    {
+      href: "/messages",
+      label: lang === "ar" ? "الرسائل" : "Messages",
+      icon: MessageSquare,
+      badge: unreadMessages > 0 ? unreadMessages : undefined,
+    },
     { href: "/notifications", label: t("nav.notifications"), icon: Bell },
   ];
 
@@ -89,7 +98,7 @@ export function RoleNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex-shrink-0",
+                  "relative flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-xs font-medium transition-colors flex-shrink-0",
                   active
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:text-foreground hover:bg-accent",
@@ -97,6 +106,11 @@ export function RoleNav() {
               >
                 <item.icon className="h-3.5 w-3.5" />
                 {item.label}
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="ml-1 rtl:mr-1 rtl:ml-0 inline-flex items-center justify-center h-4 min-w-[16px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </span>
+                )}
               </Link>
             );
           })}

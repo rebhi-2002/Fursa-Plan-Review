@@ -3,12 +3,28 @@ import { db, messagesTable, usersTable } from "@workspace/db";
 import { and, desc, eq, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser } from "../middlewares/auth";
+import { pushSseEvent } from "../lib/sseClients";
 
 const router: IRouter = Router();
 
 const sendBodySchema = z.object({
   body: z.string().min(1).max(2000),
 });
+
+router.get(
+  "/me/messages/unread-count",
+  requireAuth,
+  loadCurrentUser,
+  async (req: Request, res: Response) => {
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    const userId = req.currentUser.id;
+    const [row] = await db
+      .select({ total: sql<number>`count(*)::int` })
+      .from(messagesTable)
+      .where(and(eq(messagesTable.recipientId, userId), eq(messagesTable.read, false)));
+    res.json({ total: row?.total ?? 0 });
+  },
+);
 
 router.get(
   "/me/messages/threads",
@@ -165,6 +181,13 @@ router.post(
       .returning();
 
     const msg = inserted[0]!;
+
+    pushSseEvent(otherId, "new_message", {
+      senderId: myId,
+      body: parsed.data.body,
+      createdAt: msg.createdAt.toISOString(),
+    });
+
     res.status(201).json({
       id: msg.id,
       senderId: msg.senderId,
