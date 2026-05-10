@@ -499,6 +499,87 @@ router.get(
 );
 
 router.get(
+  "/me/recommendations",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("seeker"),
+  async (req: Request, res: Response) => {
+    if (!req.currentUser) { res.status(401).json({ error: "Unauthorized" }); return; }
+    try {
+      const user = req.currentUser;
+      const appliedRows = await db
+        .select({ category: jobsTable.category, jobId: applicationsTable.jobId })
+        .from(applicationsTable)
+        .innerJoin(jobsTable, eq(jobsTable.id, applicationsTable.jobId))
+        .where(eq(applicationsTable.applicantId, user.id))
+        .limit(50);
+
+      const appliedJobIds = appliedRows.map((r) => r.jobId);
+      const appliedCategories = [...new Set(appliedRows.map((r) => r.category))];
+
+      const profileText = [user.bio].filter(Boolean).join(" ").toLowerCase();
+
+      const allJobs = await db
+        .select({
+          id: jobsTable.id,
+          title: jobsTable.title,
+          description: jobsTable.description,
+          type: jobsTable.type,
+          category: jobsTable.category,
+          tags: jobsTable.tags,
+          salaryMin: jobsTable.salaryMin,
+          salaryMax: jobsTable.salaryMax,
+          salaryCurrency: jobsTable.salaryCurrency,
+          employerName: usersTable.name,
+          employerLocation: usersTable.location,
+          deadline: jobsTable.deadline,
+          createdAt: jobsTable.createdAt,
+        })
+        .from(jobsTable)
+        .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
+        .where(
+          and(
+            eq(jobsTable.status, "approved"),
+            eq(jobsTable.isOpen, true),
+            appliedJobIds.length > 0 ? notInArray(jobsTable.id, appliedJobIds) : sql`true`,
+          )
+        )
+        .orderBy(desc(jobsTable.createdAt))
+        .limit(100);
+
+      const scored = allJobs.map((job) => {
+        let score = 0;
+        if (appliedCategories.includes(job.category)) score += 40;
+        const jobText = [job.title, job.description, job.tags, job.category].join(" ").toLowerCase();
+        if (profileText) {
+          const words = profileText.split(/\s+/).filter((w) => w.length > 3);
+          for (const word of words) {
+            if (jobText.includes(word)) score += 5;
+          }
+        }
+        if (user.location && job.employerLocation) {
+          if (job.employerLocation.toLowerCase().includes(user.location.toLowerCase())) score += 15;
+        }
+        return { ...job, score };
+      });
+
+      scored.sort((a, b) => b.score - a.score || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+      const top = scored.slice(0, 6).map((r) => ({
+        ...r,
+        deadline: r.deadline ? r.deadline.toISOString() : null,
+        createdAt: r.createdAt.toISOString(),
+      }));
+
+      res.json(top);
+    } catch (err) {
+      req.log.error({ err }, "Error loading recommendations");
+      res.status(500).json({ error: "Failed to load recommendations" });
+    }
+  },
+);
+
+router.get(
   "/me/application-stats",
   requireAuth,
   loadCurrentUser,

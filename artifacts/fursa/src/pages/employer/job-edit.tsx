@@ -168,6 +168,9 @@ export default function EmployerJobDetail() {
     contactInfo: z.string().min(5, t("employer.newJob.validation.contact")),
     deadline: z.string().optional(),
     tags: z.string().optional(),
+    salaryMin: z.string().optional(),
+    salaryMax: z.string().optional(),
+    salaryCurrency: z.string().optional(),
   });
 
   type EditFormValues = z.infer<typeof editSchema>;
@@ -185,6 +188,9 @@ export default function EmployerJobDetail() {
         ? job.deadline.split("T")[0]
         : "",
       tags: (job as any)?.tags || "",
+      salaryMin: ((job as any)?.salaryMin ?? "") as string,
+      salaryMax: ((job as any)?.salaryMax ?? "") as string,
+      salaryCurrency: ((job as any)?.salaryCurrency ?? "USD") as string,
     },
   });
 
@@ -198,21 +204,28 @@ export default function EmployerJobDetail() {
         category: job.category,
         contactInfo: job.contactInfo,
         deadline: job.deadline ? job.deadline.split("T")[0] : "",
-        tags: (job as any)?.tags || "",
+        tags: ((job as any)?.tags ?? "") as string,
+        salaryMin: ((job as any)?.salaryMin ?? "") as string,
+        salaryMax: ((job as any)?.salaryMax ?? "") as string,
+        salaryCurrency: ((job as any)?.salaryCurrency ?? "USD") as string,
       });
     }
     setIsEditOpen(true);
   };
 
   const onEditSubmit = async (data: EditFormValues) => {
+    const parsedMin = data.salaryMin ? parseInt(data.salaryMin as string, 10) : undefined;
+    const parsedMax = data.salaryMax ? parseInt(data.salaryMax as string, 10) : undefined;
     updateJobMutation.mutate({
       id: jobId,
       data: {
         ...data,
         deadline: data.deadline
-          ? new Date(data.deadline).toISOString()
+          ? new Date(data.deadline as string).toISOString()
           : undefined,
-      },
+        salaryMin: parsedMin != null && !isNaN(parsedMin) ? parsedMin : undefined,
+        salaryMax: parsedMax != null && !isNaN(parsedMax) ? parsedMax : undefined,
+      } as any,
     });
   };
 
@@ -623,6 +636,58 @@ export default function EmployerJobDetail() {
                           )}
                         />
 
+                        <div className="border-t border-border/50 pt-3">
+                          <p className="text-xs font-medium mb-3 text-muted-foreground">{lang === "ar" ? "نطاق الراتب (اختياري)" : "Salary Range (optional)"}</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            <FormField
+                              control={editForm.control}
+                              name="salaryMin"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">{lang === "ar" ? "الأدنى" : "Min"}</FormLabel>
+                                  <FormControl>
+                                    <Input type="number" min="0" placeholder="0" className="bg-background h-8 text-sm" {...field} />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={editForm.control}
+                              name="salaryMax"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">{lang === "ar" ? "الأقصى" : "Max"}</FormLabel>
+                                  <FormControl>
+                                    <Input type="number" min="0" placeholder="0" className="bg-background h-8 text-sm" {...field} />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={editForm.control}
+                              name="salaryCurrency"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel className="text-xs">{lang === "ar" ? "العملة" : "Currency"}</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="bg-background h-8 text-sm">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="USD">USD</SelectItem>
+                                      <SelectItem value="ILS">ILS ₪</SelectItem>
+                                      <SelectItem value="EUR">EUR €</SelectItem>
+                                      <SelectItem value="JOD">JOD</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
                         <DialogFooter className="pt-2">
                           <Button
                             type="button"
@@ -717,7 +782,7 @@ export default function EmployerJobDetail() {
         </div>
       ) : applications && applications.length > 0 ? (
         <div className="grid gap-4">
-          {applications.map((app) => (
+          {applications.map((app: any) => (
             <Card
               key={app.id}
               className={

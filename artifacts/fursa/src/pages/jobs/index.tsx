@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { MapPin, Clock, Briefcase, Building2, Search, ArrowUpDown, Filter, X, Bell, Tag } from "lucide-react";
+import { MapPin, Clock, Briefcase, Building2, Search, ArrowUpDown, Filter, X, Bell, Tag, DollarSign } from "lucide-react";
 import { formatDistanceToNow, subDays } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
@@ -59,6 +59,8 @@ export default function JobsPage() {
   const [location, setLocation] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("all");
   const [tagFilter, setTagFilter] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const saveSearchMutation = useMutation({
@@ -126,6 +128,26 @@ export default function JobsPage() {
       );
     }
 
+    // Salary filter
+    if (salaryMin.trim()) {
+      const min = parseInt(salaryMin, 10);
+      if (!isNaN(min)) {
+        items = items.filter((j) => {
+          const jMax = (j as any).salaryMax;
+          return jMax == null || jMax >= min;
+        });
+      }
+    }
+    if (salaryMax.trim()) {
+      const max = parseInt(salaryMax, 10);
+      if (!isNaN(max)) {
+        items = items.filter((j) => {
+          const jMin = (j as any).salaryMin;
+          return jMin == null || jMin <= max;
+        });
+      }
+    }
+
     // Sort
     if (sort === "oldest")
       return items.sort(
@@ -146,7 +168,7 @@ export default function JobsPage() {
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
-  }, [jobsResponse?.items, sort, location, dateFilter, tagFilter]);
+  }, [jobsResponse?.items, sort, location, dateFilter, tagFilter, salaryMin, salaryMax]);
 
   const activeFilterCount = [
     category !== ALL,
@@ -154,6 +176,8 @@ export default function JobsPage() {
     location.trim() !== "",
     dateFilter !== "all",
     tagFilter.trim() !== "",
+    salaryMin.trim() !== "",
+    salaryMax.trim() !== "",
   ].filter(Boolean).length;
 
   const clearFilters = () => {
@@ -164,6 +188,8 @@ export default function JobsPage() {
     setLocation("");
     setDateFilter("all");
     setTagFilter("");
+    setSalaryMin("");
+    setSalaryMax("");
   };
 
   return (
@@ -336,6 +362,36 @@ export default function JobsPage() {
                         </div>
                       </div>
 
+                      {/* Salary filter */}
+                      <div>
+                        <Label className="text-xs mb-1.5 block flex items-center gap-1">
+                          <DollarSign className="h-3.5 w-3.5" />
+                          {lang === "ar" ? "نطاق الراتب" : "Salary Range"}
+                        </Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder={lang === "ar" ? "الحد الأدنى" : "Min"}
+                              className="h-9 text-sm"
+                              value={salaryMin}
+                              onChange={(e) => setSalaryMin(e.target.value)}
+                            />
+                          </div>
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder={lang === "ar" ? "الحد الأقصى" : "Max"}
+                              className="h-9 text-sm"
+                              value={salaryMax}
+                              onChange={(e) => setSalaryMax(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
                       <div className="flex gap-2">
                         {isSignedIn && (
                           <Button
@@ -476,6 +532,16 @@ export default function JobsPage() {
                           })}
                         </span>
                       </div>
+                      {(job as any).salaryMin || (job as any).salaryMax ? (
+                        <div className="flex items-center text-sm text-green-700 dark:text-green-400 font-medium">
+                          <DollarSign className="h-3.5 w-3.5 mr-1 ms-1 opacity-70" />
+                          {(job as any).salaryMin && (job as any).salaryMax
+                            ? `${(job as any).salaryMin.toLocaleString()}–${(job as any).salaryMax.toLocaleString()} ${(job as any).salaryCurrency || "USD"}`
+                            : (job as any).salaryMin
+                            ? `${(job as any).salaryMin.toLocaleString()}+ ${(job as any).salaryCurrency || "USD"}`
+                            : `${lang === "ar" ? "حتى" : "Up to"} ${(job as any).salaryMax!.toLocaleString()} ${(job as any).salaryCurrency || "USD"}`}
+                        </div>
+                      ) : null}
                       {(job as any).tags && (
                         <div className="flex flex-wrap gap-1 pt-1">
                           {((job as any).tags as string)

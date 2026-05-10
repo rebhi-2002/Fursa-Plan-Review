@@ -81,6 +81,9 @@ router.get("/jobs", async (req: Request, res: Response) => {
           employerLocation: usersTable.location,
           deadline: jobsTable.deadline,
           tags: jobsTable.tags,
+          salaryMin: jobsTable.salaryMin,
+          salaryMax: jobsTable.salaryMax,
+          salaryCurrency: jobsTable.salaryCurrency,
           createdAt: jobsTable.createdAt,
         })
         .from(jobsTable)
@@ -140,6 +143,9 @@ router.get("/jobs/:id", async (req: Request, res: Response) => {
         deadline: jobsTable.deadline,
         isOpen: jobsTable.isOpen,
         viewsCount: jobsTable.viewsCount,
+        salaryMin: jobsTable.salaryMin,
+        salaryMax: jobsTable.salaryMax,
+        salaryCurrency: jobsTable.salaryCurrency,
         createdAt: jobsTable.createdAt,
         status: jobsTable.status,
       })

@@ -13,6 +13,10 @@ import {
   CheckCircle2,
   Clock,
   TrendingUp,
+  Sparkles,
+  Settings,
+  Bell,
+  FileCheck,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
@@ -140,11 +144,37 @@ export default function SeekerDashboard() {
             {t("seeker.dashboard.welcome")}
           </p>
         </div>
-        <Button asChild variant="outline">
-          <Link href="/seeker/profile">
-            {t("seeker.dashboard.editProfile")}
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <Link href="/seeker/recommendations">
+              <Sparkles className="h-4 w-4 text-amber-500" />
+              {lang === "ar" ? "مقترح لك" : "Recommended"}
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <Link href="/seeker/alerts">
+              <Bell className="h-4 w-4" />
+              {lang === "ar" ? "تنبيهاتي" : "Alerts"}
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <Link href="/seeker/cv-builder">
+              <FileCheck className="h-4 w-4" />
+              {lang === "ar" ? "بناء السيرة" : "CV Builder"}
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="gap-1.5">
+            <Link href="/seeker/settings">
+              <Settings className="h-4 w-4" />
+              {lang === "ar" ? "الإعدادات" : "Settings"}
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/seeker/profile">
+              {t("seeker.dashboard.editProfile")}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <ProfileCompletion
@@ -252,7 +282,7 @@ export default function SeekerDashboard() {
           {dashboard?.recentApplications &&
           dashboard.recentApplications.length > 0 ? (
             <div className="space-y-3">
-              {dashboard.recentApplications.map((app) => (
+              {dashboard.recentApplications.map((app: any) => (
                 <Card
                   key={app.id}
                   className="border-border/50 hover:shadow-sm transition-shadow"
@@ -310,7 +340,7 @@ export default function SeekerDashboard() {
           {dashboard?.recommendedJobs &&
           dashboard.recommendedJobs.length > 0 ? (
             <div className="space-y-3">
-              {dashboard.recommendedJobs.map((job) => (
+              {dashboard.recommendedJobs.map((job: any) => (
                 <Card
                   key={job.id}
                   className="border-border/50 hover:shadow-sm transition-shadow"

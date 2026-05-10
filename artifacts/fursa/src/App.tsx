@@ -40,6 +40,8 @@ import SeekerSavedJobs from "@/pages/seeker/saved";
 import SeekerProfile from "@/pages/seeker/profile";
 import SeekerAlerts from "@/pages/seeker/alerts";
 import SeekerCvBuilder from "@/pages/seeker/cv-builder";
+import SeekerSettings from "@/pages/seeker/settings";
+import SeekerRecommendations from "@/pages/seeker/recommendations";
 
 import EmployerDashboard from "@/pages/employer/dashboard";
 import EmployerJobs from "@/pages/employer/jobs";
@@ -231,6 +233,12 @@ function Router() {
             </Route>
             <Route path="/seeker/cv-builder">
               <RoleGuard role="seeker"><SeekerCvBuilder /></RoleGuard>
+            </Route>
+            <Route path="/seeker/settings">
+              <RoleGuard role="seeker"><SeekerSettings /></RoleGuard>
+            </Route>
+            <Route path="/seeker/recommendations">
+              <RoleGuard role="seeker"><SeekerRecommendations /></RoleGuard>
             </Route>
 
             {/* Employer Routes — note: :id/applications MUST come before :id */}

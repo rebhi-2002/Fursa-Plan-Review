@@ -56,6 +56,9 @@ export default function EmployerNewJob() {
       .min(5, t("employer.newJob.validation.contact")),
     deadline: z.string().optional(),
     tags: z.string().optional(),
+    salaryMin: z.string().optional(),
+    salaryMax: z.string().optional(),
+    salaryCurrency: z.string().optional(),
   });
 
   type JobFormValues = z.infer<typeof jobSchema>;
@@ -71,18 +74,25 @@ export default function EmployerNewJob() {
       contactInfo: "",
       deadline: "",
       tags: "",
+      salaryMin: "",
+      salaryMax: "",
+      salaryCurrency: "USD",
     },
   });
 
   const onSubmit = async (data: JobFormValues) => {
     try {
+      const parsedMin = data.salaryMin ? parseInt(data.salaryMin as string, 10) : undefined;
+      const parsedMax = data.salaryMax ? parseInt(data.salaryMax as string, 10) : undefined;
       await createJobMutation.mutateAsync({
         data: {
           ...data,
           deadline: data.deadline
-            ? new Date(data.deadline).toISOString()
+            ? new Date(data.deadline as string).toISOString()
             : undefined,
-        },
+          salaryMin: parsedMin != null && !isNaN(parsedMin) ? parsedMin : undefined,
+          salaryMax: parsedMax != null && !isNaN(parsedMax) ? parsedMax : undefined,
+        } as any,
       });
       toast.success(t("employer.newJob.success"));
       queryClient.invalidateQueries();
@@ -318,6 +328,61 @@ export default function EmployerNewJob() {
                   </FormItem>
                 )}
               />
+
+              <div className="border-t border-border/50 pt-6">
+                <p className="text-sm font-medium mb-4">{lang === "ar" ? "نطاق الراتب (اختياري)" : "Salary Range (optional)"}</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="salaryMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">{lang === "ar" ? "الحد الأدنى" : "Min Salary"}</FormLabel>
+                        <FormControl>
+                          <Input type="number" min="0" placeholder="0" className="bg-background" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="salaryMax"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">{lang === "ar" ? "الحد الأقصى" : "Max Salary"}</FormLabel>
+                        <FormControl>
+                          <Input type="number" min="0" placeholder="0" className="bg-background" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="salaryCurrency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">{lang === "ar" ? "العملة" : "Currency"}</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-background">
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="USD">USD</SelectItem>
+                            <SelectItem value="ILS">ILS ₪</SelectItem>
+                            <SelectItem value="EUR">EUR €</SelectItem>
+                            <SelectItem value="JOD">JOD</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
 
               <div className="flex justify-end gap-4 pt-6 border-t border-border/50">
                 <Button type="button" variant="outline" asChild>
