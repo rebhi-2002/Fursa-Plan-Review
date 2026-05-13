@@ -1,6 +1,6 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { db, jobsTable, usersTable, applicationsTable, savedJobsTable } from "@workspace/db";
-import { and, eq, ilike, ne, or, desc, sql, asc } from "drizzle-orm";
+import { and, eq, ilike, ne, or, desc, sql, asc, isNull } from "drizzle-orm";
 import { getAuth } from "@clerk/express";
 
 const router: IRouter = Router();
@@ -21,7 +21,7 @@ router.get("/jobs/featured", async (_req: Request, res: Response) => {
       })
       .from(jobsTable)
       .innerJoin(usersTable, eq(usersTable.id, jobsTable.employerId))
-      .where(and(eq(jobsTable.status, "approved"), eq(jobsTable.isOpen, true)))
+      .where(and(eq(jobsTable.status, "approved"), eq(jobsTable.isOpen, true), isNull(jobsTable.archivedAt)))
       .orderBy(desc(jobsTable.createdAt))
       .limit(6);
 
@@ -49,6 +49,7 @@ router.get("/jobs", async (req: Request, res: Response) => {
     const conditions = [
       eq(jobsTable.status, "approved"),
       eq(jobsTable.isOpen, true),
+      isNull(jobsTable.archivedAt),
     ];
     if (type === "online" || type === "field" || type === "hybrid") {
       conditions.push(eq(jobsTable.type, type));
@@ -241,6 +242,7 @@ router.get("/jobs/:id/similar", async (req: Request, res: Response) => {
           eq(jobsTable.category, category),
           eq(jobsTable.status, "approved"),
           eq(jobsTable.isOpen, true),
+          isNull(jobsTable.archivedAt),
           ne(jobsTable.id, id),
         ),
       )
@@ -298,7 +300,7 @@ router.get("/sitemap.xml", async (_req, res) => {
     const jobs = await db
       .select({ id: jobsTable.id, createdAt: jobsTable.createdAt })
       .from(jobsTable)
-      .where(and(eq(jobsTable.status, "approved"), eq(jobsTable.isOpen, true)))
+      .where(and(eq(jobsTable.status, "approved"), eq(jobsTable.isOpen, true), isNull(jobsTable.archivedAt)))
       .orderBy(desc(jobsTable.createdAt))
       .limit(500);
 
@@ -432,6 +434,7 @@ router.get(
             eq(jobsTable.employerId, id),
             eq(jobsTable.status, "approved"),
             eq(jobsTable.isOpen, true),
+            isNull(jobsTable.archivedAt),
           ),
         )
         .orderBy(desc(jobsTable.createdAt));

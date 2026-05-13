@@ -76,6 +76,7 @@ async function serializeEmployerJob(j: typeof jobsTable.$inferSelect) {
     applicationsCount: counts[0]?.total ?? 0,
     unseenApplicationsCount: counts[0]?.unseen ?? 0,
     createdAt: j.createdAt.toISOString(),
+    archivedAt: isoOrNull(j.archivedAt),
   };
 }
 
@@ -207,6 +208,27 @@ router.delete(
     if (!job) { res.status(404).json({ error: "Not found" }); return; }
     await db.delete(jobsTable).where(eq(jobsTable.id, id));
     res.status(204).end();
+  },
+);
+
+// ── Archive / Restore ──────────────────────────────────────────────────────
+router.patch(
+  "/employer/jobs/:id/archive",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    const id = parseInt(String(req.params["id"] ?? ""), 10);
+    if (!Number.isFinite(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+    const restore = req.body?.restore === true;
+    const job = await loadEmployerJob(id, req.currentUser!.id);
+    if (!job) { res.status(404).json({ error: "Not found" }); return; }
+    const updated = await db
+      .update(jobsTable)
+      .set({ archivedAt: restore ? null : new Date(), isOpen: restore ? job.isOpen : false })
+      .where(eq(jobsTable.id, id))
+      .returning();
+    res.json(await serializeEmployerJob(updated[0]!));
   },
 );
 

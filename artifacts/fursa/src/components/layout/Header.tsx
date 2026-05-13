@@ -171,6 +171,9 @@ export function Header() {
       <Link href="/docs" onClick={closeMobile} className={mobileLinkClass("/docs")}>
         <FileText className="h-5 w-5" /> {lang === "ar" ? "دليل الاستخدام" : "User Guide"}
       </Link>
+      <Link href="/help" onClick={closeMobile} className={mobileLinkClass("/help")}>
+        <Activity className="h-5 w-5" /> {lang === "ar" ? "مركز المساعدة" : "Help Center"}
+      </Link>
 
       {dbUser?.role && dbUser.onboarded && (
         <>

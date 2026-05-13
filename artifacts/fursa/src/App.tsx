@@ -65,6 +65,7 @@ import DocsPage from "@/pages/docs";
 import HowItWorksPage from "@/pages/how-it-works";
 import SuccessStoriesPage from "@/pages/success-stories";
 import ForEmployersPage from "@/pages/for-employers";
+import HelpCenterPage from "@/pages/help-center";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -298,6 +299,7 @@ function Router() {
             <Route path="/how-it-works" component={HowItWorksPage} />
             <Route path="/success-stories" component={SuccessStoriesPage} />
             <Route path="/for-employers" component={ForEmployersPage} />
+            <Route path="/help" component={HelpCenterPage} />
 
             {/* Admin Routes */}
             <Route path="/admin">

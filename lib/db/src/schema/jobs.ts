@@ -40,6 +40,7 @@ export const jobsTable = pgTable(
     salaryCurrency: text("salary_currency").default("USD"),
     viewsCount: integer("views_count").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
+    archivedAt: timestamp("archived_at"),
   },
   (table) => [
     index("jobs_status_idx").on(table.status),
