@@ -6,6 +6,7 @@ import {
   applicationsTable,
   savedJobsTable,
   jobAlertsTable,
+  jobInvitationsTable,
 } from "@workspace/db";
 import { and, desc, eq, sql, ne, notInArray } from "drizzle-orm";
 import { z } from "zod";
@@ -628,6 +629,69 @@ router.get(
     }
 
     res.json(months);
+  },
+);
+
+// ── My Invitations ─────────────────────────────────────────────────────────
+
+// GET /me/invitations
+router.get(
+  "/me/invitations",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("seeker"),
+  async (req: Request, res: Response) => {
+    const seeker = (req as any).dbUser;
+
+    const invitations = await db
+      .select({
+        id: jobInvitationsTable.id,
+        status: jobInvitationsTable.status,
+        message: jobInvitationsTable.message,
+        createdAt: jobInvitationsTable.createdAt,
+        respondedAt: jobInvitationsTable.respondedAt,
+        jobId: jobInvitationsTable.jobId,
+        jobTitle: jobsTable.title,
+        jobCategory: jobsTable.category,
+        jobType: jobsTable.type,
+        employerName: usersTable.name,
+      })
+      .from(jobInvitationsTable)
+      .innerJoin(jobsTable, eq(jobInvitationsTable.jobId, jobsTable.id))
+      .innerJoin(usersTable, eq(jobInvitationsTable.employerId, usersTable.id))
+      .where(eq(jobInvitationsTable.seekerId, seeker.id))
+      .orderBy(desc(jobInvitationsTable.createdAt));
+
+    res.json(invitations);
+  },
+);
+
+// PATCH /me/invitations/:id — accept or decline
+router.patch(
+  "/me/invitations/:id",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("seeker"),
+  async (req: Request, res: Response) => {
+    const seeker = (req as any).dbUser;
+    const id = parseInt(req.params.id!);
+    if (isNaN(id)) { res.status(400).json({ error: "invalid id" }); return; }
+
+    const parsed = z.object({ status: z.enum(["accepted", "declined"]) }).safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
+
+    const inv = await db.query.jobInvitationsTable.findFirst({
+      where: and(eq(jobInvitationsTable.id, id), eq(jobInvitationsTable.seekerId, seeker.id)),
+    });
+    if (!inv) { res.status(404).json({ error: "not found" }); return; }
+
+    const [updated] = await db
+      .update(jobInvitationsTable)
+      .set({ status: parsed.data.status, respondedAt: new Date() })
+      .where(eq(jobInvitationsTable.id, id))
+      .returning();
+
+    res.json(updated);
   },
 );
 

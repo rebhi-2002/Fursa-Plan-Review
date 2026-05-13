@@ -5,8 +5,9 @@ import {
   usersTable,
   applicationsTable,
   messagesTable,
+  jobInvitationsTable,
 } from "@workspace/db";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql, ne } from "drizzle-orm";
 import { z } from "zod";
 import { requireAuth, loadCurrentUser, requireRole } from "../middlewares/auth";
 import { createNotification } from "../lib/notifications";
@@ -704,6 +705,184 @@ router.get(
       applicationTrends,
       salaryBenchmarks,
     });
+  },
+);
+
+// ── Invitations ────────────────────────────────────────────────────────────
+
+const inviteSchema = z.object({
+  seekerId: z.string().min(1),
+  message: z.string().max(1000).optional(),
+});
+
+// POST /employer/jobs/:jobId/invite
+router.post(
+  "/jobs/:jobId/invite",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    const employer = (req as any).dbUser;
+    const jobId = parseInt(req.params.jobId!);
+    if (isNaN(jobId)) { res.status(400).json({ error: "invalid job id" }); return; }
+
+    const parsed = inviteSchema.safeParse(req.body);
+    if (!parsed.success) { res.status(400).json({ error: parsed.error.flatten() }); return; }
+
+    const job = await db.query.jobsTable.findFirst({
+      where: and(eq(jobsTable.id, jobId), eq(jobsTable.employerId, employer.id)),
+    });
+    if (!job) { res.status(404).json({ error: "job not found" }); return; }
+
+    const seeker = await db.query.usersTable.findFirst({
+      where: and(eq(usersTable.id, parsed.data.seekerId), eq(usersTable.role, "seeker")),
+    });
+    if (!seeker) { res.status(404).json({ error: "seeker not found" }); return; }
+
+    const existing = await db.query.jobInvitationsTable.findFirst({
+      where: and(
+        eq(jobInvitationsTable.seekerId, parsed.data.seekerId),
+        eq(jobInvitationsTable.jobId, jobId),
+      ),
+    });
+    if (existing) { res.status(409).json({ error: "already invited" }); return; }
+
+    const [invitation] = await db
+      .insert(jobInvitationsTable)
+      .values({
+        jobId,
+        employerId: employer.id,
+        seekerId: parsed.data.seekerId,
+        message: parsed.data.message ?? null,
+      })
+      .returning();
+
+    await createNotification(parsed.data.seekerId, {
+      type: "application_status",
+      title: `دعوة للتقديم على وظيفة`,
+      body: `دعاك ${employer.name || "صاحب عمل"} للتقديم على وظيفة: ${job.title}`,
+      link: `/jobs/${jobId}`,
+    });
+
+    res.status(201).json(invitation);
+  },
+);
+
+// GET /employer/jobs/:jobId/invitations
+router.get(
+  "/jobs/:jobId/invitations",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    const employer = (req as any).dbUser;
+    const jobId = parseInt(req.params.jobId!);
+    if (isNaN(jobId)) { res.status(400).json({ error: "invalid job id" }); return; }
+
+    const job = await db.query.jobsTable.findFirst({
+      where: and(eq(jobsTable.id, jobId), eq(jobsTable.employerId, employer.id)),
+    });
+    if (!job) { res.status(404).json({ error: "job not found" }); return; }
+
+    const invitations = await db
+      .select({
+        id: jobInvitationsTable.id,
+        status: jobInvitationsTable.status,
+        message: jobInvitationsTable.message,
+        createdAt: jobInvitationsTable.createdAt,
+        respondedAt: jobInvitationsTable.respondedAt,
+        seeker: {
+          id: usersTable.id,
+          name: usersTable.name,
+          email: usersTable.email,
+          location: usersTable.location,
+        },
+      })
+      .from(jobInvitationsTable)
+      .innerJoin(usersTable, eq(jobInvitationsTable.seekerId, usersTable.id))
+      .where(eq(jobInvitationsTable.jobId, jobId))
+      .orderBy(desc(jobInvitationsTable.createdAt));
+
+    res.json(invitations);
+  },
+);
+
+// GET /employer/invitations — all invitations across all jobs
+router.get(
+  "/invitations",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    const employer = (req as any).dbUser;
+
+    const invitations = await db
+      .select({
+        id: jobInvitationsTable.id,
+        status: jobInvitationsTable.status,
+        message: jobInvitationsTable.message,
+        createdAt: jobInvitationsTable.createdAt,
+        respondedAt: jobInvitationsTable.respondedAt,
+        jobId: jobInvitationsTable.jobId,
+        jobTitle: jobsTable.title,
+        seeker: {
+          id: usersTable.id,
+          name: usersTable.name,
+          email: usersTable.email,
+        },
+      })
+      .from(jobInvitationsTable)
+      .innerJoin(usersTable, eq(jobInvitationsTable.seekerId, usersTable.id))
+      .innerJoin(jobsTable, eq(jobInvitationsTable.jobId, jobsTable.id))
+      .where(eq(jobInvitationsTable.employerId, employer.id))
+      .orderBy(desc(jobInvitationsTable.createdAt));
+
+    res.json(invitations);
+  },
+);
+
+// DELETE /employer/invitations/:id
+router.delete(
+  "/invitations/:id",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    const employer = (req as any).dbUser;
+    const id = parseInt(req.params.id!);
+    if (isNaN(id)) { res.status(400).json({ error: "invalid id" }); return; }
+
+    const inv = await db.query.jobInvitationsTable.findFirst({
+      where: and(eq(jobInvitationsTable.id, id), eq(jobInvitationsTable.employerId, employer.id)),
+    });
+    if (!inv) { res.status(404).json({ error: "not found" }); return; }
+
+    await db.delete(jobInvitationsTable).where(eq(jobInvitationsTable.id, id));
+    res.json({ ok: true });
+  },
+);
+
+// Search seekers for invite dialog
+router.get(
+  "/seekers/search",
+  requireAuth,
+  loadCurrentUser,
+  requireRole("employer"),
+  async (req: Request, res: Response) => {
+    const q = ((req.query.q as string) || "").trim();
+    if (q.length < 2) { res.json([]); return; }
+
+    const results = await db
+      .select({ id: usersTable.id, name: usersTable.name, email: usersTable.email, location: usersTable.location })
+      .from(usersTable)
+      .where(and(
+        eq(usersTable.role, "seeker"),
+        eq(usersTable.isActive, true),
+        sql`(${usersTable.name} ILIKE ${'%' + q + '%'} OR ${usersTable.email} ILIKE ${'%' + q + '%'})`,
+      ))
+      .limit(10);
+
+    res.json(results);
   },
 );
 

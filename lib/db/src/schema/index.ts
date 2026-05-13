@@ -6,3 +6,4 @@ export * from "./notifications";
 export * from "./messages";
 export * from "./jobAlerts";
 export * from "./reviews";
+export * from "./jobInvitations";

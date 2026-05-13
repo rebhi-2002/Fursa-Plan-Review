@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useGetSeekerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { OnboardingTour } from "@/components/ui/OnboardingTour";
+import { InvitationsPanel } from "@/components/seeker/InvitationsPanel";
 import { useT } from "@/lib/i18n";
 import { ProfileCompletion } from "@/components/ui/ProfileCompletion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -338,6 +339,8 @@ export default function SeekerDashboard() {
               <Link href="/jobs">{t("common.viewAll")}</Link>
             </Button>
           </div>
+
+          <InvitationsPanel />
 
           {dashboard?.recommendedJobs &&
           dashboard.recommendedJobs.length > 0 ? (

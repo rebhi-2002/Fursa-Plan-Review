@@ -62,8 +62,10 @@ import {
   Download,
   Users,
   Pencil,
+  UserPlus,
 } from "lucide-react";
 import SuggestedCandidates from "@/components/employer/SuggestedCandidates";
+import { InviteCandidateDialog } from "@/components/employer/InviteCandidateDialog";
 import { format } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
@@ -80,6 +82,7 @@ export default function EmployerJobDetail() {
   const jobId = parseInt(params?.id || "0", 10);
   const queryClient = useQueryClient();
   const locale = lang === "ar" ? ar : enUS;
+  const [inviteOpen, setInviteOpen] = useState(false);
 
   const { data: job, isLoading: isJobLoading } = useGetEmployerJob(jobId, {
     query: {
@@ -285,12 +288,29 @@ export default function EmployerJobDetail() {
             <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
           </Link>
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-bold tracking-tight">
             {t("employer.jobDetail.title")}
           </h1>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 shrink-0"
+          onClick={() => setInviteOpen(true)}
+        >
+          <UserPlus className="h-4 w-4" />
+          {lang === "ar" ? "دعوة مرشح" : "Invite Candidate"}
+        </Button>
       </div>
+      {job && (
+        <InviteCandidateDialog
+          jobId={jobId}
+          jobTitle={job.title}
+          open={inviteOpen}
+          onOpenChange={setInviteOpen}
+        />
+      )}
 
       <div className="grid lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2 space-y-6">
