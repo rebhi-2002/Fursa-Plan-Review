@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useGetSeekerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
+import { OnboardingTour } from "@/components/ui/OnboardingTour";
 import { useT } from "@/lib/i18n";
 import { ProfileCompletion } from "@/components/ui/ProfileCompletion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -133,6 +134,7 @@ export default function SeekerDashboard() {
 
   return (
     <div className="mx-auto w-full py-8 max-w-5xl px-4 sm:px-6">
+      <OnboardingTour role="seeker" />
       <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">

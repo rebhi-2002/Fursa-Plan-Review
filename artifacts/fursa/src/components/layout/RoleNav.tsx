@@ -18,6 +18,8 @@ import {
   Bell,
   Activity,
   BarChart2,
+  Settings,
+  Star,
 } from "lucide-react";
 import { useUnreadMessageCount } from "@/hooks/useUnreadMessageCount";
 
@@ -57,7 +59,9 @@ export function RoleNav() {
           { href: "/seeker/alerts", label: t("dashboard.seeker.alerts"), icon: BellRing },
           { href: "/seeker/cv-builder", label: t("dashboard.seeker.cvBuilder"), icon: ScrollText },
           { href: "/seeker/activity", label: t("dashboard.seeker.activity"), icon: Activity },
+          { href: "/seeker/recommendations", label: lang === "ar" ? "مقترحاتي" : "Recommendations", icon: Star },
           { href: "/seeker/profile", label: t("dashboard.seeker.profile"), icon: UserIcon },
+          { href: "/seeker/settings", label: lang === "ar" ? "الإعدادات" : "Settings", icon: Settings },
         ]
       : role === "employer"
       ? [
@@ -65,6 +69,7 @@ export function RoleNav() {
           { href: "/employer/jobs/new", label: t("dashboard.employer.newJob"), icon: Plus },
           { href: "/employer/analytics", label: lang === "ar" ? "التحليلات" : "Analytics", icon: BarChart2 },
           { href: "/employer/profile", label: t("dashboard.employer.profile"), icon: Building2 },
+          { href: "/employer/settings", label: lang === "ar" ? "الإعدادات" : "Settings", icon: Settings },
         ]
       : role === "admin"
       ? [

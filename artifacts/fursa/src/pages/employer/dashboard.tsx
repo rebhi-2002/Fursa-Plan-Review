@@ -16,6 +16,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useLanguageStore } from "@/lib/i18n";
+import { OnboardingTour } from "@/components/ui/OnboardingTour";
 
 export default function EmployerDashboard() {
   const t = useT();
@@ -79,6 +80,7 @@ export default function EmployerDashboard() {
 
   return (
     <div className="mx-auto w-full py-8 max-w-6xl px-4 sm:px-6">
+      <OnboardingTour role="employer" />
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">

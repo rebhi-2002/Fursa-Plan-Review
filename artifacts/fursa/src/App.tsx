@@ -50,6 +50,7 @@ import EmployerJobDetail from "@/pages/employer/job-edit";
 import EmployerProfile from "@/pages/employer/profile";
 import EmployerApplications from "@/pages/employer/applications";
 import EmployerAnalytics from "@/pages/employer/analytics";
+import EmployerSettings from "@/pages/employer/settings";
 
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminJobs from "@/pages/admin/jobs";
@@ -262,6 +263,9 @@ function Router() {
             </Route>
             <Route path="/employer/profile">
               <RoleGuard role="employer"><EmployerProfile /></RoleGuard>
+            </Route>
+            <Route path="/employer/settings">
+              <RoleGuard role="employer"><EmployerSettings /></RoleGuard>
             </Route>
 
             {/* Messages Routes — signed-in only */}

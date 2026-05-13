@@ -585,30 +585,125 @@ router.get(
   async (req: Request, res: Response) => {
     const employerId = req.currentUser!.id;
 
-    const jobs = await db
-      .select({
-        id: jobsTable.id,
-        title: jobsTable.title,
-        status: jobsTable.status,
-        isOpen: jobsTable.isOpen,
-        viewsCount: jobsTable.viewsCount,
-        applicationsCount: sql<number>`(
-          select count(*) from ${applicationsTable} where ${applicationsTable.jobId} = ${jobsTable.id}
-        )::int`,
-        unseenApplicationsCount: sql<number>`(
-          select count(*) from ${applicationsTable} where ${applicationsTable.jobId} = ${jobsTable.id} and ${applicationsTable.seenByEmployer} = false
-        )::int`,
-      })
-      .from(jobsTable)
-      .where(eq(jobsTable.employerId, employerId))
-      .orderBy(desc(jobsTable.createdAt));
+    const [jobs, weeklyTrends, categoryBenchmarks] = await Promise.all([
+      db
+        .select({
+          id: jobsTable.id,
+          title: jobsTable.title,
+          status: jobsTable.status,
+          isOpen: jobsTable.isOpen,
+          viewsCount: jobsTable.viewsCount,
+          category: jobsTable.category,
+          salaryMin: jobsTable.salaryMin,
+          salaryMax: jobsTable.salaryMax,
+          salaryCurrency: jobsTable.salaryCurrency,
+          deadline: jobsTable.deadline,
+          createdAt: jobsTable.createdAt,
+          applicationsCount: sql<number>`(
+            select count(*) from ${applicationsTable} where ${applicationsTable.jobId} = ${jobsTable.id}
+          )::int`,
+          unseenApplicationsCount: sql<number>`(
+            select count(*) from ${applicationsTable} where ${applicationsTable.jobId} = ${jobsTable.id} and ${applicationsTable.seenByEmployer} = false
+          )::int`,
+        })
+        .from(jobsTable)
+        .where(eq(jobsTable.employerId, employerId))
+        .orderBy(desc(jobsTable.createdAt)),
+
+      // Weekly application trends: last 8 weeks
+      db.execute(sql`
+        select
+          to_char(date_trunc('week', ${applicationsTable.createdAt}), 'YYYY-MM-DD') as week,
+          count(*)::int as count
+        from ${applicationsTable}
+        inner join ${jobsTable} on ${jobsTable.id} = ${applicationsTable.jobId}
+        where ${jobsTable.employerId} = ${employerId}
+          and ${applicationsTable.createdAt} >= now() - interval '8 weeks'
+        group by week
+        order by week asc
+      `),
+
+      // Salary benchmarks by category from all approved jobs platform-wide
+      db.execute(sql`
+        select
+          category,
+          avg(salary_min)::int as avg_salary_min,
+          avg(salary_max)::int as avg_salary_max,
+          count(*)::int as job_count
+        from ${jobsTable}
+        where status = 'approved'
+          and salary_min is not null
+          and salary_max is not null
+        group by category
+        order by category
+      `),
+    ]);
 
     const totalJobs = jobs.length;
     const totalApplications = jobs.reduce((sum, j) => sum + (j.applicationsCount ?? 0), 0);
     const totalViews = jobs.reduce((sum, j) => sum + (j.viewsCount ?? 0), 0);
     const unseenApplications = jobs.reduce((sum, j) => sum + (j.unseenApplicationsCount ?? 0), 0);
 
-    res.json({ totalJobs, totalApplications, totalViews, unseenApplications, jobs });
+    // Conversion rate per job
+    const jobsWithMetrics = jobs.map((j) => ({
+      ...j,
+      deadline: j.deadline ? j.deadline.toISOString() : null,
+      createdAt: j.createdAt.toISOString(),
+      conversionRate: j.viewsCount > 0 ? Math.round((j.applicationsCount / j.viewsCount) * 100) : 0,
+    }));
+
+    // Build salary benchmark map: category -> platform avg
+    const benchmarkMap: Record<string, { avgMin: number; avgMax: number; count: number }> = {};
+    for (const row of (categoryBenchmarks as any).rows ?? categoryBenchmarks) {
+      benchmarkMap[row.category] = {
+        avgMin: row.avg_salary_min ?? 0,
+        avgMax: row.avg_salary_max ?? 0,
+        count: row.job_count ?? 0,
+      };
+    }
+
+    // Employer's own salary data by category
+    const employerSalaryByCategory: Record<string, { min: number; max: number; currency: string }> = {};
+    for (const j of jobs) {
+      if (j.salaryMin != null && j.salaryMax != null) {
+        employerSalaryByCategory[j.category] = {
+          min: j.salaryMin,
+          max: j.salaryMax,
+          currency: j.salaryCurrency ?? "USD",
+        };
+      }
+    }
+
+    const salaryBenchmarks = Object.entries(benchmarkMap)
+      .filter(([cat]) => {
+        const categories = [...new Set(jobs.map((j) => j.category))];
+        return categories.includes(cat);
+      })
+      .map(([category, platform]) => ({
+        category,
+        platformAvgMin: platform.avgMin,
+        platformAvgMax: platform.avgMax,
+        platformJobCount: platform.count,
+        yourMin: employerSalaryByCategory[category]?.min ?? null,
+        yourMax: employerSalaryByCategory[category]?.max ?? null,
+        currency: employerSalaryByCategory[category]?.currency ?? "USD",
+      }));
+
+    const trendsRows = (weeklyTrends as any).rows ?? weeklyTrends;
+    const applicationTrends = trendsRows.map((r: any) => ({
+      week: r.week,
+      count: r.count,
+    }));
+
+    res.json({
+      totalJobs,
+      totalApplications,
+      totalViews,
+      unseenApplications,
+      jobs: jobsWithMetrics,
+      applicationTrends,
+      salaryBenchmarks,
+    });
   },
 );
 
