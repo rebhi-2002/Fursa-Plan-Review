@@ -50,7 +50,7 @@ export default function SeekerRecommendations() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
             <Sparkles className="h-7 w-7 text-amber-500" />
             {appLang === "ar" ? "وظائف مقترحة لك" : "Recommended for You"}
           </h1>

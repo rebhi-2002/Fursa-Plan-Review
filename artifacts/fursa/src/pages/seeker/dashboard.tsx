@@ -136,43 +136,37 @@ export default function SeekerDashboard() {
   return (
     <div className="mx-auto w-full py-8 max-w-5xl px-4 sm:px-6">
       <OnboardingTour role="seeker" />
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-2xl sm:text-3xl font-bold tracking-tight truncate">
             {firstName
               ? (lang === "ar" ? `مرحباً، ${firstName}!` : `Welcome, ${firstName}!`)
               : t("seeker.dashboard.title")}
           </h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm">
             {t("seeker.dashboard.welcome")}
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button asChild variant="outline" size="sm" className="gap-1.5">
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
             <Link href="/seeker/recommendations">
-              <Sparkles className="h-4 w-4 text-amber-500" />
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
               {lang === "ar" ? "مقترح لك" : "Recommended"}
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="gap-1.5">
+          <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
             <Link href="/seeker/alerts">
-              <Bell className="h-4 w-4" />
+              <Bell className="h-3.5 w-3.5" />
               {lang === "ar" ? "تنبيهاتي" : "Alerts"}
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="gap-1.5">
+          <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
             <Link href="/seeker/cv-builder">
-              <FileCheck className="h-4 w-4" />
+              <FileCheck className="h-3.5 w-3.5" />
               {lang === "ar" ? "بناء السيرة" : "CV Builder"}
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="gap-1.5">
-            <Link href="/seeker/settings">
-              <Settings className="h-4 w-4" />
-              {lang === "ar" ? "الإعدادات" : "Settings"}
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
             <Link href="/seeker/profile">
               {t("seeker.dashboard.editProfile")}
             </Link>
@@ -194,16 +188,16 @@ export default function SeekerDashboard() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {statCards.map((stat, i) => (
           <Card key={i} className="border-border/50 shadow-sm">
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex items-center justify-between space-y-0 pb-2">
-                <p className="text-sm font-medium text-muted-foreground">
+            <CardContent className="p-3 sm:p-5">
+              <div className="flex items-start justify-between gap-1 pb-2">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight min-w-0 break-words">
                   {stat.title}
                 </p>
-                <div className={`p-2 rounded-lg ${stat.bg}`}>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${stat.bg}`}>
+                  <stat.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${stat.color}`} />
                 </div>
               </div>
-              <div className="text-3xl font-bold">{stat.value}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{stat.value}</div>
             </CardContent>
           </Card>
         ))}

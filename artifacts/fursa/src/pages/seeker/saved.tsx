@@ -75,7 +75,7 @@ export default function SeekerSavedJobs() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {t("seeker.saved.title")}
           </h1>
           <p className="text-muted-foreground mt-1">

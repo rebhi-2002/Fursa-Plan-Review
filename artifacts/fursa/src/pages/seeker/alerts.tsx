@@ -128,7 +128,7 @@ export default function JobAlertsPage() {
     <div className="container py-8 max-w-3xl">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
             <BellRing className="h-7 w-7 text-primary" />
             {t("alerts.title")}
           </h1>

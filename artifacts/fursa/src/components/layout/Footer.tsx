@@ -56,8 +56,9 @@ export function Footer() {
             <h4 className="font-semibold mb-3 text-sm">{t("footer.platform")}</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/jobs" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.findJob")}</Link></li>
+              <li><Link href="/employers" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "أصحاب العمل" : "Employers"}</Link></li>
               <li><Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "دليل الاستخدام" : "User Guide"}</Link></li>
-              <li><Link href="/for-employers" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "لأصحاب العمل" : "For Employers"}</Link></li>
+              <li><Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "مركز المساعدة" : "Help Center"}</Link></li>
               <li><Link href="/success-stories" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "قصص النجاح" : "Success Stories"}</Link></li>
             </ul>
           </div>

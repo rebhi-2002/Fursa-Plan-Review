@@ -144,12 +144,12 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-3">
           <ShieldCheck className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               {firstName
                 ? (lang === "ar" ? `مرحباً، ${firstName}!` : `Welcome, ${firstName}!`)
                 : t("admin.dashboard.title")}
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground mt-1 text-sm">
               {t("admin.dashboard.subtitle")}
             </p>
           </div>
@@ -196,19 +196,19 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {statCards.map((stat, i) => (
           <Card key={i} className="border-border/50 shadow-sm">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between space-y-0 pb-2">
-                <p className="text-sm font-medium text-muted-foreground">
+            <CardContent className="p-3 sm:p-5">
+              <div className="flex items-start justify-between gap-1 pb-2">
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight min-w-0 break-words">
                   {stat.title}
                 </p>
-                <div className={`p-2 rounded-lg ${stat.bg}`}>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${stat.bg}`}>
+                  <stat.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${stat.color}`} />
                 </div>
               </div>
-              <div className="text-3xl font-bold">{stat.value}</div>
+              <div className="text-2xl sm:text-3xl font-bold">{stat.value}</div>
             </CardContent>
           </Card>
         ))}

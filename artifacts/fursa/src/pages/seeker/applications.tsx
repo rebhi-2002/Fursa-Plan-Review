@@ -125,7 +125,7 @@ export default function SeekerApplications() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t("seeker.applications.title")}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("seeker.applications.title")}</h1>
           <p className="text-muted-foreground mt-1">{t("seeker.applications.subtitle")}</p>
         </div>
       </div>

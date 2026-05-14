@@ -222,8 +222,8 @@ export default function EmployerAnalyticsPage() {
         <div className="p-2.5 bg-primary/10 rounded-xl">
           <BarChart2 className="h-7 w-7 text-primary" />
         </div>
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {lang === "ar" ? "لوحة التحليلات" : "Analytics Dashboard"}
           </h1>
           <p className="text-muted-foreground mt-0.5">
@@ -235,16 +235,16 @@ export default function EmployerAnalyticsPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         {statCards.map((s, i) => (
           <Card key={i} className={`${s.border} ${s.bg}`}>
-            <CardContent className="p-5 flex items-center gap-4">
-              <div className="p-3 bg-white/60 dark:bg-black/20 rounded-xl">
-                <s.icon className={`h-5 w-5 ${s.color}`} />
+            <CardContent className="p-3 sm:p-5 flex items-center gap-2 sm:gap-4">
+              <div className="p-2 sm:p-3 bg-white/60 dark:bg-black/20 rounded-xl shrink-0">
+                <s.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${s.color}`} />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{s.title}</p>
-                <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground leading-tight break-words">{s.title}</p>
+                <p className={`text-2xl sm:text-3xl font-bold ${s.color}`}>{s.value}</p>
               </div>
             </CardContent>
           </Card>

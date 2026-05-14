@@ -48,7 +48,7 @@ export default function SeekerSettings() {
           <Link href="/seeker">{lang === "ar" ? "←" : <ChevronLeft className="h-5 w-5 rtl:rotate-180" />}</Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{lang === "ar" ? "إعدادات الحساب" : "Account Settings"}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{lang === "ar" ? "إعدادات الحساب" : "Account Settings"}</h1>
           <p className="text-muted-foreground mt-1">{lang === "ar" ? "تحكم في تفضيلات حسابك" : "Manage your account preferences"}</p>
         </div>
       </div>

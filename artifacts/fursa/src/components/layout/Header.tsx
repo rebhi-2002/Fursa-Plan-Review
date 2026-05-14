@@ -47,6 +47,7 @@ import {
   BarChart2,
   Activity,
   Settings,
+  Star,
   LifeBuoy,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";

@@ -172,7 +172,7 @@ export default function AdminJobs() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
               {t("admin.jobs.title")}
             </h1>
             <p className="text-muted-foreground mt-1">

@@ -106,7 +106,7 @@ export default function AdminAnalyticsPage() {
           <BarChart2 className="h-7 w-7 text-primary" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t("admin.analytics.pageTitle")}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("admin.analytics.pageTitle")}</h1>
           <p className="text-muted-foreground mt-0.5">{t("admin.analytics.pageSubtitle")}</p>
         </div>
       </div>
@@ -120,7 +120,7 @@ export default function AdminAnalyticsPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">{t("admin.analytics.chartJobs")}</p>
-              <p className="text-3xl font-bold text-indigo-700 dark:text-indigo-300">{totals.jobs}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-indigo-700 dark:text-indigo-300">{totals.jobs}</p>
               <p className="text-xs text-muted-foreground">{t("admin.analytics.last30")}</p>
             </div>
           </CardContent>
@@ -133,7 +133,7 @@ export default function AdminAnalyticsPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">{t("admin.analytics.chartApps")}</p>
-              <p className="text-3xl font-bold text-emerald-700 dark:text-emerald-300">{totals.applications}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-emerald-700 dark:text-emerald-300">{totals.applications}</p>
               <p className="text-xs text-muted-foreground">{t("admin.analytics.last30")}</p>
             </div>
           </CardContent>
@@ -146,7 +146,7 @@ export default function AdminAnalyticsPage() {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">{t("admin.analytics.chartUsers")}</p>
-              <p className="text-3xl font-bold text-amber-700 dark:text-amber-300">{totals.users}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-amber-700 dark:text-amber-300">{totals.users}</p>
               <p className="text-xs text-muted-foreground">{t("admin.analytics.last30")}</p>
             </div>
           </CardContent>

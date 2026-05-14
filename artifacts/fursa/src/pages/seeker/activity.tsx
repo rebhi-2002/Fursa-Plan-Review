@@ -122,7 +122,7 @@ export default function SeekerActivityPage() {
           <Activity className="h-7 w-7 text-primary" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t("seeker.activity.title")}</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("seeker.activity.title")}</h1>
           <p className="text-muted-foreground mt-0.5">{t("seeker.activity.subtitle")}</p>
         </div>
       </div>

@@ -289,7 +289,7 @@ export default function EmployerJobDetail() {
           </Link>
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {t("employer.jobDetail.title")}
           </h1>
         </div>
