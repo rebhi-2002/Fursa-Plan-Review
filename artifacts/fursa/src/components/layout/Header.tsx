@@ -47,7 +47,7 @@ import {
   BarChart2,
   Activity,
   Settings,
-  Star,
+  LifeBuoy,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -159,20 +159,11 @@ export function Header() {
       <Link href="/employers" onClick={closeMobile} className={mobileLinkClass("/employers")}>
         <Building2 className="h-5 w-5" /> {t("nav.employers") || (lang === "ar" ? "أصحاب العمل" : "Employers")}
       </Link>
-      <Link href="/how-it-works" onClick={closeMobile} className={mobileLinkClass("/how-it-works")}>
-        <Activity className="h-5 w-5" /> {lang === "ar" ? "كيف يعمل؟" : "How It Works"}
-      </Link>
-      <Link href="/for-employers" onClick={closeMobile} className={mobileLinkClass("/for-employers")}>
-        <Building2 className="h-5 w-5" /> {lang === "ar" ? "لأصحاب العمل" : "For Employers"}
-      </Link>
-      <Link href="/success-stories" onClick={closeMobile} className={mobileLinkClass("/success-stories")}>
-        <Star className="h-5 w-5" /> {lang === "ar" ? "قصص النجاح" : "Success Stories"}
-      </Link>
       <Link href="/docs" onClick={closeMobile} className={mobileLinkClass("/docs")}>
         <FileText className="h-5 w-5" /> {lang === "ar" ? "دليل الاستخدام" : "User Guide"}
       </Link>
       <Link href="/help" onClick={closeMobile} className={mobileLinkClass("/help")}>
-        <Activity className="h-5 w-5" /> {lang === "ar" ? "مركز المساعدة" : "Help Center"}
+        <LifeBuoy className="h-5 w-5" /> {lang === "ar" ? "مركز المساعدة" : "Help Center"}
       </Link>
 
       {dbUser?.role && dbUser.onboarded && (
