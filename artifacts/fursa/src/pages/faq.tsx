@@ -26,25 +26,31 @@ export default function FaqPage() {
   const { lang } = useLanguageStore();
 
   return (
-    <div className="container py-12 max-w-3xl">
+    <div className="flex flex-col">
       <Helmet>
         <title>{lang === "ar" ? "الأسئلة الشائعة | فُرصة" : "FAQ | Fursa"}</title>
       </Helmet>
-      <div className="relative rounded-2xl overflow-hidden mb-10 h-44 md:h-52">
+
+      {/* Full-width hero */}
+      <div className="relative overflow-hidden h-56 md:h-72">
         <img
           src="/img/faq-hero.png"
           alt={t("faq.title")}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-12">
-          <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-white/20 mb-3">
-            <HelpCircle className="h-6 w-6 text-white" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-16">
+          <div className="max-w-3xl mx-auto w-full">
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-white/20 mb-3">
+              <HelpCircle className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("faq.title")}</h1>
+            <p className="text-white/80 text-sm md:text-base max-w-md">{t("faq.subtitle")}</p>
           </div>
-          <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("faq.title")}</h1>
-          <p className="text-white/80 text-sm md:text-base max-w-md">{t("faq.subtitle")}</p>
         </div>
       </div>
 
+      {/* Page content */}
+      <div className="container py-12 max-w-3xl">
       <Accordion type="single" collapsible className="space-y-2">
         {FAQ_KEYS.map((item, index) => (
           <AccordionItem
@@ -68,6 +74,7 @@ export default function FaqPage() {
         <Button asChild>
           <Link href="/contact">{t("faq.contactUs")}</Link>
         </Button>
+      </div>
       </div>
     </div>
   );

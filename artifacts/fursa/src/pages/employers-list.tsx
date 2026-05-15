@@ -44,22 +44,28 @@ export default function EmployersListPage() {
   });
 
   return (
-    <div className="container py-6 sm:py-8 px-4 sm:px-6 max-w-5xl">
+    <div className="flex flex-col">
       <Helmet>
         <title>{lang === "ar" ? "أصحاب العمل | فُرصة" : "Employers | Fursa"}</title>
       </Helmet>
-      <div className="relative rounded-2xl overflow-hidden mb-6 sm:mb-8 h-40 md:h-48">
+
+      {/* Full-width hero */}
+      <div className="relative overflow-hidden h-56 md:h-72">
         <img
           src="/img/seekers-hero.png"
           alt={t("employers.title")}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-12">
-          <h1 className="text-2xl md:text-4xl font-bold text-white mb-1">{t("employers.title")}</h1>
-          <p className="text-white/80 text-sm md:text-base max-w-md">{t("employers.subtitle")}</p>
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-16">
+          <div className="max-w-5xl mx-auto w-full">
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-1">{t("employers.title")}</h1>
+            <p className="text-white/80 text-sm md:text-base max-w-md">{t("employers.subtitle")}</p>
+          </div>
         </div>
       </div>
 
+      {/* Page content */}
+      <div className="container py-8 px-4 sm:px-6 max-w-5xl">
       <div className="mb-5 relative">
         <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
@@ -138,6 +144,7 @@ export default function EmployersListPage() {
           <p className="text-muted-foreground">{t("employers.emptyDesc")}</p>
         </div>
       )}
+      </div>
     </div>
   );
 }

@@ -62,22 +62,28 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="container py-12 max-w-5xl">
+    <div className="flex flex-col">
       <Helmet>
         <title>{lang === "ar" ? "تواصل معنا | فُرصة" : "Contact Us | Fursa"}</title>
       </Helmet>
-      <div className="relative rounded-2xl overflow-hidden mb-10 h-44 md:h-52">
+
+      {/* Full-width hero */}
+      <div className="relative overflow-hidden h-56 md:h-72">
         <img
           src="/img/contact-hero.png"
           alt={t("contact.title")}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-12">
-          <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("contact.title")}</h1>
-          <p className="text-white/80 text-sm md:text-base max-w-md">{t("contact.subtitle")}</p>
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-16">
+          <div className="max-w-5xl mx-auto w-full">
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("contact.title")}</h1>
+            <p className="text-white/80 text-sm md:text-base max-w-md">{t("contact.subtitle")}</p>
+          </div>
         </div>
       </div>
 
+      {/* Page content */}
+      <div className="container py-12 max-w-5xl">
       <div className="grid gap-8 md:grid-cols-5">
         <div className="md:col-span-2 space-y-4">
           <Card className="overflow-hidden">
@@ -206,6 +212,7 @@ export default function ContactPage() {
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
     </div>
   );
