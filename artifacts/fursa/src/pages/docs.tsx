@@ -32,6 +32,9 @@ import {
   Lock,
   ClipboardList,
   Send,
+  Sparkles,
+  Shield,
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -160,46 +163,86 @@ export default function DocsPage() {
         { icon: Star, title: "Review system", desc: "Seekers can rate and review employer companies.", color: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400" },
       ];
 
+  const platformDiff = isAr
+    ? [
+        { icon: Sparkles, title: "توصيات ذكية", desc: "الخوارزمية تقترح وظائف تناسب مهاراتك وخبرتك" },
+        { icon: Shield, title: "خصوصية آمنة", desc: "بياناتك محمية ومشاركتها بيدك وحدك" },
+        { icon: Clock, title: "إشعارات فورية", desc: "تنبيهات لحظية على كل تحديث في طلبك" },
+        { icon: MessageSquare, title: "رسائل مباشرة", desc: "تواصل مباشر بين الباحث وصاحب العمل بدون وسيط" },
+      ]
+    : [
+        { icon: Sparkles, title: "Smart Recommendations", desc: "Algorithm suggests jobs matching your skills and experience" },
+        { icon: Shield, title: "Secure & Private", desc: "Your data is protected and sharing is your choice" },
+        { icon: Clock, title: "Real-time Alerts", desc: "Instant notifications on every application update" },
+        { icon: MessageSquare, title: "Direct Messaging", desc: "Direct communication between seekers and employers, no middleman" },
+      ];
+
   return (
-    <div className="container py-10 max-w-5xl">
+    <div className="flex flex-col">
       <Helmet>
         <title>{isAr ? "دليل الاستخدام — فُرصة" : "User Guide — Fursa"}</title>
         <meta name="description" content={isAr ? "دليل شامل لاستخدام منصة فُرصة" : "Complete guide to using the Fursa platform"} />
       </Helmet>
 
-      {/* Hero Banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-10 h-48 md:h-60">
+      {/* Full-width Hero — consistent with all other pages */}
+      <div className="relative overflow-hidden h-56 md:h-72">
         <img
           src="/img/docs-hero.png"
           alt={isAr ? "دليل الاستخدام" : "User Guide"}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-12">
-          <Badge className="mb-3 bg-white/20 text-white border-white/30 text-xs px-3 py-1 w-fit">
-            {isAr ? "دليل المستخدم" : "User Guide"}
-          </Badge>
-          <h1 className="text-2xl md:text-4xl font-extrabold text-white mb-2">
-            {isAr ? "كيف تستخدم منصة فُرصة؟" : "How to use Fursa?"}
-          </h1>
-          <p className="text-white/80 text-sm md:text-base max-w-md">
-            {isAr
-              ? "دليل خطوة بخطوة للباحثين عن عمل وأصحاب العمل والمسؤولين"
-              : "A step-by-step guide for job seekers, employers, and admins"}
-          </p>
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center">
+          <div className="mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8">
+            <Badge className="mb-3 bg-white/20 text-white border-white/30 text-xs px-3 py-1 w-fit">
+              {isAr ? "دليل المستخدم" : "User Guide"}
+            </Badge>
+            <h1 className="text-2xl md:text-4xl font-extrabold text-white mb-2">
+              {isAr ? "كيف تستخدم منصة فُرصة؟" : "How to use Fursa?"}
+            </h1>
+            <p className="text-white/80 text-sm md:text-base max-w-md">
+              {isAr
+                ? "دليل خطوة بخطوة للباحثين عن عمل وأصحاب العمل والمسؤولين"
+                : "A step-by-step guide for job seekers, employers, and admins"}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Platform Features */}
-      <div className="mb-10">
-        <h2 className="text-xl font-bold text-foreground mb-4">
-          {isAr ? "✨ مميزات المنصة" : "✨ Platform features"}
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {platformFeatures.map((f) => (
-            <FeatureCard key={f.title} {...f} />
-          ))}
+      {/* Page Content */}
+      <div className="container py-10 max-w-5xl">
+
+        {/* What Makes Fursa Different */}
+        <div className="mb-10">
+          <h2 className="text-xl font-bold text-foreground mb-1">
+            {isAr ? "ما يجعل فُرصة مختلفة" : "What Makes Fursa Different"}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-5">
+            {isAr ? "مبنية خصيصاً لسوق العمل في غزة" : "Built specifically for the Gaza job market"}
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {platformDiff.map((f) => (
+              <div key={f.title} className="flex flex-col items-center text-center p-5 bg-muted/30 rounded-2xl border border-border/50 hover:shadow-sm transition-shadow">
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+                  <f.icon className="h-5 w-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-sm mb-1">{f.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+
+        {/* Platform Features */}
+        <div className="mb-10">
+          <h2 className="text-xl font-bold text-foreground mb-4">
+            {isAr ? "✨ مميزات المنصة" : "✨ Platform features"}
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {platformFeatures.map((f) => (
+              <FeatureCard key={f.title} {...f} />
+            ))}
+          </div>
+        </div>
 
       {/* Role Tabs */}
       <Tabs defaultValue="seeker" dir={isAr ? "rtl" : "ltr"}>
@@ -307,8 +350,8 @@ export default function DocsPage() {
           {[
             { href: "/faq", label: isAr ? "الأسئلة الشائعة" : "FAQ" },
             { href: "/contact", label: isAr ? "تواصل معنا" : "Contact us" },
+            { href: "/changelog", label: isAr ? "ما الجديد؟" : "What's New" },
             { href: "/privacy", label: isAr ? "سياسة الخصوصية" : "Privacy policy" },
-            { href: "/terms", label: isAr ? "شروط الاستخدام" : "Terms of service" },
           ].map((l) => (
             <Button key={l.href} variant="outline" size="sm" asChild className="justify-start gap-2">
               <Link href={l.href}>
@@ -320,5 +363,6 @@ export default function DocsPage() {
         </div>
       </div>
     </div>
+  </div>
   );
 }

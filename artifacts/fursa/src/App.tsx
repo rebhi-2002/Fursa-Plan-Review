@@ -62,6 +62,7 @@ import MessagesPage from "@/pages/messages/index";
 import MessageThread from "@/pages/messages/thread";
 import PublicSeekerProfile from "@/pages/profiles/profile";
 import DocsPage from "@/pages/docs";
+import ChangelogPage from "@/pages/changelog";
 import SuccessStoriesPage from "@/pages/success-stories";
 import ForEmployersPage from "@/pages/for-employers";
 import HelpCenterPage from "@/pages/help-center";
@@ -293,6 +294,7 @@ function Router() {
 
             {/* Docs / User Guide */}
             <Route path="/docs" component={DocsPage} />
+            <Route path="/changelog" component={ChangelogPage} />
 
             {/* Platform Info Pages */}
             <Route path="/how-it-works">

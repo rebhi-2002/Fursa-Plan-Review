@@ -58,6 +58,7 @@ export function Footer() {
               <li><Link href="/jobs" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.findJob")}</Link></li>
               <li><Link href="/for-employers" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "لأصحاب العمل" : "For Employers"}</Link></li>
               <li><Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "دليل الاستخدام" : "User Guide"}</Link></li>
+              <li><Link href="/changelog" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "ما الجديد؟" : "What's New"}</Link></li>
               <li><Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "مركز المساعدة" : "Help Center"}</Link></li>
               <li><Link href="/success-stories" className="text-muted-foreground hover:text-foreground transition-colors">{lang === "ar" ? "قصص النجاح" : "Success Stories"}</Link></li>
             </ul>
