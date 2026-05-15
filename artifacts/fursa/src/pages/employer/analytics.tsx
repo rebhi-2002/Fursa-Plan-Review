@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/react";
 import { useLanguageStore } from "@/lib/i18n";
@@ -129,6 +130,9 @@ export default function EmployerAnalyticsPage() {
   if (isLoading) {
     return (
       <div className="container py-8 max-w-6xl space-y-6">
+      <Helmet>
+        <title>{lang === "ar" ? "التحليلات | فُرصة" : "Analytics | Fursa"}</title>
+      </Helmet>
         <Skeleton className="h-10 w-64 mb-8" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}

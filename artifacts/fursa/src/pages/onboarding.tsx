@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import {
@@ -5,7 +6,7 @@ import {
   useSetUserRole,
   useUpdateCurrentUser,
 } from "@workspace/api-client-react";
-import { useT } from "@/lib/i18n";
+import { useT, useLanguageStore } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -32,6 +33,7 @@ import {
 
 export default function Onboarding() {
   const t = useT();
+  const { lang } = useLanguageStore();
   const [, setLocation] = useLocation();
   const [step, setStep] = useState<"role" | "profile">("role");
   const autoRoleApplied = useRef(false);
@@ -138,6 +140,9 @@ export default function Onboarding() {
   if (isUserLoading || (step === "role" && setRoleMutation.isPending)) {
     return (
       <div className="flex-1 flex items-center justify-center">
+      <Helmet>
+        <title>{lang === "ar" ? "إعداد الحساب | فُرصة" : "Account Setup | Fursa"}</title>
+      </Helmet>
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );

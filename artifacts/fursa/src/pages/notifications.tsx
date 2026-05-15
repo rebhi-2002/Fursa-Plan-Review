@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Link, useLocation } from "wouter";
 import {
   useListMyNotifications,
@@ -110,6 +111,9 @@ export default function NotificationsPage() {
 
   return (
     <div className="container py-8 max-w-2xl">
+      <Helmet>
+        <title>{lang === "ar" ? "الإشعارات | فُرصة" : "Notifications | Fursa"}</title>
+      </Helmet>
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Button

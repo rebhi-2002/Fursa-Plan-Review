@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/react";
 import { useT, useLanguageStore } from "@/lib/i18n";
@@ -117,6 +118,9 @@ export default function SeekerActivityPage() {
 
   return (
     <div className="container py-8 max-w-3xl">
+      <Helmet>
+        <title>{lang === "ar" ? "سجل النشاط | فُرصة" : "Activity Log | Fursa"}</title>
+      </Helmet>
       <div className="flex items-center gap-3 mb-8">
         <div className="p-2.5 bg-primary/10 rounded-xl">
           <Activity className="h-7 w-7 text-primary" />

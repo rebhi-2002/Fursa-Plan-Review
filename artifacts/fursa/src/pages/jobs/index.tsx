@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import {
@@ -194,6 +195,9 @@ export default function JobsPage() {
 
   return (
     <div className="container py-8 max-w-6xl">
+      <Helmet>
+        <title>{lang === "ar" ? "الوظائف المتاحة | فُرصة" : "Jobs | Fursa"}</title>
+      </Helmet>
       <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-2">

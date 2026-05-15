@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useRef, useEffect, useState } from "react";
 import { type ReactNode } from "react";
 import { Link, useRoute, useLocation } from "wouter";
@@ -134,6 +135,9 @@ export default function EmployerApplications() {
 
   return (
     <div className="container py-8 max-w-4xl">
+      <Helmet>
+        <title>{lang === "ar" ? "الطلبات الواردة | فُرصة" : "Applications | Fursa"}</title>
+      </Helmet>
       <div className="mb-6 flex items-start gap-3">
         <Button
           variant="ghost"

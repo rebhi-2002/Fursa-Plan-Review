@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Link, useLocation } from "wouter";
 import { useCreateEmployerJob } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
@@ -104,6 +105,9 @@ export default function EmployerNewJob() {
 
   return (
     <div className="container py-8 max-w-3xl">
+      <Helmet>
+        <title>{lang === "ar" ? "نشر وظيفة | فُرصة" : "Post a Job | Fursa"}</title>
+      </Helmet>
       <div className="mb-6 flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/employer/jobs">

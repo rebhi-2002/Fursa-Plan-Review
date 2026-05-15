@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import {
@@ -123,6 +124,9 @@ export default function AdminUsers() {
 
   return (
     <div className="container py-8 max-w-5xl">
+      <Helmet>
+        <title>{lang === "ar" ? "إدارة المستخدمين | فُرصة" : "Manage Users | Fursa"}</title>
+      </Helmet>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-4">
           <Button

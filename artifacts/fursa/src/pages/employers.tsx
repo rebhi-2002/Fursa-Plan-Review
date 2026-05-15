@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { Link, useRoute } from "wouter";
 import {
@@ -62,6 +63,9 @@ function StarRating({ value, max = 5, size = "sm" }: { value: number; max?: numb
   const sz = size === "lg" ? "h-5 w-5" : "h-4 w-4";
   return (
     <div className="flex gap-0.5">
+      <Helmet>
+        <title>{lang === "ar" ? "ملف صاحب العمل | فُرصة" : "Employer Profile | Fursa"}</title>
+      </Helmet>
       {Array.from({ length: max }).map((_, i) => (
         <Star key={i} className={`${sz} ${i < Math.round(value) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}`} />
       ))}

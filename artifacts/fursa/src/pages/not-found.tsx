@@ -1,14 +1,16 @@
+import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle } from "lucide-react";
-import { useT } from "@/lib/i18n";
+import { useT, useLanguageStore } from "@/lib/i18n";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { useUser } from "@clerk/react";
 
 export default function NotFound() {
   const t = useT();
+  const { lang } = useLanguageStore();
   const { user: clerkUser, isLoaded } = useUser();
   const { data: dbUser } = useGetCurrentUser();
   const [, setLocation] = useLocation();
@@ -22,6 +24,9 @@ export default function NotFound() {
 
   return (
     <div className="min-h-[80vh] w-full flex items-center justify-center bg-background px-4">
+      <Helmet>
+        <title>{lang === "ar" ? "الصفحة غير موجودة | فُرصة" : "Page Not Found | Fursa"}</title>
+      </Helmet>
       <Card className="w-full max-w-md border-border/50 shadow-sm">
         <CardContent className="pt-8 pb-6 text-center">
           <div className="flex justify-center mb-4">

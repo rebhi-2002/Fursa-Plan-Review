@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useGetCurrentUser } from "@workspace/api-client-react";
@@ -53,6 +54,9 @@ export default function EmployerSettings() {
 
   return (
     <div className="container py-8 max-w-2xl">
+      <Helmet>
+        <title>{lang === "ar" ? "إعدادات الشركة | فُرصة" : "Company Settings | Fursa"}</title>
+      </Helmet>
       <div className="mb-6 flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/employer">

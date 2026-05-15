@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useListEmployerJobs, useToggleJobOpen } from "@workspace/api-client-react";
@@ -249,6 +250,9 @@ export default function EmployerJobs() {
 
   return (
     <div className="container py-8 max-w-5xl">
+      <Helmet>
+        <title>{lang === "ar" ? "وظائفي | فُرصة" : "My Jobs | Fursa"}</title>
+      </Helmet>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild className="rounded-full hidden sm:flex">

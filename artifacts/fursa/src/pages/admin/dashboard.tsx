@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState, useCallback } from "react";
 import { Link } from "wouter";
 import { useGetAdminDashboard, useGetCurrentUser } from "@workspace/api-client-react";
@@ -96,6 +97,9 @@ export default function AdminDashboard() {
   if (isLoading) {
     return (
       <div className="container py-8 max-w-6xl space-y-6">
+      <Helmet>
+        <title>{lang === "ar" ? "لوحة الإدارة | فُرصة" : "Admin Dashboard | Fursa"}</title>
+      </Helmet>
         <Skeleton className="h-10 w-48 mb-6" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (

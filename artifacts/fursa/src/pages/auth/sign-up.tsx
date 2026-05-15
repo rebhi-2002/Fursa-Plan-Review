@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState, useEffect } from "react";
 import { SignUp, useUser } from "@clerk/react";
 import { Briefcase, User, Building2, ArrowRight } from "lucide-react";
@@ -33,6 +34,9 @@ export default function SignUpPage() {
   if (pendingRole) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-10">
+      <Helmet>
+        <title>{lang === "ar" ? "إنشاء حساب | فُرصة" : "Sign Up | Fursa"}</title>
+      </Helmet>
         <div className="w-full max-w-md">
           <button
             onClick={() => setPendingRole(null)}

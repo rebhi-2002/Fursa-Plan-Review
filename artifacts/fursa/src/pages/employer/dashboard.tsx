@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Link } from "wouter";
 import { useGetEmployerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { useT } from "@/lib/i18n";
@@ -30,6 +31,9 @@ export default function EmployerDashboard() {
   if (isLoading) {
     return (
       <div className="mx-auto w-full py-8 max-w-6xl px-4 sm:px-6 space-y-6">
+      <Helmet>
+        <title>{lang === "ar" ? "لوحة التحكم | فُرصة" : "Employer Dashboard | Fursa"}</title>
+      </Helmet>
         <div className="flex justify-between items-center mb-6">
           <Skeleton className="h-10 w-48" />
           <Skeleton className="h-10 w-32" />

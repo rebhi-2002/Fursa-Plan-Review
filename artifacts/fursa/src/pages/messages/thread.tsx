@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState, useRef, useEffect } from "react";
 import { Link, useRoute } from "wouter";
 import {
@@ -63,6 +64,9 @@ export default function MessageThread() {
 
   return (
     <div className="container py-8 max-w-2xl flex flex-col h-[calc(100vh-8rem)]">
+      <Helmet>
+        <title>{lang === "ar" ? "المحادثة | فُرصة" : "Conversation | Fursa"}</title>
+      </Helmet>
       <div className="mb-4 flex items-center gap-3 shrink-0">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/messages">

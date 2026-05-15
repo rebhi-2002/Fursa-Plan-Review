@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useT, useLanguageStore } from "@/lib/i18n";
@@ -126,6 +127,9 @@ export default function JobAlertsPage() {
 
   return (
     <div className="container py-8 max-w-3xl">
+      <Helmet>
+        <title>{lang === "ar" ? "تنبيهات الوظائف | فُرصة" : "Job Alerts | Fursa"}</title>
+      </Helmet>
       <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">

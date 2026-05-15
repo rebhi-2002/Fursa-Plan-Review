@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { Link, useRoute } from "wouter";
 import {
@@ -253,6 +254,9 @@ export default function EmployerJobDetail() {
   if (isJobLoading) {
     return (
       <div className="container py-8 max-w-5xl space-y-6">
+      <Helmet>
+        <title>{lang === "ar" ? "تعديل الوظيفة | فُرصة" : "Edit Job | Fursa"}</title>
+      </Helmet>
         <Skeleton className="h-10 w-32" />
         <Skeleton className="h-40 w-full" />
       </div>

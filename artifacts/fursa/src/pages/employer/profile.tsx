@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import {
@@ -6,7 +7,7 @@ import {
   getGetCurrentUserQueryKey,
 } from "@workspace/api-client-react";
 import { useUser, useClerk } from "@clerk/react";
-import { useT } from "@/lib/i18n";
+import { useT, useLanguageStore } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -58,6 +59,7 @@ import { useLocation } from "wouter";
 
 export default function EmployerProfile() {
   const t = useT();
+  const { lang } = useLanguageStore();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const { data: user, isLoading } = useGetCurrentUser();
@@ -122,6 +124,9 @@ export default function EmployerProfile() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
+      <Helmet>
+        <title>{lang === "ar" ? "ملف الشركة | فُرصة" : "Company Profile | Fursa"}</title>
+      </Helmet>
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );

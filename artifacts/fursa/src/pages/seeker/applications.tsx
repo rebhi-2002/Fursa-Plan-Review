@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { Link } from "wouter";
 import {
@@ -118,6 +119,9 @@ export default function SeekerApplications() {
 
   return (
     <div className="container py-8 max-w-4xl">
+      <Helmet>
+        <title>{lang === "ar" ? "طلباتي | فُرصة" : "My Applications | Fursa"}</title>
+      </Helmet>
       <div className="mb-6 flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/seeker">

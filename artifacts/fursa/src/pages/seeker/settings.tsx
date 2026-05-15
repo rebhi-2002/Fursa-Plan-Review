@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useGetCurrentUser, useUpdateCurrentUser, getGetCurrentUserQueryKey } from "@workspace/api-client-react";
@@ -43,6 +44,9 @@ export default function SeekerSettings() {
 
   return (
     <div className="container py-8 max-w-2xl">
+      <Helmet>
+        <title>{lang === "ar" ? "الإعدادات | فُرصة" : "Settings | Fursa"}</title>
+      </Helmet>
       <div className="mb-6 flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/seeker">{lang === "ar" ? "←" : <ChevronLeft className="h-5 w-5 rtl:rotate-180" />}</Link>

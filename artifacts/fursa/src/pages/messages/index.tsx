@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Link } from "wouter";
 import { useListMessageThreads } from "@workspace/api-client-react";
 import { useT, useLanguageStore } from "@/lib/i18n";
@@ -18,6 +19,9 @@ export default function MessagesPage() {
 
   return (
     <div className="container py-8 max-w-3xl">
+      <Helmet>
+        <title>{lang === "ar" ? "الرسائل | فُرصة" : "Messages | Fursa"}</title>
+      </Helmet>
       <div className="mb-6 flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/">

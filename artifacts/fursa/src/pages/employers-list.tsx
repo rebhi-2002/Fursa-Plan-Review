@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState } from "react";
 import { Link } from "wouter";
 import { useT, useLanguageStore } from "@/lib/i18n";
@@ -44,6 +45,9 @@ export default function EmployersListPage() {
 
   return (
     <div className="container py-6 sm:py-8 px-4 sm:px-6 max-w-5xl">
+      <Helmet>
+        <title>{lang === "ar" ? "أصحاب العمل | فُرصة" : "Employers | Fursa"}</title>
+      </Helmet>
       <div className="relative rounded-2xl overflow-hidden mb-6 sm:mb-8 h-40 md:h-48">
         <img
           src="/img/seekers-hero.png"

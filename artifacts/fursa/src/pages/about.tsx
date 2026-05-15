@@ -1,5 +1,6 @@
+import { Helmet } from "react-helmet-async";
 import { Link } from "wouter";
-import { useT } from "@/lib/i18n";
+import { useT, useLanguageStore } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -14,6 +15,7 @@ import {
 
 export default function AboutPage() {
   const t = useT();
+  const { lang } = useLanguageStore();
 
   const values = [
     {
@@ -48,6 +50,9 @@ export default function AboutPage() {
 
   return (
     <div className="flex flex-col">
+      <Helmet>
+        <title>{lang === "ar" ? "من نحن | فُرصة" : "About Us | Fursa"}</title>
+      </Helmet>
       <div className="relative overflow-hidden h-64 md:h-80">
         <img
           src="/img/about-hero.png"

@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
@@ -43,6 +44,9 @@ export default function SeekerRecommendations() {
 
   return (
     <div className="container py-8 max-w-5xl">
+      <Helmet>
+        <title>{appLang === "ar" ? "توصيات الوظائف | فُرصة" : "Job Recommendations | Fursa"}</title>
+      </Helmet>
       <div className="mb-6 flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild className="rounded-full">
           <Link href="/seeker">

@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { SignIn } from "@clerk/react";
 import { Briefcase, Search, Building2, ShieldCheck } from "lucide-react";
 import { useT, useLanguageStore } from "@/lib/i18n";
@@ -10,6 +11,9 @@ export default function SignInPage() {
 
   return (
     <div className="flex-1 flex min-h-0">
+      <Helmet>
+        <title>{lang === "ar" ? "تسجيل الدخول | فُرصة" : "Sign In | Fursa"}</title>
+      </Helmet>
       <div className="hidden lg:flex flex-col justify-between w-[420px] shrink-0 bg-primary text-primary-foreground p-10">
         <div className="flex items-center gap-3">
           <div className="bg-white/20 p-2 rounded-lg">

@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useEffect } from "react";
 import { Link } from "wouter";
 import {
@@ -97,6 +98,9 @@ export default function AdminProfile() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
+      <Helmet>
+        <title>{lang === "ar" ? "ملفي | فُرصة" : "My Profile | Fursa"}</title>
+      </Helmet>
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );

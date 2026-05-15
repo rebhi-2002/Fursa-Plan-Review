@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Link, useRoute } from "wouter";
 import { useGetPublicSeekerProfile } from "@workspace/api-client-react";
 import { useT, useLanguageStore } from "@/lib/i18n";
@@ -25,6 +26,9 @@ export default function PublicSeekerProfile() {
   if (isLoading) {
     return (
       <div className="container py-8 max-w-2xl space-y-4">
+      <Helmet>
+        <title>{lang === "ar" ? "الملف الشخصي | فُرصة" : "Profile | Fursa"}</title>
+      </Helmet>
         <Skeleton className="h-10 w-32" />
         <Skeleton className="h-48 w-full rounded-xl" />
       </div>

@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useState, useEffect } from "react";
 import { useT, useLanguageStore } from "@/lib/i18n";
 import { useGetCurrentUser } from "@workspace/api-client-react";
@@ -286,6 +287,9 @@ export default function CvBuilderPage() {
 
   return (
     <>
+      <Helmet>
+        <title>{lang === "ar" ? "منشئ السيرة الذاتية | فُرصة" : "CV Builder | Fursa"}</title>
+      </Helmet>
       {/* ─── Print CSS ─── */}
       <style>{`
         @media print {

@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@clerk/react";
 import { useT, useLanguageStore } from "@/lib/i18n";
@@ -85,6 +86,9 @@ export default function AdminAnalyticsPage() {
   if (isLoading) {
     return (
       <div className="container py-8 max-w-6xl space-y-6">
+      <Helmet>
+        <title>{lang === "ar" ? "تحليلات الإدارة | فُرصة" : "Admin Analytics | Fursa"}</title>
+      </Helmet>
         <Skeleton className="h-10 w-64 mb-8" />
         <div className="grid grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}

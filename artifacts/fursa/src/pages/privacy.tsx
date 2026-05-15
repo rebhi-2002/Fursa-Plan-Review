@@ -1,11 +1,16 @@
-import { useT } from "@/lib/i18n";
+import { Helmet } from "react-helmet-async";
+import { useT, useLanguageStore } from "@/lib/i18n";
 import { Shield } from "lucide-react";
 
 export default function PrivacyPage() {
   const t = useT();
+  const { lang } = useLanguageStore();
 
   return (
     <div className="container max-w-3xl py-12 px-4">
+      <Helmet>
+        <title>{lang === "ar" ? "سياسة الخصوصية | فُرصة" : "Privacy Policy | Fursa"}</title>
+      </Helmet>
       <div className="mb-10 space-y-3">
         <div className="inline-flex items-center gap-2 text-primary font-semibold text-sm">
           <Shield className="h-4 w-4" />

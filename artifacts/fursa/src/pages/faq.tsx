@@ -1,5 +1,6 @@
+import { Helmet } from "react-helmet-async";
 import { Link } from "wouter";
-import { useT } from "@/lib/i18n";
+import { useT, useLanguageStore } from "@/lib/i18n";
 import {
   Accordion,
   AccordionContent,
@@ -22,9 +23,13 @@ const FAQ_KEYS = [
 
 export default function FaqPage() {
   const t = useT();
+  const { lang } = useLanguageStore();
 
   return (
     <div className="container py-12 max-w-3xl">
+      <Helmet>
+        <title>{lang === "ar" ? "الأسئلة الشائعة | فُرصة" : "FAQ | Fursa"}</title>
+      </Helmet>
       <div className="relative rounded-2xl overflow-hidden mb-10 h-44 md:h-52">
         <img
           src="/img/faq-hero.png"

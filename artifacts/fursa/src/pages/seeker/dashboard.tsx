@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet-async";
 import { Link } from "wouter";
 import { useGetSeekerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
 import { OnboardingTour } from "@/components/ui/OnboardingTour";
@@ -57,6 +58,9 @@ export default function SeekerDashboard() {
   if (isLoading) {
     return (
       <div className="mx-auto w-full py-8 max-w-5xl px-4 sm:px-6 space-y-6">
+      <Helmet>
+        <title>{lang === "ar" ? "لوحتي | فُرصة" : "My Dashboard | Fursa"}</title>
+      </Helmet>
         <h1 className="text-3xl font-bold mb-6">
           {t("seeker.dashboard.title")}
         </h1>
