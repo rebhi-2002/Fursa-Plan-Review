@@ -1,0 +1,28 @@
+User-agent: *
+Allow: /
+
+# Public pages
+Allow: /jobs
+Allow: /employers
+Allow: /about
+Allow: /contact
+Allow: /faq
+Allow: /docs
+Allow: /changelog
+Allow: /success-stories
+Allow: /privacy
+Allow: /terms
+Allow: /for-employers
+
+# Disallow private dashboard routes
+Disallow: /dashboard
+Disallow: /seeker/
+Disallow: /employer/
+Disallow: /admin/
+Disallow: /messages/
+Disallow: /notifications
+Disallow: /onboarding
+Disallow: /sign-in
+Disallow: /sign-up
+
+Sitemap: https://fursa.replit.app/sitemap.xml
