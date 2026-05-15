@@ -60,9 +60,8 @@ import AdminAnalytics from "@/pages/admin/analytics";
 import SeekerActivity from "@/pages/seeker/activity";
 import MessagesPage from "@/pages/messages/index";
 import MessageThread from "@/pages/messages/thread";
-import PublicSeekerProfile from "@/pages/seekers/profile";
+import PublicSeekerProfile from "@/pages/profiles/profile";
 import DocsPage from "@/pages/docs";
-import HowItWorksPage from "@/pages/how-it-works";
 import SuccessStoriesPage from "@/pages/success-stories";
 import ForEmployersPage from "@/pages/for-employers";
 import HelpCenterPage from "@/pages/help-center";
@@ -296,7 +295,9 @@ function Router() {
             <Route path="/docs" component={DocsPage} />
 
             {/* Platform Info Pages */}
-            <Route path="/how-it-works" component={HowItWorksPage} />
+            <Route path="/how-it-works">
+              <Redirect to="/docs" />
+            </Route>
             <Route path="/success-stories" component={SuccessStoriesPage} />
             <Route path="/for-employers" component={ForEmployersPage} />
             <Route path="/help" component={HelpCenterPage} />

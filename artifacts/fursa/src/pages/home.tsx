@@ -130,7 +130,7 @@ export default function Home() {
             src="/img/home-hero-person.png"
             alt=""
             aria-hidden="true"
-            className="w-full h-full object-cover opacity-[0.07]"
+            className="w-full h-full object-cover opacity-[0.18]"
           />
         </div>
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">

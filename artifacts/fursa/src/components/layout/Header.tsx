@@ -49,7 +49,6 @@ import {
   Settings,
   Star,
   LifeBuoy,
-  Sparkles,
 } from "lucide-react";
 import { useGetCurrentUser } from "@workspace/api-client-react";
 import { NotificationBell } from "./NotificationBell";
@@ -160,9 +159,6 @@ export function Header() {
       </Link>
       <Link href="/employers" onClick={closeMobile} className={mobileLinkClass("/employers")}>
         <Building2 className="h-5 w-5" /> {t("nav.employers") || (lang === "ar" ? "أصحاب العمل" : "Employers")}
-      </Link>
-      <Link href="/how-it-works" onClick={closeMobile} className={mobileLinkClass("/how-it-works")}>
-        <Sparkles className="h-5 w-5" /> {lang === "ar" ? "كيف يعمل؟" : "How It Works"}
       </Link>
       <Link href="/docs" onClick={closeMobile} className={mobileLinkClass("/docs")}>
         <FileText className="h-5 w-5" /> {lang === "ar" ? "دليل الاستخدام" : "User Guide"}
@@ -336,7 +332,7 @@ export function Header() {
             <Link href="/" className={navLinkClass("/")}>{t("nav.home")}</Link>
             <Link href="/jobs" className={navLinkClass("/jobs")}>{t("nav.jobs")}</Link>
             <Link href="/employers" className={navLinkClass("/employers")}>{t("nav.employers") || (lang === "ar" ? "أصحاب العمل" : "Employers")}</Link>
-            <Link href="/how-it-works" className={navLinkClass("/how-it-works")}>{lang === "ar" ? "كيف يعمل؟" : "How It Works"}</Link>
+            <Link href="/docs" className={navLinkClass("/docs")}>{lang === "ar" ? "دليل الاستخدام" : "User Guide"}</Link>
           </nav>
         </div>
 

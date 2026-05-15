@@ -45,7 +45,20 @@ export async function loadCurrentUser(
     .limit(1);
 
   if (existing[0]) {
-    req.currentUser = existing[0];
+    let user = existing[0];
+    if (
+      !user.onboarded &&
+      (user.role === "seeker" || user.role === "employer") &&
+      user.name
+    ) {
+      const fixed = await db
+        .update(usersTable)
+        .set({ onboarded: true })
+        .where(eq(usersTable.id, user.id))
+        .returning();
+      user = fixed[0] ?? user;
+    }
+    req.currentUser = user;
     next();
     return;
   }
