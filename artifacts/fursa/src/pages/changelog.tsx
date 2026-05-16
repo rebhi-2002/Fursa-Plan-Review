@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useLanguageStore } from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +18,8 @@ import {
   Rocket,
   Globe,
   CheckCircle2,
+  Search,
+  X,
 } from "lucide-react";
 
 type Release = {
@@ -215,6 +219,27 @@ export default function ChangelogPage() {
   const isAr = lang === "ar";
   const dir = isAr ? "rtl" : "ltr";
 
+  const [activeFilter, setActiveFilter] = useState<"all" | Release["tag"]>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredReleases = releases.filter((rel) => {
+    const matchesFilter = activeFilter === "all" || rel.tag === activeFilter;
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !query ||
+      (isAr ? rel.titleAr : rel.titleEn).toLowerCase().includes(query) ||
+      (isAr ? rel.descAr : rel.descEn).toLowerCase().includes(query) ||
+      (isAr ? rel.featuresAr : rel.featuresEn).some((f) => f.toLowerCase().includes(query));
+    return matchesFilter && matchesSearch;
+  });
+
+  const filterOptions = [
+    { key: "all" as const, labelAr: "الكل", labelEn: "All", dot: null },
+    { key: "new" as const, labelAr: "جديد", labelEn: "New", dot: "bg-emerald-500" },
+    { key: "improvement" as const, labelAr: "تحسين", labelEn: "Improvement", dot: "bg-blue-500" },
+    { key: "fix" as const, labelAr: "إصلاح", labelEn: "Fix", dot: "bg-orange-500" },
+  ];
+
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     return d.toLocaleDateString(isAr ? "ar-EG" : "en-US", {
@@ -259,14 +284,84 @@ export default function ChangelogPage() {
         </div>
       </div>
 
+      {/* Search + Filter */}
+      <div className="container max-w-3xl pt-10 pb-0 px-4">
+        {/* Search input */}
+        <div className="relative mb-4">
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
+            type="text"
+            placeholder={isAr ? "ابحث في التحديثات…" : "Search updates…"}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="ps-10 pe-10"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Clear search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Filter buttons — also serve as colour legend */}
+        <div className="flex flex-wrap items-center gap-2">
+          {filterOptions.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                activeFilter === f.key
+                  ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                  : "bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground"
+              }`}
+            >
+              {f.dot && (
+                <span className={`inline-block w-2 h-2 rounded-full ${f.dot} shrink-0`} />
+              )}
+              {isAr ? f.labelAr : f.labelEn}
+            </button>
+          ))}
+          {(searchQuery || activeFilter !== "all") && (
+            <span className="text-xs text-muted-foreground ms-auto">
+              {isAr
+                ? `${filteredReleases.length} نتيجة`
+                : `${filteredReleases.length} result${filteredReleases.length !== 1 ? "s" : ""}`}
+            </span>
+          )}
+        </div>
+      </div>
+
       {/* Timeline */}
-      <div className="container max-w-3xl py-14 px-4">
+      <div className="container max-w-3xl pt-8 pb-14 px-4">
+        {filteredReleases.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Search className="h-10 w-10 text-muted-foreground/30 mb-4" />
+            <p className="font-semibold text-muted-foreground">
+              {isAr ? "لا توجد نتائج" : "No results found"}
+            </p>
+            <p className="text-sm text-muted-foreground/70 mt-1">
+              {isAr ? "جرّب كلمة بحث مختلفة أو اختر تصنيفاً آخر" : "Try a different keyword or filter"}
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-4 text-primary"
+              onClick={() => { setSearchQuery(""); setActiveFilter("all"); }}
+            >
+              {isAr ? "إعادة ضبط" : "Reset filters"}
+            </Button>
+          </div>
+        ) : (
         <div className="relative">
           {/* Vertical line */}
           <div className="absolute start-[19px] top-0 bottom-0 w-px bg-border/60" />
 
           <div className="space-y-12">
-            {releases.map((rel, idx) => {
+            {filteredReleases.map((rel, idx) => {
               const Icon = rel.icon;
               return (
                 <div key={idx} className="relative flex gap-5">
@@ -312,6 +407,7 @@ export default function ChangelogPage() {
             })}
           </div>
         </div>
+        )}
 
         {/* Footer CTA */}
         <div className="mt-16 rounded-2xl bg-gradient-to-br from-primary/5 to-indigo-50/50 dark:to-indigo-950/20 border border-primary/10 p-8 text-center">
