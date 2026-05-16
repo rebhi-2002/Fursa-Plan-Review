@@ -25,7 +25,7 @@ export default function PrivacyPage() {
               <Shield className="h-4 w-4" />
               {t("privacy.label")}
             </div>
-            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("privacy.title")}</h1>
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{t("privacy.title")}</h1>
             <p className="text-white/80 text-sm">{t("privacy.lastUpdated")}</p>
           </div>
         </div>

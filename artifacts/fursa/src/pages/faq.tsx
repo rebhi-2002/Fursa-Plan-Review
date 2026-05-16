@@ -43,7 +43,7 @@ export default function FaqPage() {
             <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-white/20 mb-3">
               <HelpCircle className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("faq.title")}</h1>
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{t("faq.title")}</h1>
             <p className="text-white/80 text-sm md:text-base max-w-md">{t("faq.subtitle")}</p>
           </div>
         </div>

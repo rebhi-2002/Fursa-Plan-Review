@@ -247,7 +247,7 @@ export default function ChangelogPage() {
               <Sparkles className="h-4 w-4" />
               {isAr ? "آخر التحديثات" : "Latest Updates"}
             </div>
-            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">
               {isAr ? "ما الجديد في فُرصة؟" : "What's New in Fursa?"}
             </h1>
             <p className="text-white/80 text-sm md:text-base max-w-md">

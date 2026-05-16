@@ -134,7 +134,7 @@ export default function SuccessStoriesPage() {
             <Badge className="mb-3 bg-white/20 text-white border-white/30 text-sm px-4 py-1">
               {lang === "ar" ? "قصص حقيقية من غزة" : "Real Stories from Gaza"}
             </Badge>
-            <h1 className="text-2xl md:text-4xl font-extrabold text-white mb-2">{title}</h1>
+            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2">{title}</h1>
             <p className="text-base text-white/80 max-w-xl">{desc}</p>
           </div>
         </div>

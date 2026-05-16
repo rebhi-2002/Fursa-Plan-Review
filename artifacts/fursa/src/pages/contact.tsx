@@ -76,7 +76,7 @@ export default function ContactPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-16">
           <div className="max-w-5xl mx-auto w-full">
-            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("contact.title")}</h1>
+            <h1 className="text-3xl md:text-5xl font-bold text-white mb-2">{t("contact.title")}</h1>
             <p className="text-white/80 text-sm md:text-base max-w-md">{t("contact.subtitle")}</p>
           </div>
         </div>

@@ -196,7 +196,7 @@ export default function DocsPage() {
             <Badge className="mb-3 bg-white/20 text-white border-white/30 text-xs px-3 py-1 w-fit">
               {isAr ? "دليل المستخدم" : "User Guide"}
             </Badge>
-            <h1 className="text-2xl md:text-4xl font-extrabold text-white mb-2">
+            <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2">
               {isAr ? "كيف تستخدم منصة فُرصة؟" : "How to use Fursa?"}
             </h1>
             <p className="text-white/80 text-sm md:text-base max-w-md">
