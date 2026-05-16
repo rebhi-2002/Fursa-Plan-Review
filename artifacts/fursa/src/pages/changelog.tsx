@@ -235,7 +235,7 @@ export default function ChangelogPage() {
 
   const filterOptions = [
     { key: "all" as const, labelAr: "الكل", labelEn: "All", dot: null },
-    { key: "new" as const, labelAr: "جديد", labelEn: "New", dot: "bg-emerald-500" },
+    { key: "new" as const, labelAr: "جديد", labelEn: "New Feature", dot: "bg-emerald-500" },
     { key: "improvement" as const, labelAr: "تحسين", labelEn: "Improvement", dot: "bg-blue-500" },
     { key: "fix" as const, labelAr: "إصلاح", labelEn: "Fix", dot: "bg-orange-500" },
   ];
