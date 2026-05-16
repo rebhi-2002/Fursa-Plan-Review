@@ -234,35 +234,30 @@ export default function ChangelogPage() {
         />
       </Helmet>
 
-      {/* Hero */}
-      <section className="py-16 sm:py-20 bg-gradient-to-b from-primary/5 to-background text-center px-4 border-b border-border/40">
-        <div className="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-1.5 text-sm font-medium mb-5">
-          <Sparkles className="h-4 w-4" />
-          {isAr ? "آخر التحديثات" : "Latest Updates"}
+      {/* Full-width hero */}
+      <div className="relative overflow-hidden h-56 md:h-72">
+        <img
+          src="/img/changelog-hero.png"
+          alt={isAr ? "ما الجديد في فُرصة" : "What's New in Fursa"}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-16">
+          <div className="max-w-3xl mx-auto w-full">
+            <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-4 w-fit text-white">
+              <Sparkles className="h-4 w-4" />
+              {isAr ? "آخر التحديثات" : "Latest Updates"}
+            </div>
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">
+              {isAr ? "ما الجديد في فُرصة؟" : "What's New in Fursa?"}
+            </h1>
+            <p className="text-white/80 text-sm md:text-base max-w-md">
+              {isAr
+                ? "نتابع تطوير المنصة باستمرار. هنا آخر ما أضفناه وحسّنّاه."
+                : "We continuously improve the platform. Here's what we've added and improved lately."}
+            </p>
+          </div>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight mb-4">
-          {isAr ? "ما الجديد في فُرصة؟" : "What's New in Fursa?"}
-        </h1>
-        <p className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto mb-8">
-          {isAr
-            ? "نتابع تطوير المنصة باستمرار. هنا آخر ما أضفناه وحسّنّاه."
-            : "We continuously improve the platform. Here's what we've added and improved lately."}
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            {isAr ? "جديد" : "New feature"}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-blue-500" />
-            {isAr ? "تحسين" : "Improvement"}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-2.5 h-2.5 rounded-full bg-orange-500" />
-            {isAr ? "إصلاح" : "Fix"}
-          </span>
-        </div>
-      </section>
+      </div>
 
       {/* Timeline */}
       <div className="container max-w-3xl py-14 px-4">

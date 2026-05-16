@@ -7,18 +7,32 @@ export default function PrivacyPage() {
   const { lang } = useLanguageStore();
 
   return (
-    <div className="container max-w-3xl py-12 px-4">
+    <div className="flex flex-col">
       <Helmet>
         <title>{lang === "ar" ? "سياسة الخصوصية | فُرصة" : "Privacy Policy | Fursa"}</title>
       </Helmet>
-      <div className="mb-10 space-y-3">
-        <div className="inline-flex items-center gap-2 text-primary font-semibold text-sm">
-          <Shield className="h-4 w-4" />
-          {t("privacy.label")}
+
+      {/* Full-width hero */}
+      <div className="relative overflow-hidden h-56 md:h-72">
+        <img
+          src="/img/privacy-hero.png"
+          alt={t("privacy.title")}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/60 to-transparent flex flex-col justify-center px-8 md:px-16">
+          <div className="max-w-3xl mx-auto w-full">
+            <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-4 w-fit text-white">
+              <Shield className="h-4 w-4" />
+              {t("privacy.label")}
+            </div>
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-2">{t("privacy.title")}</h1>
+            <p className="text-white/80 text-sm">{t("privacy.lastUpdated")}</p>
+          </div>
         </div>
-        <h1 className="text-4xl font-bold">{t("privacy.title")}</h1>
-        <p className="text-muted-foreground">{t("privacy.lastUpdated")}</p>
       </div>
+
+      {/* Content */}
+      <div className="container max-w-3xl py-12 px-4">
 
       <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8 text-base leading-relaxed">
         <section className="space-y-3">
@@ -56,6 +70,7 @@ export default function PrivacyPage() {
           <h2 className="text-xl font-bold">{t("privacy.s6Title")}</h2>
           <p className="text-muted-foreground">{t("privacy.s6Body")}</p>
         </section>
+      </div>
       </div>
     </div>
   );

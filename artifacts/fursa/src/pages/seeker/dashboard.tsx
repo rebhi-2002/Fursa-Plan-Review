@@ -290,14 +290,14 @@ export default function SeekerDashboard() {
                 >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start gap-3">
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <Link
                           href={`/jobs/${app.jobId}`}
-                          className="font-semibold hover:text-primary transition-colors"
+                          className="font-semibold hover:text-primary transition-colors truncate block"
                         >
                           {app.jobTitle}
                         </Link>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm text-muted-foreground mt-1 truncate">
                           {app.employerName}
                         </p>
                         <p className="text-xs text-muted-foreground mt-2">
@@ -307,7 +307,7 @@ export default function SeekerDashboard() {
                           })}
                         </p>
                       </div>
-                      <div>{getStatusBadge(app.status)}</div>
+                      <div className="shrink-0">{getStatusBadge(app.status)}</div>
                     </div>
                   </CardContent>
                 </Card>

@@ -66,6 +66,24 @@ uri = "file://artifacts/fursa/public/img/seekers-hero.png"
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "lVn-kj_3o_zlWcr3dp3Ro"
+uri = "file://artifacts/fursa/public/img/changelog-hero.png"
+type = "image"
+title = "changelog hero"
+
+[[generated]]
+id = "1Z7kKJmjP0jF4yJVND9as"
+uri = "file://artifacts/fursa/public/img/privacy-hero.png"
+type = "image"
+title = "privacy hero"
+
+[[generated]]
+id = "ZgzFvlt6_jMQwswezsfbp"
+uri = "file://artifacts/fursa/public/img/terms-hero.png"
+type = "image"
+title = "terms hero"
+
 [[outputs]]
 id = "RRJFZVPUnZZAGEvwPT6pJ"
 uri = "file://DEPLOYMENT.md"

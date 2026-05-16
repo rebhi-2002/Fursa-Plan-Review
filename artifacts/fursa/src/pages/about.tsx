@@ -53,7 +53,7 @@ export default function AboutPage() {
       <Helmet>
         <title>{lang === "ar" ? "من نحن | فُرصة" : "About Us | Fursa"}</title>
       </Helmet>
-      <div className="relative overflow-hidden h-64 md:h-80">
+      <div className="relative overflow-hidden h-56 md:h-72">
         <img
           src="/img/about-hero.png"
           alt={t("about.heroTitle")}
