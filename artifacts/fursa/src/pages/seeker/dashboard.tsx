@@ -1,6 +1,9 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "wouter";
-import { useGetSeekerDashboard, useGetCurrentUser } from "@workspace/api-client-react";
+import {
+  useGetSeekerDashboard,
+  useGetCurrentUser,
+} from "@workspace/api-client-react";
 import { OnboardingTour } from "@/components/ui/OnboardingTour";
 import { InvitationsPanel } from "@/components/seeker/InvitationsPanel";
 import { useT } from "@/lib/i18n";
@@ -45,11 +48,20 @@ export default function SeekerDashboard() {
   const { data: currentUser } = useGetCurrentUser();
   const firstName = currentUser?.name?.split(" ")[0] || "";
 
-  type StatMonth = { month: string; labelAr: string; labelEn: string; submitted: number; accepted: number; rejected: number };
+  type StatMonth = {
+    month: string;
+    labelAr: string;
+    labelEn: string;
+    submitted: number;
+    accepted: number;
+    rejected: number;
+  };
   const { data: appStats } = useQuery<StatMonth[]>({
     queryKey: ["application-stats"],
     queryFn: async () => {
-      const res = await fetch("/api/me/application-stats", { credentials: "include" });
+      const res = await fetch("/api/me/application-stats", {
+        credentials: "include",
+      });
       if (!res.ok) return [];
       return res.json() as Promise<StatMonth[]>;
     },
@@ -58,9 +70,11 @@ export default function SeekerDashboard() {
   if (isLoading) {
     return (
       <div className="mx-auto w-full py-8 max-w-5xl px-4 sm:px-6 space-y-6">
-      <Helmet>
-        <title>{lang === "ar" ? "لوحتي | فُرصة" : "My Dashboard | Fursa"}</title>
-      </Helmet>
+        <Helmet>
+          <title>
+            {lang === "ar" ? "لوحتي | فُرصة" : "My Dashboard | Fursa"}
+          </title>
+        </Helmet>
         <h1 className="text-3xl font-bold mb-6">
           {t("seeker.dashboard.title")}
         </h1>
@@ -144,7 +158,9 @@ export default function SeekerDashboard() {
         <div className="min-w-0">
           <h1 className="text-2xl sm:text-2xl sm:text-3xl font-bold tracking-tight truncate">
             {firstName
-              ? (lang === "ar" ? `مرحباً، ${firstName}!` : `Welcome, ${firstName}!`)
+              ? lang === "ar"
+                ? `مرحباً، ${firstName}!`
+                : `Welcome, ${firstName}!`
               : t("seeker.dashboard.title")}
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
@@ -152,25 +168,45 @@ export default function SeekerDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap shrink-0">
-          <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs h-8"
+          >
             <Link href="/seeker/recommendations">
               <Sparkles className="h-3.5 w-3.5 text-amber-500" />
               {lang === "ar" ? "مقترح لك" : "Recommended"}
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs h-8"
+          >
             <Link href="/seeker/alerts">
               <Bell className="h-3.5 w-3.5" />
               {lang === "ar" ? "تنبيهاتي" : "Alerts"}
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs h-8"
+          >
             <Link href="/seeker/cv-builder">
               <FileCheck className="h-3.5 w-3.5" />
               {lang === "ar" ? "بناء السيرة" : "CV Builder"}
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="gap-1.5 text-xs h-8">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs h-8"
+          >
             <Link href="/seeker/profile">
               {t("seeker.dashboard.editProfile")}
             </Link>
@@ -198,7 +234,9 @@ export default function SeekerDashboard() {
                   {stat.title}
                 </p>
                 <div className={`p-1.5 sm:p-2 rounded-lg shrink-0 ${stat.bg}`}>
-                  <stat.icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${stat.color}`} />
+                  <stat.icon
+                    className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${stat.color}`}
+                  />
                 </div>
               </div>
               <div className="text-2xl sm:text-3xl font-bold">{stat.value}</div>
@@ -208,69 +246,108 @@ export default function SeekerDashboard() {
       </div>
 
       {appStats && appStats.some((m) => m.submitted > 0) && (
-        <Card className="mb-8 border-border/50 shadow-sm">
+        <Card className="mb-8 border-border/50 shadow-sm overflow-hidden">
           <CardHeader className="pb-2">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">{t("seeker.dashboard.chartTitle")}</CardTitle>
+              <CardTitle className="text-lg">
+                {t("seeker.dashboard.chartTitle")}
+              </CardTitle>
             </div>
-            <p className="text-sm text-muted-foreground">{t("seeker.dashboard.chartSubtitle")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("seeker.dashboard.chartSubtitle")}
+            </p>
           </CardHeader>
           <CardContent className="pt-2 pb-4">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart
-                data={appStats.map((m) => ({
-                  ...m,
-                  label: lang === "ar" ? m.labelAr : m.labelEn,
-                }))}
-                margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
-                barSize={16}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                  axisLine={false}
-                  tickLine={false}
-                  reversed={lang === "ar"}
-                />
-                <YAxis
-                  allowDecimals={false}
-                  tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--popover))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    fontSize: 12,
-                  }}
-                  labelStyle={{ color: "hsl(var(--foreground))", fontWeight: 600 }}
-                />
-                <Legend
-                  iconType="circle"
-                  iconSize={8}
-                  wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
-                  formatter={(value) => {
-                    if (value === "submitted") return t("seeker.dashboard.chartSubmitted");
-                    if (value === "accepted") return t("seeker.dashboard.chartAccepted");
-                    if (value === "rejected") return t("seeker.dashboard.chartRejected");
-                    return value;
-                  }}
-                />
-                <Bar dataKey="submitted" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="accepted" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="rejected" fill="#ef4444" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="w-full h-[220px]" style={{ minWidth: 0 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={appStats.map((m) => ({
+                    ...m,
+                    label: lang === "ar" ? m.labelAr : m.labelEn,
+                  }))}
+                  margin={
+                    lang === "ar"
+                      ? { top: 4, right: -15, left: 10, bottom: 0 }
+                      : { top: 4, right: 10, left: -15, bottom: 0 }
+                  }
+                  barSize={16}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border))"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="label"
+                    tick={{
+                      fontSize: 12,
+                      fill: "hsl(var(--muted-foreground))",
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                    reversed={lang === "ar"}
+                  />
+                  <YAxis
+                    allowDecimals={false}
+                    tick={{
+                      fontSize: 11,
+                      fill: "hsl(var(--muted-foreground))",
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                    orientation={lang === "ar" ? "right" : "left"}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "hsl(var(--popover))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px",
+                      fontSize: 12,
+                    }}
+                    labelStyle={{
+                      color: "hsl(var(--foreground))",
+                      fontWeight: 600,
+                    }}
+                  />
+                  <Legend
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
+                    formatter={(value) => {
+                      if (value === "submitted")
+                        return t("seeker.dashboard.chartSubmitted");
+                      if (value === "accepted")
+                        return t("seeker.dashboard.chartAccepted");
+                      if (value === "rejected")
+                        return t("seeker.dashboard.chartRejected");
+                      return value;
+                    }}
+                  />
+                  <Bar
+                    dataKey="submitted"
+                    fill="hsl(var(--primary))"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="accepted"
+                    fill="#22c55e"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar
+                    dataKey="rejected"
+                    fill="#ef4444"
+                    radius={[4, 4, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       )}
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-4">
+      <div className="grid md:grid-cols-2 gap-6 min-w-0 w-full">
+        <div className="space-y-4 min-w-0">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">
               {t("seeker.dashboard.recentApplications")}
@@ -286,10 +363,10 @@ export default function SeekerDashboard() {
               {dashboard.recentApplications.map((app: any) => (
                 <Card
                   key={app.id}
-                  className="border-border/50 hover:shadow-sm transition-shadow"
+                  className="border-border/50 hover:shadow-sm transition-shadow w-full"
                 >
                   <CardContent className="p-4">
-                    <div className="flex justify-between items-start gap-3">
+                    <div className="flex justify-between items-center gap-4 w-full">
                       <div className="flex-1 min-w-0">
                         <Link
                           href={`/jobs/${app.jobId}`}
@@ -307,14 +384,16 @@ export default function SeekerDashboard() {
                           })}
                         </p>
                       </div>
-                      <div className="shrink-0">{getStatusBadge(app.status)}</div>
+                      <div className="shrink-0 flex items-center">
+                        {getStatusBadge(app.status)}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <Card className="border-dashed bg-muted/20">
+            <Card className="border-dashed bg-muted/20 w-full">
               <CardContent className="p-8 text-center flex flex-col items-center">
                 <FileText className="h-10 w-10 text-muted-foreground opacity-20 mb-3" />
                 <p className="font-medium text-muted-foreground">
@@ -328,7 +407,7 @@ export default function SeekerDashboard() {
           )}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 min-w-0">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold">
               {t("seeker.dashboard.recommendedJobs")}
@@ -346,10 +425,10 @@ export default function SeekerDashboard() {
               {dashboard.recommendedJobs.map((job: any) => (
                 <Card
                   key={job.id}
-                  className="border-border/50 hover:shadow-sm transition-shadow"
+                  className="border-border/50 hover:shadow-sm transition-shadow w-full"
                 >
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex justify-between items-center gap-4 w-full">
                       <div className="flex-1 min-w-0">
                         <Link
                           href={`/jobs/${job.id}`}
@@ -358,28 +437,34 @@ export default function SeekerDashboard() {
                           {job.title}
                         </Link>
                         <div className="flex items-center gap-1.5 flex-wrap mt-1 text-sm text-muted-foreground min-w-0">
-                          <span className="truncate max-w-[140px]">{job.employerName}</span>
+                          <span className="truncate max-w-[140px]">
+                            {job.employerName}
+                          </span>
                           <span className="shrink-0">•</span>
-                          <span className="text-xs px-2 py-0.5 bg-muted rounded-full shrink-0">
+                          <span className="text-xs px-2 py-0.5 bg-muted rounded-full shrink-0 truncate max-w-[100px]">
                             {t(`jobs.type.${job.type}`)}
                           </span>
                         </div>
                       </div>
-                      <Button
-                        asChild
-                        size="sm"
-                        variant="ghost"
-                        className="shrink-0 bg-primary/5 text-primary hover:bg-primary/10 mt-0.5"
-                      >
-                        <Link href={`/jobs/${job.id}`}>{t("jobs.details")}</Link>
-                      </Button>
+                      <div className="shrink-0 flex items-center">
+                        <Button
+                          asChild
+                          size="sm"
+                          variant="ghost"
+                          className="bg-primary/5 text-primary hover:bg-primary/10 m-0"
+                        >
+                          <Link href={`/jobs/${job.id}`}>
+                            {t("jobs.details")}
+                          </Link>
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <Card className="border-dashed bg-muted/20">
+            <Card className="border-dashed bg-muted/20 w-full">
               <CardContent className="p-8 text-center flex flex-col items-center">
                 <Briefcase className="h-10 w-10 text-muted-foreground opacity-20 mb-3" />
                 <p className="font-medium text-muted-foreground">
